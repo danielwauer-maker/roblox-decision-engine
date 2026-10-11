@@ -1,1 +1,52 @@
-# roblox-decision-engine
+# Roblox Decision Engine
+
+AI Product & Growth Analyst for Roblox studios.
+
+**Product thesis:** Roblox already explains what happened. Roblox Decision Engine helps a studio decide what to do next.
+
+The SaaS sits above Roblox analytics, validates KPI changes deterministically, compares segments and baselines, creates an evidence bundle, and only then asks an AI layer to explain the finding and propose the next experiment.
+
+## Current delivery status
+
+- R0 Product foundation — DONE
+- R1 Validation experience — IN PROGRESS / product flow implemented in portfolio validation shell
+- R2 SaaS foundation — IN PROGRESS
+- R3 Roblox data connection — PLANNED
+- R4 Decision Engine v1 — PLANNED
+- R5 AI Product Analyst — PLANNED
+- R6 Experiment Copilot — PLANNED
+- R7 Pilot readiness — PLANNED
+- R8 Commercial readiness — PLANNED
+- R9 Security & privacy — PLANNED
+- R10 Reliability — PLANNED
+- R11 Go-Live — PLANNED
+- R12 Portfolio closure — PLANNED
+
+## V1 surfaces
+
+1. Landing / Early Access
+2. Connect Roblox
+3. Today's Priorities
+4. Investigation / Evidence
+5. Experiment Copilot
+6. Weekly Growth Brief
+7. Minimal Product Health
+
+## Architecture
+
+Roblox Analytics / Open Cloud → Query Adapter → Metric Normalization → PostgreSQL History → Deterministic Decision Engine → Evidence Bundle → AI Product Analyst → Priorities / Experiments / Weekly Brief.
+
+## Repository layout
+
+- `apps/web` — Next.js / TypeScript frontend
+- `apps/api` — FastAPI backend
+- `docs` — product, architecture, sprint and decision documentation
+- `.github/workflows` — CI
+
+## Core product rule
+
+The LLM never owns authoritative metric calculation. Unsupported causes or numbers must not be invented. Recommendations are generated only from structured evidence; insufficient evidence produces an abstention.
+
+## Portfolio
+
+The project is tracked from day zero in `danielwauer-maker/enterprise-data-ai-portfolio`, including sprint/readiness status and validation evidence.

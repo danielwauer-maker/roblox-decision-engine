@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
@@ -8,6 +10,7 @@ from app.models import MetricObservationRecord
 from app.services.roblox_metrics import get_connection_status, sync_default_metrics, sync_metric
 
 router = APIRouter(prefix="/v1/roblox", tags=["roblox"])
+SessionDep = Annotated[Session, Depends(get_session)]
 
 
 def get_session():
@@ -31,9 +34,9 @@ def connection() -> dict[str, object]:
 
 @router.post("/sync")
 async def sync(
+    session: SessionDep,
     metric: str | None = Query(default=None),
     days: int = Query(default=30, ge=1, le=365),
-    session: Session = Depends(get_session),
 ) -> dict[str, object]:
     try:
         if metric:
@@ -45,9 +48,9 @@ async def sync(
 
 @router.get("/observations")
 def observations(
+    session: SessionDep,
     metric: str | None = Query(default=None),
     limit: int = Query(default=100, ge=1, le=1000),
-    session: Session = Depends(get_session),
 ) -> dict[str, object]:
     query = select(MetricObservationRecord)
     if metric:

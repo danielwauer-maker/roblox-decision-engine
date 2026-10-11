@@ -10,8 +10,8 @@ The SaaS sits above Roblox analytics, validates KPI changes deterministically, c
 
 - R0 Product foundation — DONE
 - R1 Validation experience — IN PROGRESS / product flow implemented in portfolio validation shell
-- R2 SaaS foundation — IN PROGRESS
-- R3 Roblox data connection — PLANNED
+- R2 SaaS foundation — DONE
+- R3 Roblox data connection — IN PROGRESS / adapter + contracts + tests implemented; first live query requires a Universe ID and read-only API key
 - R4 Decision Engine v1 — PLANNED
 - R5 AI Product Analyst — PLANNED
 - R6 Experiment Copilot — PLANNED
@@ -41,6 +41,15 @@ Stop with:
 
 ```bash
 make down
+```
+
+## Roblox Analytics connection
+
+The current adapter uses Roblox Open Cloud Analytics Query API with a Universe-scoped API key. Configure only these local environment values; never commit the real key:
+
+```text
+ROBLOX_UNIVERSE_ID=<your universe id>
+ROBLOX_API_KEY=<read-only key with universe.analytics:read>
 ```
 
 ## V1 surfaces

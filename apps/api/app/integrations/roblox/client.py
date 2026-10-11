@@ -62,8 +62,18 @@ class RobloxAnalyticsClient:
             raise RobloxAnalyticsError(
                 f"Roblox analytics HTTP {response.status_code}: authentication/resource failure"
             )
+
+        try:
+            operation = MetricOperation.model_validate(response.json())
+        except Exception:
+            response.raise_for_status()
+            raise
+
+        if operation.error is not None:
+            return operation
+
         response.raise_for_status()
-        return MetricOperation.model_validate(response.json())
+        return operation
 
     @staticmethod
     def _unwrap(operation: MetricOperation) -> MetricResponse:

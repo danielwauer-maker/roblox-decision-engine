@@ -10,7 +10,6 @@ from app.models import MetricObservationRecord
 from app.services.roblox_metrics import get_connection_status, sync_default_metrics, sync_metric
 
 router = APIRouter(prefix="/v1/roblox", tags=["roblox"])
-SessionDep = Annotated[Session, Depends(get_session)]
 
 
 def get_session():
@@ -19,6 +18,9 @@ def get_session():
         yield session
     finally:
         session.close()
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
 
 
 @router.get("/connection")

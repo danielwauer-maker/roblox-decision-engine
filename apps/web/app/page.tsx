@@ -14,6 +14,7 @@ export default function Home() {
         <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 34 }}>
           <a href="#early-access" style={{ background: '#67e8f9', color: '#07101f', padding: '14px 20px', borderRadius: 12, fontWeight: 700, textDecoration: 'none' }}>Join Early Access</a>
           <a href="#workflow" style={{ border: '1px solid rgba(255,255,255,.14)', color: '#eef7ff', padding: '14px 20px', borderRadius: 12, textDecoration: 'none' }}>See how it works</a>
+          <a href="/portfolio" style={{ border: '1px solid rgba(103,232,249,.24)', color: '#a5f3fc', padding: '14px 20px', borderRadius: 12, textDecoration: 'none' }}>Portfolio / Build Log</a>
         </div>
       </section>
 

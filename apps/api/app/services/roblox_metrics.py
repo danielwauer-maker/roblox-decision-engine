@@ -12,7 +12,12 @@ from app.integrations.roblox.models import Granularity, MetricQuery
 from app.models import MetricObservationRecord
 
 
-DEFAULT_METRICS = ("DailyActiveUsers", "Revenue", "D1Retention", "D7Retention")
+DEFAULT_METRICS = (
+    "DailyActiveUsers",
+    "DailyRevenue",
+    "ForwardD1Retention",
+    "ForwardD7Retention",
+)
 
 
 @dataclass(slots=True)

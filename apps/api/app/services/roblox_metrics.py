@@ -14,7 +14,6 @@ from app.integrations.roblox.client import (
 from app.integrations.roblox.models import Granularity, MetricQuery
 from app.models import MetricObservationRecord
 
-
 DEFAULT_METRICS = (
     "DailyActiveUsers",
     "DailyRevenue",

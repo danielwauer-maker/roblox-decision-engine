@@ -7,7 +7,10 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.domain.metrics import MetricObservation, normalize_metric_response
-from app.integrations.roblox.client import RobloxAnalyticsClient, RobloxAnalyticsError
+from app.integrations.roblox.client import (
+    RobloxAnalyticsClient,
+    RobloxAnalyticsError,
+)
 from app.integrations.roblox.models import Granularity, MetricQuery
 from app.models import MetricObservationRecord
 

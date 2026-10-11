@@ -22,6 +22,27 @@ The SaaS sits above Roblox analytics, validates KPI changes deterministically, c
 - R11 Go-Live — PLANNED
 - R12 Portfolio closure — PLANNED
 
+## Quick start
+
+Requirements: Docker + Docker Compose.
+
+```bash
+make dev
+```
+
+This starts the complete local baseline:
+
+- Web: http://localhost:3000
+- API: http://localhost:8000
+- API health: http://localhost:8000/health
+- PostgreSQL: localhost:5432
+
+Stop with:
+
+```bash
+make down
+```
+
 ## V1 surfaces
 
 1. Landing / Early Access

@@ -1,11 +1,11 @@
 import json
 import math
 from datetime import UTC, datetime, timedelta
+from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
-from typing import Annotated
 
 from app.db import SessionLocal
 from app.models import (
@@ -185,7 +185,11 @@ def _seed_metrics(
         observed_at = end - timedelta(days=offset)
         is_current = offset == 0
         wave = math.sin((89 - offset) / 5.0)
-        dau = float(spec["current_dau"] if is_current else float(spec["baseline_dau"]) * (1 + wave * 0.025))
+        dau = float(
+            spec["current_dau"]
+            if is_current
+            else float(spec["baseline_dau"]) * (1 + wave * 0.025)
+        )
         revenue = float(
             spec["current_revenue"]
             if is_current
@@ -201,11 +205,22 @@ def _seed_metrics(
             if is_current
             else float(spec["baseline_desktop_d1"]) + wave * 0.003
         )
-        d7 = float(spec["current_d7"] if is_current else float(spec["baseline_d7"]) + wave * 0.002)
+        d7 = float(
+            spec["current_d7"] if is_current else float(spec["baseline_d7"]) + wave * 0.002
+        )
         rows.extend(
             [
-                _observation(organization.id, universe_id, "DailyActiveUsers", observed_at, round(dau), now),
-                _observation(organization.id, universe_id, "DailyRevenue", observed_at, round(revenue, 2), now),
+                _observation(
+                    organization.id, universe_id, "DailyActiveUsers", observed_at, round(dau), now
+                ),
+                _observation(
+                    organization.id,
+                    universe_id,
+                    "DailyRevenue",
+                    observed_at,
+                    round(revenue, 2),
+                    now,
+                ),
                 _observation(
                     organization.id,
                     universe_id,
@@ -224,14 +239,23 @@ def _seed_metrics(
                     now,
                     {"device": "desktop"},
                 ),
-                _observation(organization.id, universe_id, "ForwardD7Retention", observed_at, round(d7, 4), now),
+                _observation(
+                    organization.id,
+                    universe_id,
+                    "ForwardD7Retention",
+                    observed_at,
+                    round(d7, 4),
+                    now,
+                ),
             ]
         )
     session.add_all(rows)
     return len(rows)
 
 
-def _seed_feedback(session: Session, organization: OrganizationRecord, message: str, now: datetime) -> None:
+def _seed_feedback(
+    session: Session, organization: OrganizationRecord, message: str, now: datetime
+) -> None:
     existing = session.scalar(
         select(PilotFeedbackRecord).where(
             PilotFeedbackRecord.organization_id == organization.id,
@@ -295,4 +319,8 @@ def seed_simulations(session: SessionDep, _: AdminDep) -> dict[str, object]:
             }
         )
     session.commit()
-    return {"seeded_at": now, "studios": result, "note": "All generated data is explicitly SIMULATED."}
+    return {
+        "seeded_at": now,
+        "studios": result,
+        "note": "All generated data is explicitly SIMULATED.",
+    }

@@ -10,8 +10,8 @@ const sprints = [
   ["R8", "Commercial readiness", "DONE"],
   ["R9", "Security & privacy", "DONE"],
   ["R10", "Reliability", "DONE"],
-  ["R11", "Go-Live", "IN PROGRESS"],
-  ["R12", "Portfolio closure", "PLANNED"],
+  ["R11", "Go-Live", "DONE"],
+  ["R12", "Portfolio closure", "IN PROGRESS"],
 ] as const;
 
 const capabilities = ["Roblox Open Cloud", "Product Analytics", "Decision Intelligence", "FastAPI", "PostgreSQL", "AI Agents", "Experimentation", "Next.js"];
@@ -31,17 +31,17 @@ export default function PortfolioPage() {
           </div>
           <aside style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.03)", borderRadius: 24, padding: 22 }}>
             <div style={{ color: "#718198", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase" }}>Current readiness</div>
-            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R11 active</div>
-            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>Reliability is complete with bounded provider retries, graceful readiness degradation, request observability, deterministic AI fallback and live Roblox/OpenAI smoke validation. Go-Live readiness is now active.</div>
-            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "98%", height: "100%", background: "#67e8f9" }} /></div>
-            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>11 done · R11 active</span><span>98%</span></div>
+            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R12 active</div>
+            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>Go-Live is complete with public launch surfaces, privacy and early-access terms, canonical metadata, robots and sitemap, a secure Next.js 16 baseline, enforced dependency auditing and a READY production build. Portfolio closure is now active.</div>
+            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "99%", height: "100%", background: "#67e8f9" }} /></div>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>12 done · R12 active</span><span>99%</span></div>
           </aside>
         </div>
       </section>
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "20px clamp(20px, 5vw, 24px)" }}>
         <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-          {[["Validation", "100%", "Landing page and clickable validation experience complete"],["Product", "100%", "Decision Engine, grounded AI Analyst and Experiment Copilot implemented"],["Engineering", "100%", "Roblox ingestion, decision path, model safeguards, security and reliability are validated with CI and live provider smoke tests"],["Commercial", "70%", "Plans, validation pricing and 30-day guided pilot are defined; paid conversion remains to be validated with real studios"]].map(([label, value, copy]) => <article key={label} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 20, padding: 20 }}><div style={{ color: "#718198", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>{label}</div><div style={{ marginTop: 10, fontSize: 30, fontWeight: 700 }}>{value}</div><p style={{ color: "#9fb1c7", fontSize: 13, lineHeight: 1.65 }}>{copy}</p></article>)}
+          {[["Validation", "100%", "Landing page and clickable validation experience complete"],["Product", "100%", "Decision Engine, grounded AI Analyst and Experiment Copilot implemented"],["Engineering", "100%", "Roblox ingestion, decision path, model safeguards, security, reliability and production build are validated with CI and live provider smoke tests"],["Commercial", "70%", "Plans, validation pricing and 30-day guided pilot are defined; paid conversion remains to be validated with real studios"]].map(([label, value, copy]) => <article key={label} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 20, padding: 20 }}><div style={{ color: "#718198", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>{label}</div><div style={{ marginTop: 10, fontSize: 30, fontWeight: 700 }}>{value}</div><p style={{ color: "#9fb1c7", fontSize: 13, lineHeight: 1.65 }}>{copy}</p></article>)}
         </div>
       </section>
 
@@ -49,7 +49,7 @@ export default function PortfolioPage() {
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px)" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Architecture</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Thin analytics layer. Strong decision layer.</h2><div style={{ marginTop: 24, display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>{["Roblox Analytics", "Query Adapter", "Metric Normalization", "PostgreSQL", "Decision Engine", "Evidence Bundle", "AI Analyst", "Experiment Copilot"].map((item, index) => <div key={item} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 18, padding: 15, textAlign: "center", color: "#c7d5e5", fontSize: 13 }}><div style={{ color: "#52627a", fontSize: 10 }}>{String(index + 1).padStart(2, "0")}</div><div style={{ marginTop: 7 }}>{item}</div></div>)}</div></section>
 
-      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px) 80px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Delivery</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Sprint path to paid Go-Live</h2><div style={{ marginTop: 24, border: "1px solid rgba(255,255,255,.1)", borderRadius: 24, overflow: "hidden" }}>{sprints.map(([id, title, status], index) => <div key={id} style={{ display: "grid", gridTemplateColumns: "52px minmax(0, 1fr) auto", gap: 10, alignItems: "center", padding: "14px", borderTop: index ? "1px solid rgba(255,255,255,.08)" : "none" }}><div style={{ color: "#67e8f9", fontFamily: "monospace", fontSize: 13 }}>{id}</div><div style={{ color: "#dce8f5", fontSize: 13 }}>{title}</div><div style={{ borderRadius: 999, padding: "5px 7px", fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", color: status === "DONE" ? "#a7f3d0" : status === "IN PROGRESS" ? "#a5f3fc" : "#718198", background: status === "DONE" ? "rgba(52,211,153,.1)" : status === "IN PROGRESS" ? "rgba(103,232,249,.1)" : "rgba(255,255,255,.035)" }}>{status}</div></div>)}</div></section>
+      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px) 80px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Delivery</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Sprint path to validated early-access release</h2><div style={{ marginTop: 24, border: "1px solid rgba(255,255,255,.1)", borderRadius: 24, overflow: "hidden" }}>{sprints.map(([id, title, status], index) => <div key={id} style={{ display: "grid", gridTemplateColumns: "52px minmax(0, 1fr) auto", gap: 10, alignItems: "center", padding: "14px", borderTop: index ? "1px solid rgba(255,255,255,.08)" : "none" }}><div style={{ color: "#67e8f9", fontFamily: "monospace", fontSize: 13 }}>{id}</div><div style={{ color: "#dce8f5", fontSize: 13 }}>{title}</div><div style={{ borderRadius: 999, padding: "5px 7px", fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", color: status === "DONE" ? "#a7f3d0" : status === "IN PROGRESS" ? "#a5f3fc" : "#718198", background: status === "DONE" ? "rgba(52,211,153,.1)" : status === "IN PROGRESS" ? "rgba(103,232,249,.1)" : "rgba(255,255,255,.035)" }}>{status}</div></div>)}</div></section>
     </main>
   );
 }

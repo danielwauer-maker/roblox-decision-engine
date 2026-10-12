@@ -7,8 +7,8 @@ const sprints = [
   ["R5", "AI Product Analyst", "DONE"],
   ["R6", "Experiment Copilot", "DONE"],
   ["R7", "Pilot readiness", "DONE"],
-  ["R8", "Commercial readiness", "IN PROGRESS"],
-  ["R9", "Security & privacy", "PLANNED"],
+  ["R8", "Commercial readiness", "DONE"],
+  ["R9", "Security & privacy", "IN PROGRESS"],
   ["R10", "Reliability", "PLANNED"],
   ["R11", "Go-Live", "PLANNED"],
   ["R12", "Portfolio closure", "PLANNED"],
@@ -27,21 +27,21 @@ export default function PortfolioPage() {
             <h1 style={{ margin: "16px 0 0", fontSize: "clamp(42px, 11vw, 58px)", lineHeight: 0.98, letterSpacing: "-.05em" }}>Roblox Decision Engine</h1>
             <p style={{ marginTop: 22, maxWidth: 760, color: "#9fb1c7", fontSize: "clamp(17px, 4.5vw, 19px)", lineHeight: 1.62 }}>AI Product & Growth Analyst for Roblox studios. The product turns retention, monetization and funnel signals into prioritized, evidence-backed actions and experiment decisions.</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 26 }}>{capabilities.map((item) => <span key={item} style={{ border: "1px solid rgba(255,255,255,.11)", background: "rgba(255,255,255,.03)", borderRadius: 999, padding: "7px 10px", fontSize: 12, color: "#c7d5e5" }}>{item}</span>)}</div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 24 }}><a href="/demo" style={{ background: "#67e8f9", color: "#07101f", padding: "11px 14px", borderRadius: 11, fontWeight: 800, textDecoration: "none", fontSize: 13 }}>Open validation demo</a><a href="/demo/pilot" style={{ border: "1px solid rgba(103,232,249,.24)", color: "#a5f3fc", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View pilot workspace</a><a href="/demo/experiment" style={{ border: "1px solid rgba(255,255,255,.12)", color: "#eef7ff", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View Experiment Copilot</a></div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 24 }}><a href="/demo" style={{ background: "#67e8f9", color: "#07101f", padding: "11px 14px", borderRadius: 11, fontWeight: 800, textDecoration: "none", fontSize: 13 }}>Open validation demo</a><a href="/pricing" style={{ border: "1px solid rgba(103,232,249,.24)", color: "#a5f3fc", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View pricing</a><a href="/demo/pilot" style={{ border: "1px solid rgba(255,255,255,.12)", color: "#eef7ff", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View pilot workspace</a></div>
           </div>
           <aside style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.03)", borderRadius: 24, padding: 22 }}>
             <div style={{ color: "#718198", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase" }}>Current readiness</div>
-            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R8 active</div>
-            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>Pilot readiness is complete with onboarding, connection recovery states, readiness evaluation and structured feedback capture. Commercial readiness is now active.</div>
-            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "85%", height: "100%", background: "#67e8f9" }} /></div>
-            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>8 done · R8 active</span><span>85%</span></div>
+            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R9 active</div>
+            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>Commercial readiness is complete with plan packaging, validation pricing, a guided pilot offer and a clear landing-page conversion path. Security and privacy hardening is now active.</div>
+            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "92%", height: "100%", background: "#67e8f9" }} /></div>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>9 done · R9 active</span><span>92%</span></div>
           </aside>
         </div>
       </section>
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "20px clamp(20px, 5vw, 24px)" }}>
         <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-          {[["Validation", "100%", "Landing page and clickable validation experience complete"],["Product", "100%", "Decision Engine, grounded AI Analyst and Experiment Copilot implemented"],["Engineering", "99%", "Roblox ingestion, decision path, model fallback, experiments and pilot-state handling validated"],["Commercial", "30%", "Pilot onboarding is ready; packaging, pricing and conversion path are now being finalized"]].map(([label, value, copy]) => <article key={label} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 20, padding: 20 }}><div style={{ color: "#718198", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>{label}</div><div style={{ marginTop: 10, fontSize: 30, fontWeight: 700 }}>{value}</div><p style={{ color: "#9fb1c7", fontSize: 13, lineHeight: 1.65 }}>{copy}</p></article>)}
+          {[["Validation", "100%", "Landing page and clickable validation experience complete"],["Product", "100%", "Decision Engine, grounded AI Analyst and Experiment Copilot implemented"],["Engineering", "99%", "Roblox ingestion, decision path, model fallback, experiments and pilot-state handling validated"],["Commercial", "70%", "Plans, validation pricing and 30-day guided pilot are defined; paid conversion remains to be validated with real studios"]].map(([label, value, copy]) => <article key={label} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 20, padding: 20 }}><div style={{ color: "#718198", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>{label}</div><div style={{ marginTop: 10, fontSize: 30, fontWeight: 700 }}>{value}</div><p style={{ color: "#9fb1c7", fontSize: 13, lineHeight: 1.65 }}>{copy}</p></article>)}
         </div>
       </section>
 

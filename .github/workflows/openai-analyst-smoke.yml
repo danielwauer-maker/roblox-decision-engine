@@ -1,0 +1,65 @@
+name: OpenAI Analyst Live Smoke Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-6-luna
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev]'
+      - name: Verify secret is configured
+        run: |
+          python - <<'PY'
+          import os
+          if not os.getenv('OPENAI_API_KEY'):
+              raise SystemExit('OPENAI_API_KEY secret is missing')
+          print('Secret present: yes')
+          print('Model:', os.getenv('OPENAI_MODEL'))
+          PY
+      - name: Generate grounded analyst brief
+        run: |
+          python - <<'PY'
+          import asyncio
+
+          from app.domain.decision_engine import DecisionSnapshot, evaluate_snapshot
+          from app.services.ai_analyst import generate_analyst_brief
+
+          async def main():
+              priorities = evaluate_snapshot(
+                  DecisionSnapshot(
+                      d1_retention=0.118,
+                      d1_retention_baseline=0.151,
+                      d1_retention_mobile=0.087,
+                      d1_retention_desktop=0.179,
+                      daily_revenue=22100,
+                      daily_revenue_baseline=21900,
+                      dau=13800,
+                      dau_baseline=11800,
+                  )
+              )
+              result = await generate_analyst_brief(priorities)
+              if result.mode != 'model':
+                  raise SystemExit(
+                      f'Expected model mode but got {result.mode}: {result.fallback_reason}'
+                  )
+              if not result.brief.priorities:
+                  raise SystemExit('Model returned no grounded priorities')
+              print('OpenAI analyst call succeeded.')
+              print('Mode:', result.mode)
+              print('Model:', result.model)
+              print('Priority count:', len(result.brief.priorities))
+
+          asyncio.run(main())
+          PY

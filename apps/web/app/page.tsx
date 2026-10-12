@@ -18,6 +18,7 @@ export default function Home() {
         <div style={{ maxWidth: 1180, margin: "0 auto", padding: "18px clamp(20px,5vw,24px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, flexWrap: "wrap" }}>
           <div style={{ fontWeight: 800, letterSpacing: "-.02em" }}>Roblox Decision Engine</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <a href="/pricing" style={{ color: "#9fb1c7", textDecoration: "none", padding: "9px 11px", fontSize: 13 }}>Pricing</a>
             <a href="/portfolio" style={{ color: "#9fb1c7", textDecoration: "none", padding: "9px 11px", fontSize: 13 }}>Build log</a>
             <a href="/demo" style={{ border: "1px solid rgba(103,232,249,.3)", color: "#a5f3fc", textDecoration: "none", padding: "9px 12px", borderRadius: 10, fontSize: 13, fontWeight: 700 }}>Open product demo</a>
           </div>
@@ -31,7 +32,7 @@ export default function Home() {
           <p style={{ margin: "26px 0 0", maxWidth: 780, color: "#9fb1c7", fontSize: "clamp(18px,4.4vw,21px)", lineHeight: 1.58 }}>Turn retention, monetization and funnel signals into three evidence-backed priorities and a concrete experiment plan — without hiring a full-time product analyst.</p>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }}>
             <a href="/demo/priorities" style={{ background: "#67e8f9", color: "#07101f", padding: "13px 18px", borderRadius: 12, fontWeight: 800, textDecoration: "none", fontSize: 15 }}>Explore the live demo</a>
-            <a href="#pilot" style={{ border: "1px solid rgba(255,255,255,.13)", color: "#eef7ff", padding: "13px 18px", borderRadius: 12, fontWeight: 700, textDecoration: "none", fontSize: 15 }}>Join early access</a>
+            <a href="/pricing" style={{ border: "1px solid rgba(255,255,255,.13)", color: "#eef7ff", padding: "13px 18px", borderRadius: 12, fontWeight: 700, textDecoration: "none", fontSize: 15 }}>See pricing & pilot</a>
           </div>
         </div>
       </section>
@@ -54,8 +55,8 @@ export default function Home() {
         <div style={{ border: "1px solid rgba(103,232,249,.24)", background: "linear-gradient(135deg, rgba(103,232,249,.08), rgba(255,255,255,.02))", borderRadius: 26, padding: "clamp(26px,6vw,38px)" }}>
           <div style={{ color: "#67e8f9", fontWeight: 800, fontSize: 12, letterSpacing: ".13em", textTransform: "uppercase" }}>Early Access Pilot</div>
           <h2 style={{ margin: "12px 0 0", maxWidth: 760, fontSize: "clamp(30px,7vw,44px)", lineHeight: 1.06, letterSpacing: "-.04em" }}>Built for live Roblox teams without a dedicated product analyst.</h2>
-          <p style={{ maxWidth: 760, color: "#9fb1c7", lineHeight: 1.7 }}>The first pilot targets studios with meaningful traffic, monetization and recurring updates that want clearer priorities, stronger experiments and less wasted acquisition spend.</p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}><a href="/demo/connect" style={{ background: "#67e8f9", color: "#07101f", padding: "12px 16px", borderRadius: 11, fontWeight: 800, textDecoration: "none" }}>Preview onboarding</a><a href="/portfolio" style={{ border: "1px solid rgba(255,255,255,.13)", color: "#eef7ff", padding: "12px 16px", borderRadius: 11, fontWeight: 700, textDecoration: "none" }}>See build progress</a></div>
+          <p style={{ maxWidth: 760, color: "#9fb1c7", lineHeight: 1.7 }}>Start with a 30-day guided pilot at $0. We only ask you to consider a paid plan after the product has produced at least one decision your team finds genuinely useful.</p>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}><a href="/pricing" style={{ background: "#67e8f9", color: "#07101f", padding: "12px 16px", borderRadius: 11, fontWeight: 800, textDecoration: "none" }}>View plans</a><a href="/demo/pilot" style={{ border: "1px solid rgba(255,255,255,.13)", color: "#eef7ff", padding: "12px 16px", borderRadius: 11, fontWeight: 700, textDecoration: "none" }}>Preview pilot workspace</a></div>
         </div>
       </section>
     </main>

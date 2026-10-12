@@ -4,6 +4,7 @@ const nav = [
   ["Overview", "/demo"],
   ["Connect", "/demo/connect"],
   ["Priorities", "/demo/priorities"],
+  ["AI Analyst", "/demo/analyst"],
   ["Investigation", "/demo/investigation"],
   ["Experiment", "/demo/experiment"],
   ["Weekly Brief", "/demo/report"],

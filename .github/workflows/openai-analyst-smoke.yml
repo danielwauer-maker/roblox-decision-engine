@@ -1,5 +1,6 @@
 name: OpenAI Analyst Live Smoke Test
 
+# R5 live model validation smoke test
 on:
   workflow_dispatch:
   push:

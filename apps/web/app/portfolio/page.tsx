@@ -16,6 +16,13 @@ const sprints = [
 
 const capabilities = ["Roblox Open Cloud", "Product Analytics", "Decision Intelligence", "FastAPI", "PostgreSQL", "AI Agents", "Experimentation", "Next.js"];
 
+const proofPoints = [
+  ["39", "backend tests", "Reliability gate passed with the full backend suite."],
+  ["2", "live providers", "Roblox analytics and OpenAI model paths both passed live smoke validation."],
+  ["0", "frontend vulnerabilities", "Dependency audit was cleared after the Next.js security upgrade."],
+  ["15", "launch routes", "Landing, product demo, pilot, portfolio and public release metadata are included in the production route manifest."],
+];
+
 export default function PortfolioPage() {
   return (
     <main style={{ minHeight: "100vh", background: "#07101f", color: "#eef7ff", fontFamily: "Arial, sans-serif" }}>
@@ -48,6 +55,21 @@ export default function PortfolioPage() {
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "48px clamp(20px, 5vw, 24px) 20px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Product Thesis</div><h2 style={{ marginTop: 12, maxWidth: 850, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Roblox tells studios what happened. The Decision Engine tells them what to do next.</h2><p style={{ maxWidth: 840, color: "#9fb1c7", fontSize: 16, lineHeight: 1.75 }}>The system validates metric changes deterministically, compares baselines and segments, generates a structured evidence bundle and only then lets the AI layer explain the finding. Supported findings can be turned into bounded experiments with explicit success thresholds and guardrails.</p></section>
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px)" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Architecture</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Thin analytics layer. Strong decision layer.</h2><div style={{ marginTop: 24, display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>{["Roblox Analytics", "Query Adapter", "Metric Normalization", "PostgreSQL", "Decision Engine", "Evidence Bundle", "AI Analyst", "Experiment Copilot"].map((item, index) => <div key={item} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 18, padding: 15, textAlign: "center", color: "#c7d5e5", fontSize: 13 }}><div style={{ color: "#52627a", fontSize: 10 }}>{String(index + 1).padStart(2, "0")}</div><div style={{ marginTop: 7 }}>{item}</div></div>)}</div></section>
+
+      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px)" }}>
+        <div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Verified Evidence</div>
+        <h2 style={{ marginTop: 12, maxWidth: 780, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>The portfolio claim is backed by gates, not screenshots alone.</h2>
+        <div style={{ marginTop: 24, display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
+          {proofPoints.map(([value, label, copy]) => <article key={label} style={{ border: "1px solid rgba(103,232,249,.16)", background: "rgba(103,232,249,.035)", borderRadius: 20, padding: 20 }}><div style={{ color: "#a5f3fc", fontSize: 34, fontWeight: 800 }}>{value}</div><div style={{ marginTop: 4, color: "#dce8f5", fontSize: 14, fontWeight: 800 }}>{label}</div><p style={{ color: "#8fa2ba", fontSize: 13, lineHeight: 1.65 }}>{copy}</p></article>)}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px)" }}>
+        <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
+          <article style={{ border: "1px solid rgba(255,255,255,.1)", borderRadius: 22, padding: 22, background: "rgba(255,255,255,.025)" }}><div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase" }}>Engineering principle</div><h2 style={{ margin: "10px 0 8px", fontSize: 26 }}>AI explains. Evidence decides.</h2><p style={{ margin: 0, color: "#9fb1c7", lineHeight: 1.72 }}>Authoritative metrics and priority logic stay deterministic. The model receives structured evidence, cannot invent unsupported numbers or causal certainty, and falls back safely when validation fails.</p></article>
+          <article style={{ border: "1px solid rgba(251,191,36,.18)", borderRadius: 22, padding: 22, background: "rgba(251,191,36,.025)" }}><div style={{ color: "#fbbf24", fontSize: 11, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase" }}>Still unvalidated</div><h2 style={{ margin: "10px 0 8px", fontSize: 26 }}>Build complete ≠ market proven.</h2><p style={{ margin: 0, color: "#9fb1c7", lineHeight: 1.72 }}>There are no claims of paying studios, recurring revenue, validated willingness to pay or proven KPI lift. That is why commercial validation remains at 70% even when engineering and portfolio delivery reach completion.</p></article>
+        </div>
+      </section>
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px) 80px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Delivery</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Sprint path to validated early-access release</h2><div style={{ marginTop: 24, border: "1px solid rgba(255,255,255,.1)", borderRadius: 24, overflow: "hidden" }}>{sprints.map(([id, title, status], index) => <div key={id} style={{ display: "grid", gridTemplateColumns: "52px minmax(0, 1fr) auto", gap: 10, alignItems: "center", padding: "14px", borderTop: index ? "1px solid rgba(255,255,255,.08)" : "none" }}><div style={{ color: "#67e8f9", fontFamily: "monospace", fontSize: 13 }}>{id}</div><div style={{ color: "#dce8f5", fontSize: 13 }}>{title}</div><div style={{ borderRadius: 999, padding: "5px 7px", fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", color: status === "DONE" ? "#a7f3d0" : status === "IN PROGRESS" ? "#a5f3fc" : "#718198", background: status === "DONE" ? "rgba(52,211,153,.1)" : status === "IN PROGRESS" ? "rgba(103,232,249,.1)" : "rgba(255,255,255,.035)" }}>{status}</div></div>)}</div></section>
     </main>

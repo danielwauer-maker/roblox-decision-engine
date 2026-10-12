@@ -43,6 +43,11 @@ class RobloxAnalyticsClient:
             if operation.done:
                 return self._unwrap(operation)
 
+            if not operation.path:
+                raise RobloxAnalyticsError(
+                    "Roblox analytics operation is pending but did not provide a poll path"
+                )
+
             for _ in range(self.max_polls):
                 await asyncio.sleep(self.poll_interval_seconds)
                 poll_url = f"{self.base_url}/{operation.path.lstrip('/')}"
@@ -50,6 +55,10 @@ class RobloxAnalyticsClient:
                 operation = self._parse_operation(poll_response)
                 if operation.done:
                     return self._unwrap(operation)
+                if not operation.path:
+                    raise RobloxAnalyticsError(
+                        "Roblox analytics operation is pending but did not provide a poll path"
+                    )
 
             raise RobloxAnalyticsError("Roblox analytics operation timed out before completion")
         finally:

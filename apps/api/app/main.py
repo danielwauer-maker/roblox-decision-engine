@@ -10,6 +10,7 @@ from app.config import get_settings
 from app.db import Base, engine
 from app.reliability import RequestObservabilityMiddleware
 from app.routes.admin_console import router as admin_console_router
+from app.routes.admin_simulation import router as admin_simulation_router
 from app.routes.analyst import router as analyst_router
 from app.routes.commercial import router as commercial_router
 from app.routes.decisions import router as decisions_router
@@ -30,7 +31,7 @@ async def lifespan(_: FastAPI):
 settings = get_settings()
 app = FastAPI(
     title="Roblox Decision Engine API",
-    version="1.1.0",
+    version="1.2.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -56,6 +57,7 @@ app.include_router(commercial_router)
 app.include_router(tenant_router)
 app.include_router(tenant_insights_router)
 app.include_router(admin_console_router)
+app.include_router(admin_simulation_router)
 
 
 @app.get("/health", tags=["system"])
@@ -88,5 +90,5 @@ def product() -> dict[str, object]:
         "name": "Roblox Decision Engine",
         "positioning": "AI Product & Growth Analyst for Roblox studios",
         "principle": "Evidence before explanation",
-        "status": "operator-console-build",
+        "status": "pilot-simulation-build",
     }

@@ -8,8 +8,8 @@ const sprints = [
   ["R6", "Experiment Copilot", "DONE"],
   ["R7", "Pilot readiness", "DONE"],
   ["R8", "Commercial readiness", "DONE"],
-  ["R9", "Security & privacy", "IN PROGRESS"],
-  ["R10", "Reliability", "PLANNED"],
+  ["R9", "Security & privacy", "DONE"],
+  ["R10", "Reliability", "IN PROGRESS"],
   ["R11", "Go-Live", "PLANNED"],
   ["R12", "Portfolio closure", "PLANNED"],
 ] as const;
@@ -31,17 +31,17 @@ export default function PortfolioPage() {
           </div>
           <aside style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.03)", borderRadius: 24, padding: 22 }}>
             <div style={{ color: "#718198", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase" }}>Current readiness</div>
-            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R9 active</div>
-            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>Commercial readiness is complete with plan packaging, validation pricing, a guided pilot offer and a clear landing-page conversion path. Security and privacy hardening is now active.</div>
-            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "92%", height: "100%", background: "#67e8f9" }} /></div>
-            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>9 done · R9 active</span><span>92%</span></div>
+            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R10 active</div>
+            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>Security and privacy hardening is complete with server-side secret boundaries, explicit CORS, security headers, write-rate limiting and a documented retention/deletion baseline. Reliability is now active.</div>
+            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "95%", height: "100%", background: "#67e8f9" }} /></div>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>10 done · R10 active</span><span>95%</span></div>
           </aside>
         </div>
       </section>
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "20px clamp(20px, 5vw, 24px)" }}>
         <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-          {[["Validation", "100%", "Landing page and clickable validation experience complete"],["Product", "100%", "Decision Engine, grounded AI Analyst and Experiment Copilot implemented"],["Engineering", "99%", "Roblox ingestion, decision path, model fallback, experiments and pilot-state handling validated"],["Commercial", "70%", "Plans, validation pricing and 30-day guided pilot are defined; paid conversion remains to be validated with real studios"]].map(([label, value, copy]) => <article key={label} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 20, padding: 20 }}><div style={{ color: "#718198", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>{label}</div><div style={{ marginTop: 10, fontSize: 30, fontWeight: 700 }}>{value}</div><p style={{ color: "#9fb1c7", fontSize: 13, lineHeight: 1.65 }}>{copy}</p></article>)}
+          {[["Validation", "100%", "Landing page and clickable validation experience complete"],["Product", "100%", "Decision Engine, grounded AI Analyst and Experiment Copilot implemented"],["Engineering", "99%", "Roblox ingestion, decision path, model fallback, experiments, pilot states and security hardening validated"],["Commercial", "70%", "Plans, validation pricing and 30-day guided pilot are defined; paid conversion remains to be validated with real studios"]].map(([label, value, copy]) => <article key={label} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 20, padding: 20 }}><div style={{ color: "#718198", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>{label}</div><div style={{ marginTop: 10, fontSize: 30, fontWeight: 700 }}>{value}</div><p style={{ color: "#9fb1c7", fontSize: 13, lineHeight: 1.65 }}>{copy}</p></article>)}
         </div>
       </section>
 

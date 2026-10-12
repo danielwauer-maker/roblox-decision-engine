@@ -1,0 +1,63 @@
+name: Roblox Live Smoke Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      ROBLOX_UNIVERSE_ID: "10770494757"
+      ROBLOX_API_KEY: ${{ secrets.ROBLOX_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --upgrade pip
+      - run: pip install -e '.[dev]'
+      - name: Verify secret is configured
+        run: |
+          python - <<'PY'
+          import os
+          if not os.getenv('ROBLOX_API_KEY'):
+              raise SystemExit('ROBLOX_API_KEY secret is missing')
+          print('Secret present: yes')
+          print('Universe ID:', os.getenv('ROBLOX_UNIVERSE_ID'))
+          PY
+      - name: Call Roblox Analytics Query API
+        run: |
+          python - <<'PY'
+          import asyncio
+          from datetime import UTC, datetime, timedelta
+          import os
+
+          from app.integrations.roblox.client import RobloxAnalyticsClient
+          from app.integrations.roblox.models import Granularity, MetricQuery
+
+          async def main():
+              client = RobloxAnalyticsClient(
+                  universe_id=os.environ['ROBLOX_UNIVERSE_ID'],
+                  api_key=os.environ['ROBLOX_API_KEY'],
+              )
+              end = datetime.now(UTC)
+              start = end - timedelta(days=7)
+              result = await client.query_metric(
+                  MetricQuery(
+                      metric='DailyActiveUsers',
+                      granularity=Granularity.ONE_DAY,
+                      start_time=start,
+                      end_time=end,
+                  )
+              )
+              print('Roblox Analytics API call succeeded.')
+              if isinstance(result, dict):
+                  print('Top-level response keys:', sorted(result.keys()))
+              else:
+                  print('Response type:', type(result).__name__)
+
+          asyncio.run(main())
+          PY

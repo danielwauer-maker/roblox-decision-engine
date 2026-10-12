@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.db import Base, engine
+from app.routes.decisions import router as decisions_router
 from app.routes.roblox import router as roblox_router
 
 
@@ -14,10 +15,11 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="Roblox Decision Engine API",
-    version="0.2.0",
+    version="0.3.0",
     lifespan=lifespan,
 )
 app.include_router(roblox_router)
+app.include_router(decisions_router)
 
 
 @app.get("/health", tags=["system"])
@@ -31,5 +33,5 @@ def product() -> dict[str, object]:
         "name": "Roblox Decision Engine",
         "positioning": "AI Product & Growth Analyst for Roblox studios",
         "principle": "Evidence before explanation",
-        "status": "live_data_integration",
+        "status": "decision_engine_v1",
     }

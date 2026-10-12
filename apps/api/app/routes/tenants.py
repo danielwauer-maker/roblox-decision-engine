@@ -75,6 +75,13 @@ def _owner_only(role: str) -> None:
         raise HTTPException(status_code=403, detail="Owner role required")
 
 
+def _organization_for_principal(session: Session, organization_id: int) -> OrganizationRecord:
+    organization = session.get(OrganizationRecord, organization_id)
+    if not organization or not organization.active:
+        raise HTTPException(status_code=403, detail="Organization disabled")
+    return organization
+
+
 @router.post("/admin/organizations")
 def create_organization(payload: OrganizationCreate, session: SessionDep, _: AdminDep):
     if session.scalar(select(OrganizationRecord.id).where(OrganizationRecord.slug == payload.slug)):
@@ -82,13 +89,19 @@ def create_organization(payload: OrganizationCreate, session: SessionDep, _: Adm
     organization = OrganizationRecord(
         slug=payload.slug,
         name=payload.name,
+        data_mode="LIVE",
         active=True,
         created_at=datetime.now(UTC),
     )
     session.add(organization)
     session.commit()
     session.refresh(organization)
-    return {"id": organization.id, "slug": organization.slug, "name": organization.name}
+    return {
+        "id": organization.id,
+        "slug": organization.slug,
+        "name": organization.name,
+        "data_mode": organization.data_mode,
+    }
 
 
 @router.post("/admin/invites")
@@ -161,23 +174,36 @@ def redeem_invite(payload: InviteRedeem, session: SessionDep):
     return {
         "access_token": raw_session,
         "token_type": "bearer",
-        "organization": {"id": organization.id, "slug": organization.slug, "name": organization.name},
+        "organization": {
+            "id": organization.id,
+            "slug": organization.slug,
+            "name": organization.name,
+            "data_mode": organization.data_mode,
+        },
         "user": {"email": user.email, "role": user.role},
     }
 
 
 @router.get("/me")
 def me(principal: TenantDep, session: SessionDep):
-    organization = session.get(OrganizationRecord, principal.organization_id)
+    organization = _organization_for_principal(session, principal.organization_id)
     return {
         "user": {"id": principal.user_id, "email": principal.email, "role": principal.role},
-        "organization": {"id": organization.id, "slug": organization.slug, "name": organization.name},
+        "organization": {
+            "id": organization.id,
+            "slug": organization.slug,
+            "name": organization.name,
+            "data_mode": organization.data_mode,
+        },
     }
 
 
 @router.put("/roblox/connection")
 def upsert_connection(payload: RobloxConnectionCreate, principal: TenantDep, session: SessionDep):
     _owner_only(principal.role)
+    organization = _organization_for_principal(session, principal.organization_id)
+    if organization.data_mode == "SIMULATED":
+        raise HTTPException(status_code=409, detail="Simulation tenants cannot store live Roblox credentials")
     connection = session.scalar(
         select(RobloxConnectionRecord).where(
             RobloxConnectionRecord.organization_id == principal.organization_id,
@@ -255,7 +281,15 @@ async def sync_tenant(
     metric: str | None = Query(default=None),
     days: int = Query(default=30, ge=1, le=365),
 ):
+    organization = _organization_for_principal(session, principal.organization_id)
     connection = _connection_for_tenant(session, principal.organization_id)
+    if organization.data_mode == "SIMULATED":
+        return {
+            "status": "simulated",
+            "organization_id": organization.id,
+            "universe_id": connection.universe_id,
+            "detail": "Simulation data is pre-seeded; no external Roblox request was made.",
+        }
     try:
         api_key = decrypt_credential(connection.encrypted_api_key)
         if metric:
@@ -309,6 +343,7 @@ def observations(
 
 @router.get("/decisions/current")
 def current_decisions(principal: TenantDep, session: SessionDep):
+    organization = _organization_for_principal(session, principal.organization_id)
     connection = _connection_for_tenant(session, principal.organization_id)
     snapshot = build_decision_snapshot(
         session,
@@ -317,7 +352,12 @@ def current_decisions(principal: TenantDep, session: SessionDep):
     )
     priorities = evaluate_snapshot(snapshot)
     return {
-        "source": "tenant_roblox_observations",
+        "source": (
+            "simulation_observations"
+            if organization.data_mode == "SIMULATED"
+            else "tenant_roblox_observations"
+        ),
+        "data_mode": organization.data_mode,
         "snapshot": asdict(snapshot),
         "count": len(priorities),
         "items": [{**asdict(item), "priority_score": item.priority_score} for item in priorities],

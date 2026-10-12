@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-6-luna"
     cors_origins: str = "http://localhost:3000"
     write_rate_limit_per_minute: int = 60
+    external_request_timeout_seconds: float = 15.0
+    external_retry_attempts: int = 3
+    external_retry_backoff_seconds: float = 0.25
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

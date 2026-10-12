@@ -7,6 +7,7 @@ from app.config import Settings, get_settings
 from app.domain.analyst import AnalystBrief, compose_brief, compose_insight
 from app.domain.analyst_prompt import build_prompt_package
 from app.domain.decision_engine import DecisionPriority
+from app.reliability import retry_http_request
 
 
 class AIAnalystError(RuntimeError):
@@ -172,17 +173,25 @@ async def _generate_with_openai(
     }
 
     owns_client = client is None
-    active_client = client or httpx.AsyncClient(timeout=30.0)
+    active_client = client or httpx.AsyncClient(timeout=settings.external_request_timeout_seconds)
     try:
-        response = await active_client.post(
-            f"{settings.openai_api_base_url.rstrip('/')}/responses",
-            headers=headers,
-            json=body,
+        async def send_request() -> httpx.Response:
+            response = await active_client.post(
+                f"{settings.openai_api_base_url.rstrip('/')}/responses",
+                headers=headers,
+                json=body,
+            )
+            response.raise_for_status()
+            return response
+
+        response = await retry_http_request(
+            send_request,
+            attempts=settings.external_retry_attempts,
+            backoff_seconds=settings.external_retry_backoff_seconds,
         )
-        response.raise_for_status()
         payload = response.json()
     except (httpx.HTTPError, ValueError) as exc:
-        raise AIAnalystError(f"Model provider request failed: {exc}") from exc
+        raise AIAnalystError(f"Model provider request failed after retries: {exc}") from exc
     finally:
         if owns_client:
             await active_client.aclose()

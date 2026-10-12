@@ -9,18 +9,20 @@ The SaaS sits above Roblox analytics, validates KPI changes deterministically, c
 ## Current delivery status
 
 - R0 Product foundation — DONE
-- R1 Validation experience — IN PROGRESS / product flow implemented in portfolio validation shell
+- R1 Validation experience — DONE
 - R2 SaaS foundation — DONE
-- R3 Roblox data connection — IN PROGRESS / adapter + contracts + tests implemented; first live query requires a Universe ID and read-only API key
-- R4 Decision Engine v1 — PLANNED
-- R5 AI Product Analyst — PLANNED
-- R6 Experiment Copilot — PLANNED
-- R7 Pilot readiness — PLANNED
-- R8 Commercial readiness — PLANNED
-- R9 Security & privacy — PLANNED
-- R10 Reliability — PLANNED
-- R11 Go-Live — PLANNED
+- R3 Roblox data connection — DONE
+- R4 Decision Engine v1 — DONE
+- R5 AI Product Analyst — DONE
+- R6 Experiment Copilot — DONE
+- R7 Pilot readiness — DONE
+- R8 Commercial readiness — DONE
+- R9 Security & privacy — DONE
+- R10 Reliability — DONE
+- R11 Go-Live — IN PROGRESS
 - R12 Portfolio closure — PLANNED
+
+Production validation site: https://roblox-decision-engine.vercel.app
 
 ## Quick start
 
@@ -34,7 +36,8 @@ This starts the complete local baseline:
 
 - Web: http://localhost:3000
 - API: http://localhost:8000
-- API health: http://localhost:8000/health
+- API liveness: http://localhost:8000/health
+- API readiness: http://localhost:8000/ready
 - PostgreSQL: localhost:5432
 
 Stop with:
@@ -45,38 +48,54 @@ make down
 
 ## Roblox Analytics connection
 
-The current adapter uses Roblox Open Cloud Analytics Query API with a Universe-scoped API key. Configure only these local environment values; never commit the real key:
+The adapter uses Roblox Open Cloud Analytics Query API with Universe-scoped least-privilege access. Configure local or server-side environment values only; never commit real credentials.
 
 ```text
 ROBLOX_UNIVERSE_ID=<your universe id>
 ROBLOX_API_KEY=<read-only key with universe.analytics:read>
 ```
 
-## V1 surfaces
+## Product surfaces
 
 1. Landing / Early Access
 2. Connect Roblox
 3. Today's Priorities
 4. Investigation / Evidence
-5. Experiment Copilot
-6. Weekly Growth Brief
-7. Minimal Product Health
+5. AI Product Analyst
+6. Experiment Copilot
+7. Weekly Growth Brief
+8. Pilot workspace
+9. Pricing / commercial validation
+10. Portfolio build log
+11. Privacy / early-access terms
 
 ## Architecture
 
 Roblox Analytics / Open Cloud → Query Adapter → Metric Normalization → PostgreSQL History → Deterministic Decision Engine → Evidence Bundle → AI Product Analyst → Priorities / Experiments / Weekly Brief.
 
+## Reliability baseline
+
+- bounded external-request timeouts and retries
+- retry only for transient provider/network failures
+- `/health` liveness and `/ready` dependency readiness
+- request IDs and latency logging
+- deterministic AI fallback
+- one guarded repair attempt for model prose that violates grounding constraints
+- live Roblox and OpenAI smoke workflows
+
 ## Repository layout
 
 - `apps/web` — Next.js / TypeScript frontend
 - `apps/api` — FastAPI backend
-- `docs` — product, architecture, sprint and decision documentation
-- `.github/workflows` — CI
+- `docs` — product, architecture, sprint, security, reliability and release documentation
+- `.github/workflows` — CI and provider smoke workflows
 
 ## Core product rule
 
-The LLM never owns authoritative metric calculation. Unsupported causes or numbers must not be invented. Recommendations are generated only from structured evidence; insufficient evidence produces an abstention.
+The LLM never owns authoritative metric calculation. Unsupported causes or numbers must not be invented. Recommendations are generated only from structured evidence; insufficient or invalid model output is rejected or falls back safely.
 
-## Portfolio
+## Go-Live
 
-The project is tracked from day zero in `danielwauer-maker/enterprise-data-ai-portfolio`, including sprint/readiness status and validation evidence.
+The R11 release gate and rollback procedure are documented in `docs/R11_GO_LIVE.md`.
+
+The public release remains an **early-access validation release**. Pricing is still a commercial hypothesis, the guided pilot is free, and no payment is collected through the current site.

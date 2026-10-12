@@ -2,9 +2,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from app.config import get_settings
 from app.db import Base, engine
+from app.reliability import RequestObservabilityMiddleware
 from app.routes.analyst import router as analyst_router
 from app.routes.commercial import router as commercial_router
 from app.routes.decisions import router as decisions_router
@@ -23,7 +25,7 @@ async def lifespan(_: FastAPI):
 settings = get_settings()
 app = FastAPI(
     title="Roblox Decision Engine API",
-    version="0.8.0",
+    version="0.9.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -31,13 +33,14 @@ app.add_middleware(
     allow_origins=settings.cors_origin_list,
     allow_credentials=False,
     allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
 )
 app.add_middleware(
     WriteRateLimitMiddleware,
     requests_per_minute=settings.write_rate_limit_per_minute,
 )
 app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RequestObservabilityMiddleware)
 
 app.include_router(roblox_router)
 app.include_router(decisions_router)
@@ -52,11 +55,23 @@ def health() -> dict[str, str]:
     return {"status": "ok", "service": "roblox-decision-engine-api"}
 
 
+@app.get("/ready", tags=["system"])
+def ready() -> dict[str, object]:
+    with engine.connect() as connection:
+        connection.execute(text("SELECT 1"))
+    return {
+        "status": "ready",
+        "database": "ok",
+        "roblox_configured": bool(settings.roblox_universe_id and settings.roblox_api_key),
+        "ai_mode": "model" if settings.openai_api_key else "deterministic",
+    }
+
+
 @app.get("/v1/product", tags=["product"])
 def product() -> dict[str, object]:
     return {
         "name": "Roblox Decision Engine",
         "positioning": "AI Product & Growth Analyst for Roblox studios",
         "principle": "Evidence before explanation",
-        "status": "security_privacy",
+        "status": "reliability",
     }

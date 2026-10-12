@@ -4,18 +4,16 @@ import logging
 import uuid
 from collections.abc import Awaitable, Callable
 from time import monotonic
-from typing import TypeVar
 
 import httpx
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
-T = TypeVar("T")
 logger = logging.getLogger("rde.request")
 
 
-async def retry_http_request(
+async def retry_http_request[T](
     operation: Callable[[], Awaitable[T]],
     *,
     attempts: int = 3,

@@ -12,6 +12,7 @@ class OrganizationRecord(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     slug: Mapped[str] = mapped_column(String(80), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(160))
+    data_mode: Mapped[str] = mapped_column(String(16), default="LIVE", index=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
 

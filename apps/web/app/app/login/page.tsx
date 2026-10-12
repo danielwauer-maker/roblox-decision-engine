@@ -1,11 +1,16 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 export default function PilotLoginPage() {
   const [invite, setInvite] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const token = new URLSearchParams(window.location.search).get("token");
+    if (token) setInvite(token);
+  }, []);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -30,7 +35,7 @@ export default function PilotLoginPage() {
       <section style={{ width: "100%", maxWidth: 520, border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.03)", borderRadius: 24, padding: 28 }}>
         <div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase" }}>Founding Studio Pilot</div>
         <h1 style={{ margin: "12px 0 0", fontSize: 38, letterSpacing: "-.04em" }}>Open your studio workspace.</h1>
-        <p style={{ color: "#9fb1c7", lineHeight: 1.7 }}>Access is invite-only during the 30-day pilot. Use the invitation token issued for your studio.</p>
+        <p style={{ color: "#9fb1c7", lineHeight: 1.7 }}>Access is invite-only during the 30-day pilot. Open the invitation link issued for your studio or paste the token below.</p>
         <form onSubmit={submit} style={{ marginTop: 24 }}>
           <label htmlFor="invite" style={{ display: "block", fontSize: 12, color: "#9fb1c7", marginBottom: 8 }}>Invitation token</label>
           <input id="invite" value={invite} onChange={(event) => setInvite(event.target.value)} autoComplete="off" required minLength={20} style={{ width: "100%", boxSizing: "border-box", border: "1px solid rgba(255,255,255,.14)", background: "#0b1728", color: "#eef7ff", borderRadius: 12, padding: "13px 14px", outline: "none" }} />

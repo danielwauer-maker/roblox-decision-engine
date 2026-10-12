@@ -15,6 +15,7 @@ from app.routes.decisions import router as decisions_router
 from app.routes.experiments import router as experiments_router
 from app.routes.pilot import router as pilot_router
 from app.routes.roblox import router as roblox_router
+from app.routes.tenants import router as tenant_router
 from app.security import SecurityHeadersMiddleware, WriteRateLimitMiddleware
 
 
@@ -27,15 +28,15 @@ async def lifespan(_: FastAPI):
 settings = get_settings()
 app = FastAPI(
     title="Roblox Decision Engine API",
-    version="0.9.0",
+    version="1.0.0",
     lifespan=lifespan,
 )
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
+    allow_methods=["GET", "POST", "PUT"],
+    allow_headers=["Content-Type", "Authorization", "X-Request-ID", "X-Admin-Token"],
 )
 app.add_middleware(
     WriteRateLimitMiddleware,
@@ -50,6 +51,7 @@ app.include_router(analyst_router)
 app.include_router(experiments_router)
 app.include_router(pilot_router)
 app.include_router(commercial_router)
+app.include_router(tenant_router)
 
 
 @app.get("/health", tags=["system"])
@@ -62,6 +64,7 @@ def ready():
     dependency_state = {
         "roblox_configured": bool(settings.roblox_universe_id and settings.roblox_api_key),
         "ai_mode": "model" if settings.openai_api_key else "deterministic",
+        "pilot_auth_configured": bool(settings.pilot_admin_token and settings.pilot_credential_key),
     }
     try:
         with engine.connect() as connection:
@@ -81,5 +84,5 @@ def product() -> dict[str, object]:
         "name": "Roblox Decision Engine",
         "positioning": "AI Product & Growth Analyst for Roblox studios",
         "principle": "Evidence before explanation",
-        "status": "reliability",
+        "status": "multi-tenant-pilot",
     }

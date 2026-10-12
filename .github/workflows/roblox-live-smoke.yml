@@ -2,6 +2,12 @@ name: Roblox Live Smoke Test
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/app/integrations/roblox/**'
+      - 'apps/api/tests/test_roblox_analytics_client.py'
+      - '.github/workflows/roblox-live-smoke.yml'
 
 jobs:
   smoke:
@@ -54,10 +60,7 @@ jobs:
                   )
               )
               print('Roblox Analytics API call succeeded.')
-              if isinstance(result, dict):
-                  print('Top-level response keys:', sorted(result.keys()))
-              else:
-                  print('Response type:', type(result).__name__)
+              print('Series returned:', len(result.values))
 
           asyncio.run(main())
           PY

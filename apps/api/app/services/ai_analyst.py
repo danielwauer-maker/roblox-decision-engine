@@ -137,6 +137,24 @@ def _merge_generated_brief(
     )
 
 
+def _instructions(priorities: list[DecisionPriority], *, repair: bool = False) -> str:
+    package = build_prompt_package(priorities)
+    guardrail = (
+        "\nNever state an unproven cause as fact. Use cautious hypothesis language such as "
+        "'may', 'might', 'could', or 'is consistent with'. Do not use these phrases unless the "
+        "evidence explicitly allows a causal claim: caused by, proves that, proven cause, "
+        "definitely caused, certainly caused, is due to."
+        "\nDo not include digits or numeric values in generated prose; the UI renders evidence separately."
+        "\nPreserve the supplied priority keys exactly and generate one prose item per supplied priority."
+    )
+    if repair:
+        guardrail += (
+            "\nThis is a repair attempt because the previous answer failed a grounding guardrail. "
+            "Rewrite all prose conservatively and treat every root-cause candidate as a hypothesis."
+        )
+    return package.system + guardrail
+
+
 async def _generate_with_openai(
     priorities: list[DecisionPriority],
     settings: Settings,
@@ -147,63 +165,78 @@ async def _generate_with_openai(
         raise AIAnalystError("OPENAI_API_KEY is not configured")
 
     package = build_prompt_package(priorities)
-    instructions = (
-        package.system
-        + "\nDo not include digits or numeric values in generated prose; the UI renders evidence separately."
-        + "\nPreserve the supplied priority keys exactly and generate one prose item per supplied priority."
-    )
-    body = {
-        "model": settings.openai_model,
-        "instructions": instructions,
-        "input": package.payload_json,
-        "store": False,
-        "max_output_tokens": 900,
-        "text": {
-            "format": {
-                "type": "json_schema",
-                "name": "roblox_product_analyst",
-                "strict": True,
-                "schema": OUTPUT_SCHEMA,
-            }
-        },
-    }
     headers = {
         "Authorization": f"Bearer {settings.openai_api_key.get_secret_value()}",
         "Content-Type": "application/json",
     }
-
     owns_client = client is None
     active_client = client or httpx.AsyncClient(timeout=settings.external_request_timeout_seconds)
-    try:
-        async def send_request() -> httpx.Response:
-            response = await active_client.post(
-                f"{settings.openai_api_base_url.rstrip('/')}/responses",
-                headers=headers,
-                json=body,
-            )
-            response.raise_for_status()
-            return response
 
-        response = await retry_http_request(
-            send_request,
-            attempts=settings.external_retry_attempts,
-            backoff_seconds=settings.external_retry_backoff_seconds,
-        )
-        payload = response.json()
-    except (httpx.HTTPError, ValueError) as exc:
-        raise AIAnalystError(f"Model provider request failed after retries: {exc}") from exc
+    try:
+        validation_error: AIAnalystError | None = None
+        for validation_attempt in range(2):
+            body = {
+                "model": settings.openai_model,
+                "instructions": _instructions(priorities, repair=validation_attempt > 0),
+                "input": package.payload_json,
+                "store": False,
+                "max_output_tokens": 900,
+                "text": {
+                    "format": {
+                        "type": "json_schema",
+                        "name": "roblox_product_analyst",
+                        "strict": True,
+                        "schema": OUTPUT_SCHEMA,
+                    }
+                },
+            }
+
+            async def send_request() -> httpx.Response:
+                response = await active_client.post(
+                    f"{settings.openai_api_base_url.rstrip('/')}/responses",
+                    headers=headers,
+                    json=body,
+                )
+                response.raise_for_status()
+                return response
+
+            try:
+                response = await retry_http_request(
+                    send_request,
+                    attempts=settings.external_retry_attempts,
+                    backoff_seconds=settings.external_retry_backoff_seconds,
+                )
+                payload = response.json()
+            except (httpx.HTTPError, ValueError) as exc:
+                raise AIAnalystError(f"Model provider request failed after retries: {exc}") from exc
+
+            text = _extract_output_text(payload)
+            try:
+                generated = json.loads(text)
+            except json.JSONDecodeError as exc:
+                validation_error = AIAnalystError("Model provider returned invalid JSON")
+                if validation_attempt == 0:
+                    continue
+                raise validation_error from exc
+            if not isinstance(generated, dict):
+                validation_error = AIAnalystError("Model provider returned a non-object JSON payload")
+                if validation_attempt == 0:
+                    continue
+                raise validation_error
+
+            try:
+                return _merge_generated_brief(priorities, generated)
+            except AIAnalystError as exc:
+                validation_error = exc
+                if validation_attempt == 0:
+                    continue
+                raise
+
+        assert validation_error is not None
+        raise validation_error
     finally:
         if owns_client:
             await active_client.aclose()
-
-    text = _extract_output_text(payload)
-    try:
-        generated = json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise AIAnalystError("Model provider returned invalid JSON") from exc
-    if not isinstance(generated, dict):
-        raise AIAnalystError("Model provider returned a non-object JSON payload")
-    return _merge_generated_brief(priorities, generated)
 
 
 async def generate_analyst_brief(

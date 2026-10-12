@@ -11,7 +11,7 @@ const sprints = [
   ["R9", "Security & privacy", "DONE"],
   ["R10", "Reliability", "DONE"],
   ["R11", "Go-Live", "DONE"],
-  ["R12", "Portfolio closure", "IN PROGRESS"],
+  ["R12", "Portfolio closure", "DONE"],
 ] as const;
 
 const capabilities = ["Roblox Open Cloud", "Product Analytics", "Decision Intelligence", "FastAPI", "PostgreSQL", "AI Agents", "Experimentation", "Next.js"];
@@ -30,18 +30,18 @@ export default function PortfolioPage() {
         <a href="/" style={{ color: "#67e8f9", fontSize: 14, textDecoration: "none" }}>← Roblox Decision Engine</a>
         <div style={{ marginTop: 32, display: "grid", gap: 28, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
           <div>
-            <div style={{ color: "#67e8f9", fontSize: "clamp(10px, 2.8vw, 12px)", fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Portfolio Case Study · Active Build</div>
+            <div style={{ color: "#67e8f9", fontSize: "clamp(10px, 2.8vw, 12px)", fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Portfolio Case Study · Delivery Complete</div>
             <h1 style={{ margin: "16px 0 0", fontSize: "clamp(42px, 11vw, 58px)", lineHeight: 0.98, letterSpacing: "-.05em" }}>Roblox Decision Engine</h1>
             <p style={{ marginTop: 22, maxWidth: 760, color: "#9fb1c7", fontSize: "clamp(17px, 4.5vw, 19px)", lineHeight: 1.62 }}>AI Product & Growth Analyst for Roblox studios. The product turns retention, monetization and funnel signals into prioritized, evidence-backed actions and experiment decisions.</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 26 }}>{capabilities.map((item) => <span key={item} style={{ border: "1px solid rgba(255,255,255,.11)", background: "rgba(255,255,255,.03)", borderRadius: 999, padding: "7px 10px", fontSize: 12, color: "#c7d5e5" }}>{item}</span>)}</div>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 24 }}><a href="/demo" style={{ background: "#67e8f9", color: "#07101f", padding: "11px 14px", borderRadius: 11, fontWeight: 800, textDecoration: "none", fontSize: 13 }}>Open validation demo</a><a href="/pricing" style={{ border: "1px solid rgba(103,232,249,.24)", color: "#a5f3fc", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View pricing</a><a href="/demo/pilot" style={{ border: "1px solid rgba(255,255,255,.12)", color: "#eef7ff", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View pilot workspace</a></div>
           </div>
           <aside style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.03)", borderRadius: 24, padding: 22 }}>
-            <div style={{ color: "#718198", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase" }}>Current readiness</div>
-            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R12 active</div>
-            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>Go-Live is complete with public launch surfaces, privacy and early-access terms, canonical metadata, robots and sitemap, a secure Next.js 16 baseline, enforced dependency auditing and a READY production build. Portfolio closure is now active.</div>
-            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "99%", height: "100%", background: "#67e8f9" }} /></div>
-            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>12 done · R12 active</span><span>99%</span></div>
+            <div style={{ color: "#718198", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase" }}>Portfolio delivery</div>
+            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>Complete</div>
+            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>All R0–R12 delivery gates are complete. The case study now combines product thesis, architecture, verified engineering evidence, launch readiness and explicit commercial limitations without overstating market validation.</div>
+            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "100%", height: "100%", background: "#67e8f9" }} /></div>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>13 sprints done</span><span>100%</span></div>
           </aside>
         </div>
       </section>
@@ -67,11 +67,11 @@ export default function PortfolioPage() {
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px)" }}>
         <div style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
           <article style={{ border: "1px solid rgba(255,255,255,.1)", borderRadius: 22, padding: 22, background: "rgba(255,255,255,.025)" }}><div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase" }}>Engineering principle</div><h2 style={{ margin: "10px 0 8px", fontSize: 26 }}>AI explains. Evidence decides.</h2><p style={{ margin: 0, color: "#9fb1c7", lineHeight: 1.72 }}>Authoritative metrics and priority logic stay deterministic. The model receives structured evidence, cannot invent unsupported numbers or causal certainty, and falls back safely when validation fails.</p></article>
-          <article style={{ border: "1px solid rgba(251,191,36,.18)", borderRadius: 22, padding: 22, background: "rgba(251,191,36,.025)" }}><div style={{ color: "#fbbf24", fontSize: 11, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase" }}>Still unvalidated</div><h2 style={{ margin: "10px 0 8px", fontSize: 26 }}>Build complete ≠ market proven.</h2><p style={{ margin: 0, color: "#9fb1c7", lineHeight: 1.72 }}>There are no claims of paying studios, recurring revenue, validated willingness to pay or proven KPI lift. That is why commercial validation remains at 70% even when engineering and portfolio delivery reach completion.</p></article>
+          <article style={{ border: "1px solid rgba(251,191,36,.18)", borderRadius: 22, padding: 22, background: "rgba(251,191,36,.025)" }}><div style={{ color: "#fbbf24", fontSize: 11, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase" }}>Still unvalidated</div><h2 style={{ margin: "10px 0 8px", fontSize: 26 }}>Build complete ≠ market proven.</h2><p style={{ margin: 0, color: "#9fb1c7", lineHeight: 1.72 }}>There are no claims of paying studios, recurring revenue, validated willingness to pay or proven KPI lift. That is why commercial validation remains at 70% even though engineering and portfolio delivery are complete.</p></article>
         </div>
       </section>
 
-      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px) 80px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Delivery</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Sprint path to validated early-access release</h2><div style={{ marginTop: 24, border: "1px solid rgba(255,255,255,.1)", borderRadius: 24, overflow: "hidden" }}>{sprints.map(([id, title, status], index) => <div key={id} style={{ display: "grid", gridTemplateColumns: "52px minmax(0, 1fr) auto", gap: 10, alignItems: "center", padding: "14px", borderTop: index ? "1px solid rgba(255,255,255,.08)" : "none" }}><div style={{ color: "#67e8f9", fontFamily: "monospace", fontSize: 13 }}>{id}</div><div style={{ color: "#dce8f5", fontSize: 13 }}>{title}</div><div style={{ borderRadius: 999, padding: "5px 7px", fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", color: status === "DONE" ? "#a7f3d0" : status === "IN PROGRESS" ? "#a5f3fc" : "#718198", background: status === "DONE" ? "rgba(52,211,153,.1)" : status === "IN PROGRESS" ? "rgba(103,232,249,.1)" : "rgba(255,255,255,.035)" }}>{status}</div></div>)}</div></section>
+      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px) 80px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Delivery</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>R0–R12 delivery complete</h2><div style={{ marginTop: 24, border: "1px solid rgba(255,255,255,.1)", borderRadius: 24, overflow: "hidden" }}>{sprints.map(([id, title, status], index) => <div key={id} style={{ display: "grid", gridTemplateColumns: "52px minmax(0, 1fr) auto", gap: 10, alignItems: "center", padding: "14px", borderTop: index ? "1px solid rgba(255,255,255,.08)" : "none" }}><div style={{ color: "#67e8f9", fontFamily: "monospace", fontSize: 13 }}>{id}</div><div style={{ color: "#dce8f5", fontSize: 13 }}>{title}</div><div style={{ borderRadius: 999, padding: "5px 7px", fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", color: "#a7f3d0", background: "rgba(52,211,153,.1)" }}>{status}</div></div>)}</div></section>
     </main>
   );
 }

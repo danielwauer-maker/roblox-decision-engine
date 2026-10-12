@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { fetchAdminBackend, isAdminRequest } from "@/lib/admin-backend";
 
+function publicOrigin(request: NextRequest) {
+  const configured = (process.env.PUBLIC_APP_URL ?? "").trim().replace(/\/$/, "");
+  if (configured) return configured;
+
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  if (forwardedHost) {
+    return `${forwardedProto ?? "https"}://${forwardedHost}`;
+  }
+
+  return request.nextUrl.origin;
+}
+
 export async function POST(request: NextRequest) {
   if (!isAdminRequest(request)) {
     return NextResponse.json({ detail: "Unauthorized" }, { status: 401 });
@@ -37,7 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const inviteUrl = `${request.nextUrl.origin}/app/login?token=${encodeURIComponent(invite.invite_token)}`;
+    const inviteUrl = `${publicOrigin(request)}/app/login?token=${encodeURIComponent(invite.invite_token)}`;
     return NextResponse.json({ organization, invite_url: inviteUrl, expires_at: invite.expires_at });
   } catch {
     return NextResponse.json({ detail: "Admin API unavailable" }, { status: 503 });

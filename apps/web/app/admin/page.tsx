@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 
 import { ADMIN_COOKIE_NAME, verifyAdminSession } from "@/lib/admin-auth";
 import AdminDashboard from "./AdminDashboard";
+import SimulationSeeder from "./SimulationSeeder";
 
 export const dynamic = "force-dynamic";
 
@@ -10,5 +11,12 @@ export default async function AdminPage() {
   const cookieStore = await cookies();
   const session = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
   if (!verifyAdminSession(session)) redirect("/admin/login");
-  return <AdminDashboard />;
+  return (
+    <div style={{ minHeight: "100vh", background: "#06111f", color: "#edf6ff" }}>
+      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "1px clamp(18px, 4vw, 42px) 0" }}>
+        <SimulationSeeder />
+      </div>
+      <AdminDashboard />
+    </div>
+  );
 }

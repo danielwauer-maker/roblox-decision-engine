@@ -9,16 +9,22 @@ from app.domain.decision_engine import DecisionSnapshot
 from app.models import MetricObservationRecord
 
 
-def _rows(session: Session, universe_id: str, metric: str, limit: int = 60):
-    query = (
-        select(MetricObservationRecord)
-        .where(
-            MetricObservationRecord.universe_id == universe_id,
-            MetricObservationRecord.metric == metric,
-        )
-        .order_by(desc(MetricObservationRecord.observed_at))
-        .limit(limit)
+def _rows(
+    session: Session,
+    universe_id: str,
+    metric: str,
+    limit: int = 60,
+    organization_id: int | None = None,
+):
+    query = select(MetricObservationRecord).where(
+        MetricObservationRecord.universe_id == universe_id,
+        MetricObservationRecord.metric == metric,
     )
+    if organization_id is None:
+        query = query.where(MetricObservationRecord.organization_id.is_(None))
+    else:
+        query = query.where(MetricObservationRecord.organization_id == organization_id)
+    query = query.order_by(desc(MetricObservationRecord.observed_at)).limit(limit)
     return list(session.scalars(query).all())
 
 
@@ -57,10 +63,29 @@ def _retention_segments(rows: list[MetricObservationRecord]) -> tuple[float | No
     return mobile, desktop
 
 
-def build_decision_snapshot(session: Session, universe_id: str) -> DecisionSnapshot:
-    retention_rows = _rows(session, universe_id, "ForwardD1Retention")
-    revenue_rows = _rows(session, universe_id, "DailyRevenue")
-    dau_rows = _rows(session, universe_id, "DailyActiveUsers")
+def build_decision_snapshot(
+    session: Session,
+    universe_id: str,
+    organization_id: int | None = None,
+) -> DecisionSnapshot:
+    retention_rows = _rows(
+        session,
+        universe_id,
+        "ForwardD1Retention",
+        organization_id=organization_id,
+    )
+    revenue_rows = _rows(
+        session,
+        universe_id,
+        "DailyRevenue",
+        organization_id=organization_id,
+    )
+    dau_rows = _rows(
+        session,
+        universe_id,
+        "DailyActiveUsers",
+        organization_id=organization_id,
+    )
 
     retention, retention_baseline = _current_and_baseline(retention_rows)
     revenue, revenue_baseline = _current_and_baseline(revenue_rows)

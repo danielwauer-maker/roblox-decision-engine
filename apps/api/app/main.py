@@ -15,6 +15,7 @@ from app.routes.decisions import router as decisions_router
 from app.routes.experiments import router as experiments_router
 from app.routes.pilot import router as pilot_router
 from app.routes.roblox import router as roblox_router
+from app.routes.tenant_insights import router as tenant_insights_router
 from app.routes.tenants import router as tenant_router
 from app.security import SecurityHeadersMiddleware, WriteRateLimitMiddleware
 
@@ -52,6 +53,7 @@ app.include_router(experiments_router)
 app.include_router(pilot_router)
 app.include_router(commercial_router)
 app.include_router(tenant_router)
+app.include_router(tenant_insights_router)
 
 
 @app.get("/health", tags=["system"])

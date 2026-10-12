@@ -3,7 +3,6 @@ from dataclasses import asdict, dataclass
 
 from app.domain.decision_engine import DecisionPriority
 
-
 SYSTEM_POLICY = """You are the Roblox Decision Engine Product Analyst.
 Use only facts present in the supplied decision bundle.
 Never invent metrics, dates, segments, benchmarks, causes, experiments, or certainty.

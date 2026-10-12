@@ -8,6 +8,7 @@ const nav = [
   ["Investigation", "/demo/investigation"],
   ["Experiment", "/demo/experiment"],
   ["Weekly Brief", "/demo/report"],
+  ["Pilot", "/demo/pilot"],
 ] as const;
 
 export const palette = {

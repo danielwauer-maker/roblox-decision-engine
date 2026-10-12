@@ -8,6 +8,12 @@ class Severity(StrEnum):
     HIGH = "high"
 
 
+class EvidenceQuality(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
 @dataclass(slots=True)
 class EvidenceItem:
     metric: str
@@ -29,11 +35,15 @@ class RootCauseCandidate:
 @dataclass(slots=True)
 class DecisionPriority:
     key: str
+    family: str
     title: str
     recommendation: str
     impact_score: int
     confidence_score: int
     severity: Severity
+    evidence_quality: EvidenceQuality
+    causal_claim_allowed: bool = False
+    guardrail: str = "Treat this as a supported hypothesis, not a proven causal explanation."
     evidence: list[EvidenceItem] = field(default_factory=list)
     root_causes: list[RootCauseCandidate] = field(default_factory=list)
 
@@ -60,7 +70,20 @@ def _pct_change(current: float, baseline: float) -> float:
     return ((current - baseline) / baseline) * 100
 
 
-def evaluate_snapshot(snapshot: DecisionSnapshot) -> list[DecisionPriority]:
+def _deduplicate(priorities: list[DecisionPriority]) -> list[DecisionPriority]:
+    """Keep only the strongest signal per decision family."""
+    winners: dict[str, DecisionPriority] = {}
+    for priority in priorities:
+        current = winners.get(priority.family)
+        if current is None or priority.priority_score > current.priority_score:
+            winners[priority.family] = priority
+        elif current is not None and priority.priority_score == current.priority_score:
+            if len(priority.evidence) > len(current.evidence):
+                winners[priority.family] = priority
+    return list(winners.values())
+
+
+def evaluate_snapshot(snapshot: DecisionSnapshot, *, limit: int = 3) -> list[DecisionPriority]:
     priorities: list[DecisionPriority] = []
 
     if (
@@ -74,6 +97,7 @@ def evaluate_snapshot(snapshot: DecisionSnapshot) -> list[DecisionPriority]:
             priorities.append(
                 DecisionPriority(
                     key="mobile_retention_gap",
+                    family="retention",
                     title="Investigate mobile onboarding friction",
                     recommendation=(
                         "Compare the first-session funnel by device and test a shorter mobile onboarding flow."
@@ -81,6 +105,7 @@ def evaluate_snapshot(snapshot: DecisionSnapshot) -> list[DecisionPriority]:
                     impact_score=min(100, 65 + round(gap * 180)),
                     confidence_score=confidence,
                     severity=Severity.HIGH if gap >= 0.08 else Severity.MEDIUM,
+                    evidence_quality=EvidenceQuality.HIGH,
                     evidence=[
                         EvidenceItem(
                             metric="ForwardD1Retention",
@@ -113,6 +138,7 @@ def evaluate_snapshot(snapshot: DecisionSnapshot) -> list[DecisionPriority]:
             priorities.append(
                 DecisionPriority(
                     key="retention_decline",
+                    family="retention",
                     title="Recover Day-1 retention before scaling growth",
                     recommendation=(
                         "Pause aggressive acquisition scaling and localize the largest first-session drop-off."
@@ -120,6 +146,7 @@ def evaluate_snapshot(snapshot: DecisionSnapshot) -> list[DecisionPriority]:
                     impact_score=min(100, 60 + round(abs(change) * 0.6)),
                     confidence_score=88,
                     severity=Severity.HIGH,
+                    evidence_quality=EvidenceQuality.MEDIUM,
                     evidence=[
                         EvidenceItem(
                             metric="ForwardD1Retention",
@@ -152,6 +179,7 @@ def evaluate_snapshot(snapshot: DecisionSnapshot) -> list[DecisionPriority]:
             priorities.append(
                 DecisionPriority(
                     key="monetization_lag",
+                    family="monetization",
                     title="Convert traffic growth into monetization",
                     recommendation=(
                         "Inspect payer conversion and offer timing before increasing acquisition spend further."
@@ -159,6 +187,7 @@ def evaluate_snapshot(snapshot: DecisionSnapshot) -> list[DecisionPriority]:
                     impact_score=min(100, 62 + round(dau_change * 0.8)),
                     confidence_score=80,
                     severity=Severity.MEDIUM,
+                    evidence_quality=EvidenceQuality.HIGH,
                     evidence=[
                         EvidenceItem(
                             metric="DailyActiveUsers",
@@ -192,5 +221,6 @@ def evaluate_snapshot(snapshot: DecisionSnapshot) -> list[DecisionPriority]:
                 )
             )
 
+    priorities = _deduplicate(priorities)
     priorities.sort(key=lambda item: item.priority_score, reverse=True)
-    return priorities
+    return priorities[: max(0, limit)]

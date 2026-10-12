@@ -1,0 +1,73 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: rde-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-roblox_decision_engine}
+      POSTGRES_USER: ${POSTGRES_USER:-rde}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-rde} -d ${POSTGRES_DB:-roblox_decision_engine}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - ${RDE_DATA_DIR:-/mnt/HC_Volume_106874499/rde}/postgres:/var/lib/postgresql/data
+    networks:
+      - rde-internal
+    mem_limit: 512m
+
+  api:
+    build:
+      context: ./apps/api
+    container_name: rde-api
+    restart: unless-stopped
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-rde}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-roblox_decision_engine}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8090}
+      PILOT_ADMIN_TOKEN: ${PILOT_ADMIN_TOKEN:?PILOT_ADMIN_TOKEN is required}
+      PILOT_CREDENTIAL_KEY: ${PILOT_CREDENTIAL_KEY:?PILOT_CREDENTIAL_KEY is required}
+      PILOT_SESSION_HOURS: ${PILOT_SESSION_HOURS:-840}
+      PILOT_INVITE_HOURS: ${PILOT_INVITE_HOURS:-72}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_API_BASE_URL: ${OPENAI_API_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
+      ROBLOX_ANALYTICS_BASE_URL: ${ROBLOX_ANALYTICS_BASE_URL:-https://apis.roblox.com/analytics-query-api}
+      WRITE_RATE_LIMIT_PER_MINUTE: ${WRITE_RATE_LIMIT_PER_MINUTE:-60}
+    ports:
+      - "127.0.0.1:8091:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - rde-internal
+    mem_limit: 512m
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile.production
+    container_name: rde-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_BASE_URL: http://api:8000
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8091}
+      ADMIN_DASHBOARD_USERNAME: ${ADMIN_DASHBOARD_USERNAME:-operator}
+      ADMIN_DASHBOARD_PASSWORD: ${ADMIN_DASHBOARD_PASSWORD:?ADMIN_DASHBOARD_PASSWORD is required}
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:?ADMIN_SESSION_SECRET is required}
+      PILOT_ADMIN_TOKEN: ${PILOT_ADMIN_TOKEN:?PILOT_ADMIN_TOKEN is required}
+    ports:
+      - "127.0.0.1:8090:3000"
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - rde-internal
+    mem_limit: 640m
+
+networks:
+  rde-internal:
+    name: rde-internal

@@ -2,8 +2,8 @@ const sprints = [
   ["R0", "Product foundation", "DONE"],
   ["R1", "Validation experience", "DONE"],
   ["R2", "SaaS foundation", "DONE"],
-  ["R3", "Roblox data connection", "IN PROGRESS"],
-  ["R4", "Decision Engine v1", "PLANNED"],
+  ["R3", "Roblox data connection", "DONE"],
+  ["R4", "Decision Engine v1", "IN PROGRESS"],
   ["R5", "AI Product Analyst", "PLANNED"],
   ["R6", "Experiment Copilot", "PLANNED"],
   ["R7", "Pilot readiness", "PLANNED"],
@@ -31,17 +31,17 @@ export default function PortfolioPage() {
           </div>
           <aside style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.03)", borderRadius: 24, padding: 22 }}>
             <div style={{ color: "#718198", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase" }}>Current readiness</div>
-            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R3 · validation pending</div>
-            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>Live-data pipeline, normalization and persistence are implemented. Exit gate now requires one successful real Roblox analytics sync.</div>
-            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "38%", height: "100%", background: "#67e8f9" }} /></div>
-            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>3 done · R3 at exit gate</span><span>38%</span></div>
+            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R4 active</div>
+            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>Live Roblox analytics validation passed. Decision Engine v1 is now the active sprint.</div>
+            <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "46%", height: "100%", background: "#67e8f9" }} /></div>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>4 done · R4 active</span><span>46%</span></div>
           </aside>
         </div>
       </section>
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "20px clamp(20px, 5vw, 24px)" }}>
         <div style={{ display: "grid", gap: 14, gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>
-          {[["Validation", "100%", "Landing page plus six clickable validation screens complete"],["Product", "55%", "Decision-first V1 workflow and experiment journey defined"],["Engineering", "65%", "Live Roblox ingestion, normalization and idempotent persistence implemented; credential validation pending"],["Commercial", "10%", "Pilot positioning defined; pricing remains a validation hypothesis"]].map(([label, value, copy]) => <article key={label} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 20, padding: 20 }}><div style={{ color: "#718198", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>{label}</div><div style={{ marginTop: 10, fontSize: 30, fontWeight: 700 }}>{value}</div><p style={{ color: "#9fb1c7", fontSize: 13, lineHeight: 1.65 }}>{copy}</p></article>)}
+          {[["Validation", "100%", "Landing page plus six clickable validation screens complete"],["Product", "65%", "Decision-first V1 workflow defined; deterministic prioritization engine now in development"],["Engineering", "75%", "Live Roblox ingestion validated end-to-end; Decision Engine v1 active"],["Commercial", "10%", "Pilot positioning defined; pricing remains a validation hypothesis"]].map(([label, value, copy]) => <article key={label} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 20, padding: 20 }}><div style={{ color: "#718198", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>{label}</div><div style={{ marginTop: 10, fontSize: 30, fontWeight: 700 }}>{value}</div><p style={{ color: "#9fb1c7", fontSize: 13, lineHeight: 1.65 }}>{copy}</p></article>)}
         </div>
       </section>
 

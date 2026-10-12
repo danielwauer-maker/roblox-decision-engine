@@ -13,8 +13,14 @@ class Settings(BaseSettings):
     openai_api_base_url: str = "https://api.openai.com/v1"
     openai_api_key: SecretStr | None = None
     openai_model: str = "gpt-6-luna"
+    cors_origins: str = "http://localhost:3000"
+    write_rate_limit_per_minute: int = 60
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
 
 @lru_cache

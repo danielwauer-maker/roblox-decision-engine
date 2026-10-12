@@ -89,7 +89,7 @@ def persist_observations(
 async def sync_metric_for_connection(
     session: Session,
     *,
-    organization_id: int,
+    organization_id: int | None,
     universe_id: str,
     api_key: str,
     metric: str,
@@ -163,7 +163,7 @@ async def sync_metric(
         raise RobloxAnalyticsError("Live Roblox analytics is not configured")
     return await sync_metric_for_connection(
         session,
-        organization_id=0,
+        organization_id=None,
         universe_id=settings.roblox_universe_id,
         api_key=settings.roblox_api_key.get_secret_value(),
         metric=metric,

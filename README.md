@@ -19,8 +19,8 @@ The SaaS sits above Roblox analytics, validates KPI changes deterministically, c
 - R8 Commercial readiness — DONE
 - R9 Security & privacy — DONE
 - R10 Reliability — DONE
-- R11 Go-Live — IN PROGRESS
-- R12 Portfolio closure — PLANNED
+- R11 Go-Live — DONE
+- R12 Portfolio closure — IN PROGRESS
 
 Production validation site: https://roblox-decision-engine.vercel.app
 
@@ -73,7 +73,7 @@ ROBLOX_API_KEY=<read-only key with universe.analytics:read>
 
 Roblox Analytics / Open Cloud → Query Adapter → Metric Normalization → PostgreSQL History → Deterministic Decision Engine → Evidence Bundle → AI Product Analyst → Priorities / Experiments / Weekly Brief.
 
-## Reliability baseline
+## Reliability and security baseline
 
 - bounded external-request timeouts and retries
 - retry only for transient provider/network failures
@@ -82,6 +82,9 @@ Roblox Analytics / Open Cloud → Query Adapter → Metric Normalization → Pos
 - deterministic AI fallback
 - one guarded repair attempt for model prose that violates grounding constraints
 - live Roblox and OpenAI smoke workflows
+- Next.js 16.3.8 + React 19.2.1 frontend baseline
+- `npm audit --audit-level=high` enforced in CI
+- current frontend dependency audit: 0 vulnerabilities
 
 ## Repository layout
 
@@ -96,6 +99,6 @@ The LLM never owns authoritative metric calculation. Unsupported causes or numbe
 
 ## Go-Live
 
-The R11 release gate and rollback procedure are documented in `docs/R11_GO_LIVE.md`.
+R11 is complete. The release gate and rollback procedure are documented in `docs/R11_GO_LIVE.md`.
 
-The public release remains an **early-access validation release**. Pricing is still a commercial hypothesis, the guided pilot is free, and no payment is collected through the current site.
+The public release remains an **early-access validation release**. Pricing is still a commercial hypothesis, the guided pilot is free, and no payment is collected through the current site. R12 now packages the completed build into a final, evidence-backed portfolio case study without claiming unvalidated customer traction or revenue.

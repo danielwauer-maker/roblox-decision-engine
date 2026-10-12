@@ -6,7 +6,7 @@ AI Product & Growth Analyst for Roblox studios.
 
 The SaaS sits above Roblox analytics, validates KPI changes deterministically, compares segments and baselines, creates an evidence bundle, and only then asks an AI layer to explain the finding and propose the next experiment.
 
-## Current delivery status
+## Delivery status
 
 - R0 Product foundation — DONE
 - R1 Validation experience — DONE
@@ -20,7 +20,9 @@ The SaaS sits above Roblox analytics, validates KPI changes deterministically, c
 - R9 Security & privacy — DONE
 - R10 Reliability — DONE
 - R11 Go-Live — DONE
-- R12 Portfolio closure — IN PROGRESS
+- R12 Portfolio closure — DONE
+
+**Portfolio delivery: 100% complete.** Commercial market validation remains deliberately separate from build completion.
 
 Production validation site: https://roblox-decision-engine.vercel.app
 
@@ -66,12 +68,25 @@ ROBLOX_API_KEY=<read-only key with universe.analytics:read>
 7. Weekly Growth Brief
 8. Pilot workspace
 9. Pricing / commercial validation
-10. Portfolio build log
+10. Portfolio case study
 11. Privacy / early-access terms
 
 ## Architecture
 
 Roblox Analytics / Open Cloud → Query Adapter → Metric Normalization → PostgreSQL History → Deterministic Decision Engine → Evidence Bundle → AI Product Analyst → Priorities / Experiments / Weekly Brief.
+
+## Verified portfolio evidence
+
+- 39 backend tests passed in the reliability gate
+- Ruff checks passing
+- live Roblox provider smoke passing
+- live OpenAI model smoke passing
+- deterministic AI fallback and grounded repair path validated
+- Next.js 16.3.8 + React 19.2.1 frontend baseline
+- frontend dependency audit reports 0 vulnerabilities
+- `npm audit --audit-level=high` enforced in CI
+- production frontend build and launch-route manifest passing
+- secure production deployments reached Vercel READY state
 
 ## Reliability and security baseline
 
@@ -82,23 +97,22 @@ Roblox Analytics / Open Cloud → Query Adapter → Metric Normalization → Pos
 - deterministic AI fallback
 - one guarded repair attempt for model prose that violates grounding constraints
 - live Roblox and OpenAI smoke workflows
-- Next.js 16.3.8 + React 19.2.1 frontend baseline
-- `npm audit --audit-level=high` enforced in CI
-- current frontend dependency audit: 0 vulnerabilities
+- server-side secret boundaries and least-privilege analytics access
+- security headers, CORS baseline, write-rate limiting and documented retention/deletion behavior
 
 ## Repository layout
 
 - `apps/web` — Next.js / TypeScript frontend
 - `apps/api` — FastAPI backend
-- `docs` — product, architecture, sprint, security, reliability and release documentation
+- `docs` — product, architecture, sprint, security, reliability, release and portfolio evidence
 - `.github/workflows` — CI and provider smoke workflows
 
 ## Core product rule
 
 The LLM never owns authoritative metric calculation. Unsupported causes or numbers must not be invented. Recommendations are generated only from structured evidence; insufficient or invalid model output is rejected or falls back safely.
 
-## Go-Live
+## Portfolio boundary
 
-R11 is complete. The release gate and rollback procedure are documented in `docs/R11_GO_LIVE.md`.
+The build is complete as a **production-oriented early-access SaaS portfolio case study**. This does not imply completed market validation. There are no claims of paying customers, recurring revenue, validated willingness to pay or statistically proven KPI lift for a real studio.
 
-The public release remains an **early-access validation release**. Pricing is still a commercial hypothesis, the guided pilot is free, and no payment is collected through the current site. R12 now packages the completed build into a final, evidence-backed portfolio case study without claiming unvalidated customer traction or revenue.
+R11 release evidence is documented in `docs/R11_GO_LIVE.md`. Final case-study evidence and limitations are documented in `docs/R12_PORTFOLIO_CLOSURE.md`.

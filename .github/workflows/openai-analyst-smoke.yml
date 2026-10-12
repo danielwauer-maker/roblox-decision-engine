@@ -2,6 +2,13 @@ name: OpenAI Analyst Live Smoke Test
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/openai-analyst-smoke.yml'
+      - 'apps/api/app/services/ai_analyst.py'
+      - 'apps/api/app/domain/analyst_prompt.py'
+      - 'apps/api/tests/test_ai_analyst.py'
 
 jobs:
   smoke:

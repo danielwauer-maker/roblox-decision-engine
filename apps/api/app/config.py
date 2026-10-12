@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     roblox_analytics_base_url: str = "https://apis.roblox.com/analytics-query-api"
     roblox_universe_id: str | None = None
     roblox_api_key: SecretStr | None = None
+    openai_api_base_url: str = "https://api.openai.com/v1"
+    openai_api_key: SecretStr | None = None
+    openai_model: str = "gpt-6-luna"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

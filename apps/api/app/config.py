@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     external_request_timeout_seconds: float = 15.0
     external_retry_attempts: int = 3
     external_retry_backoff_seconds: float = 0.25
+    pilot_admin_token: SecretStr | None = None
+    pilot_credential_key: SecretStr | None = None
+    pilot_session_hours: int = 24 * 14
+    pilot_invite_hours: int = 72
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -1,7 +1,7 @@
 import { Button, Card, DemoShell, PageTitle, Pill, palette } from "../_components";
 
 export default function ConnectPage() {
-  return <DemoShell><PageTitle title="Connect your experience" copy="The pilot connection uses least-privilege Roblox analytics access. No game code changes are required for the validation path." />
+  return <DemoShell><PageTitle title="Connect your experience" copy="The pilot connection uses least-privilege Roblox analytics access. No game code changes are required for the validation path." action={<Button href="/demo/pilot">Pilot checklist</Button>} />
     <div style={{ marginTop: 28, display: "grid", gap: 16, gridTemplateColumns: "minmax(0,1.3fr) minmax(280px,.7fr)" }}>
       <Card><div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", flexWrap: "wrap" }}><div><div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>Step 1 of 2</div><h2 style={{ margin: "10px 0 6px" }}>Roblox Open Cloud</h2></div><Pill tone="good">Read only</Pill></div><p style={{ color: palette.muted, lineHeight: 1.65, maxWidth: 680 }}>Create an API key scoped only to the target universe and the analytics read permission. The Decision Engine never needs your Roblox password.</p>
         <div style={{ marginTop: 20, display: "grid", gap: 12 }}><label style={{ color: palette.muted, fontSize: 13 }}>Universe ID<div style={{ marginTop: 7, border: `1px solid ${palette.border}`, borderRadius: 12, padding: "13px 14px", color: palette.text, background: palette.panel2 }}>1234567890</div></label><label style={{ color: palette.muted, fontSize: 13 }}>API key<div style={{ marginTop: 7, border: `1px solid ${palette.border}`, borderRadius: 12, padding: "13px 14px", color: palette.faint, background: palette.panel2 }}>••••••••••••••••••••••••</div></label></div>
@@ -9,5 +9,10 @@ export default function ConnectPage() {
       </Card>
       <Card><div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>Access model</div><h3 style={{ margin: "12px 0" }}>What we read</h3>{["Aggregated retention metrics","Revenue and payer metrics","Funnel and churn signals","Platform / device segments"].map(x=><div key={x} style={{ padding: "10px 0", borderBottom: `1px solid ${palette.border}`, color: palette.muted }}>✓ {x}</div>)}<h3 style={{ margin: "20px 0 8px" }}>What we do not request</h3>{["Roblox password","Write access to the game","Player private messages","Source code access"].map(x=><div key={x} style={{ padding: "7px 0", color: palette.faint }}>— {x}</div>)}</Card>
     </div>
+    <div style={{ marginTop: 20 }}><div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>After validation</div><h2 style={{ margin: "10px 0 16px" }}>Every connection state has a next action.</h2><div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))" }}>
+      <Card><Pill tone="good">Connected</Pill><h3 style={{ margin: "12px 0 7px" }}>Analytics available</h3><p style={{ margin: 0, color: palette.muted, lineHeight: 1.6 }}>Continue directly to the decision queue and review the first evidence-backed priority.</p></Card>
+      <Card><Pill tone="warn">No data yet</Pill><h3 style={{ margin: "12px 0 7px" }}>Connection valid</h3><p style={{ margin: 0, color: palette.muted, lineHeight: 1.6 }}>Explain that the experience has not produced enough analytics yet. Offer a later retry or the simulated demo instead of showing an empty dashboard.</p></Card>
+      <Card><Pill tone="bad">Needs attention</Pill><h3 style={{ margin: "12px 0 7px" }}>Sync failed</h3><p style={{ margin: 0, color: palette.muted, lineHeight: 1.6 }}>Show the exact recovery step: verify universe access, read scope and key validity, then retry without losing previous evidence.</p></Card>
+    </div></div>
   </DemoShell>;
 }

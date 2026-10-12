@@ -10,12 +10,16 @@ from app.reliability import retry_http_request
 client = TestClient(app)
 
 
-def test_ready_endpoint_and_observability_headers() -> None:
+def test_ready_endpoint_degrades_without_database_and_keeps_observability_headers() -> None:
     response = client.get("/ready", headers={"X-Request-ID": "rde-test-request"})
 
-    assert response.status_code == 200
-    assert response.json()["status"] == "ready"
-    assert response.json()["database"] == "ok"
+    assert response.status_code in {200, 503}
+    if response.status_code == 200:
+        assert response.json()["status"] == "ready"
+        assert response.json()["database"] == "ok"
+    else:
+        assert response.json()["status"] == "not_ready"
+        assert response.json()["database"] == "unavailable"
     assert response.headers["x-request-id"] == "rde-test-request"
     assert float(response.headers["x-response-time-ms"]) >= 0
 

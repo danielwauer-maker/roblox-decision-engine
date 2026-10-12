@@ -7,10 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.domain.metrics import MetricObservation, normalize_metric_response
-from app.integrations.roblox.client import (
-    RobloxAnalyticsClient,
-    RobloxAnalyticsError,
-)
+from app.integrations.roblox.client import RobloxAnalyticsClient, RobloxAnalyticsError
 from app.integrations.roblox.models import Granularity, MetricQuery
 from app.models import MetricObservationRecord
 
@@ -54,6 +51,7 @@ def persist_observations(
     *,
     universe_id: str,
     observations: list[MetricObservation],
+    organization_id: int | None = None,
 ) -> int:
     inserted = 0
     now = datetime.now(UTC)
@@ -61,6 +59,7 @@ def persist_observations(
         dimensions_key = _dimensions_key(observation.dimensions)
         exists = session.scalar(
             select(MetricObservationRecord.id).where(
+                MetricObservationRecord.organization_id == organization_id,
                 MetricObservationRecord.universe_id == universe_id,
                 MetricObservationRecord.metric == observation.metric,
                 MetricObservationRecord.observed_at == observation.time,
@@ -71,6 +70,7 @@ def persist_observations(
             continue
         session.add(
             MetricObservationRecord(
+                organization_id=organization_id,
                 universe_id=universe_id,
                 metric=observation.metric,
                 observed_at=observation.time,
@@ -86,21 +86,21 @@ def persist_observations(
     return inserted
 
 
-async def sync_metric(
+async def sync_metric_for_connection(
     session: Session,
     *,
+    organization_id: int,
+    universe_id: str,
+    api_key: str,
     metric: str,
     days: int = 30,
 ) -> dict[str, object]:
     settings = get_settings()
-    if not settings.roblox_universe_id or not settings.roblox_api_key:
-        raise RobloxAnalyticsError("Live Roblox analytics is not configured")
-
     end_time = datetime.now(UTC)
     start_time = end_time - timedelta(days=days)
     client = RobloxAnalyticsClient(
-        universe_id=settings.roblox_universe_id,
-        api_key=settings.roblox_api_key.get_secret_value(),
+        universe_id=universe_id,
+        api_key=api_key,
         base_url=settings.roblox_analytics_base_url,
         request_timeout_seconds=settings.external_request_timeout_seconds,
         retry_attempts=settings.external_retry_attempts,
@@ -117,18 +117,64 @@ async def sync_metric(
     observations = normalize_metric_response(metric, response)
     inserted = persist_observations(
         session,
-        universe_id=settings.roblox_universe_id,
+        organization_id=organization_id,
+        universe_id=universe_id,
         observations=observations,
     )
     return {
         "metric": metric,
         "received": len(observations),
         "inserted": inserted,
-        "universe_id": settings.roblox_universe_id,
+        "universe_id": universe_id,
     }
 
 
+async def sync_default_metrics_for_connection(
+    session: Session,
+    *,
+    organization_id: int,
+    universe_id: str,
+    api_key: str,
+    days: int = 30,
+) -> dict[str, object]:
+    results = []
+    for metric in DEFAULT_METRICS:
+        results.append(
+            await sync_metric_for_connection(
+                session,
+                organization_id=organization_id,
+                universe_id=universe_id,
+                api_key=api_key,
+                metric=metric,
+                days=days,
+            )
+        )
+    return {"metrics": results, "days": days}
+
+
+async def sync_metric(
+    session: Session,
+    *,
+    metric: str,
+    days: int = 30,
+) -> dict[str, object]:
+    settings = get_settings()
+    if not settings.roblox_universe_id or not settings.roblox_api_key:
+        raise RobloxAnalyticsError("Live Roblox analytics is not configured")
+    return await sync_metric_for_connection(
+        session,
+        organization_id=0,
+        universe_id=settings.roblox_universe_id,
+        api_key=settings.roblox_api_key.get_secret_value(),
+        metric=metric,
+        days=days,
+    )
+
+
 async def sync_default_metrics(session: Session, *, days: int = 30) -> dict[str, object]:
+    settings = get_settings()
+    if not settings.roblox_universe_id or not settings.roblox_api_key:
+        raise RobloxAnalyticsError("Live Roblox analytics is not configured")
     results = []
     for metric in DEFAULT_METRICS:
         results.append(await sync_metric(session, metric=metric, days=days))

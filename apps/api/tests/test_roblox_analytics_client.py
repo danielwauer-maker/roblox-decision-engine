@@ -51,6 +51,27 @@ async def test_immediate_metric_response() -> None:
 
 
 @pytest.mark.asyncio
+async def test_immediate_empty_response_without_operation_path() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.method == "POST"
+        return httpx.Response(
+            200,
+            json={
+                "done": True,
+                "response": {"values": []},
+            },
+        )
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http_client:
+        client = RobloxAnalyticsClient(
+            universe_id="123", api_key="secret", http_client=http_client
+        )
+        result = await client.query_metric(query())
+
+    assert result.values == []
+
+
+@pytest.mark.asyncio
 async def test_long_running_metric_response_is_polled() -> None:
     calls = 0
 

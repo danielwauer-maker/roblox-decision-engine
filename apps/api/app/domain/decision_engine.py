@@ -77,9 +77,12 @@ def _deduplicate(priorities: list[DecisionPriority]) -> list[DecisionPriority]:
         current = winners.get(priority.family)
         if current is None or priority.priority_score > current.priority_score:
             winners[priority.family] = priority
-        elif current is not None and priority.priority_score == current.priority_score:
-            if len(priority.evidence) > len(current.evidence):
-                winners[priority.family] = priority
+        elif (
+            current is not None
+            and priority.priority_score == current.priority_score
+            and len(priority.evidence) > len(current.evidence)
+        ):
+            winners[priority.family] = priority
     return list(winners.values())
 
 

@@ -28,3 +28,13 @@ class MetricObservationRecord(Base):
     dimensions_key: Mapped[str] = mapped_column(String(512), default="")
     status: Mapped[str | None] = mapped_column(String(64), nullable=True)
     ingested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class PilotFeedbackRecord(Base):
+    __tablename__ = "pilot_feedback"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    category: Mapped[str] = mapped_column(String(64))
+    message: Mapped[str] = mapped_column(Text)
+    usefulness_score: Mapped[int | None] = mapped_column(nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)

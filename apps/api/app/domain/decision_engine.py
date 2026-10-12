@@ -117,7 +117,7 @@ def evaluate_snapshot(snapshot: DecisionSnapshot) -> list[DecisionPriority]:
                     recommendation=(
                         "Pause aggressive acquisition scaling and localize the largest first-session drop-off."
                     ),
-                    impact_score=min(100, 70 + round(abs(change) * 0.8)),
+                    impact_score=min(100, 60 + round(abs(change) * 0.6)),
                     confidence_score=88,
                     severity=Severity.HIGH,
                     evidence=[

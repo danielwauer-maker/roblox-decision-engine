@@ -191,7 +191,7 @@ async def _generate_with_openai(
                 },
             }
 
-            async def send_request() -> httpx.Response:
+            async def send_request(body=body) -> httpx.Response:
                 response = await active_client.post(
                     f"{settings.openai_api_base_url.rstrip('/')}/responses",
                     headers=headers,

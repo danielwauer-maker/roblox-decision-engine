@@ -75,11 +75,8 @@ def _deduplicate(priorities: list[DecisionPriority]) -> list[DecisionPriority]:
     winners: dict[str, DecisionPriority] = {}
     for priority in priorities:
         current = winners.get(priority.family)
-        if current is None or priority.priority_score > current.priority_score:
-            winners[priority.family] = priority
-        elif (
-            current is not None
-            and priority.priority_score == current.priority_score
+        if current is None or priority.priority_score > current.priority_score or (
+            priority.priority_score == current.priority_score
             and len(priority.evidence) > len(current.evidence)
         ):
             winners[priority.family] = priority

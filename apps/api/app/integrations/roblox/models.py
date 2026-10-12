@@ -73,7 +73,7 @@ class OperationError(BaseModel):
 
 
 class MetricOperation(BaseModel):
-    path: str
+    path: str | None = None
     done: bool
     response: MetricResponse | None = None
     error: OperationError | None = None

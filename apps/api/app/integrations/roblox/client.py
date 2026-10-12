@@ -74,7 +74,7 @@ class RobloxAnalyticsClient:
                 await asyncio.sleep(self.poll_interval_seconds)
                 poll_url = f"{self.base_url}/{operation.path.lstrip('/')}"
                 poll_response = await self._request(
-                    lambda: client.get(poll_url, headers=self._headers)
+                    lambda poll_url=poll_url: client.get(poll_url, headers=self._headers)
                 )
                 operation = self._parse_operation(poll_response)
                 if operation.done:

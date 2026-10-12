@@ -102,6 +102,9 @@ async def sync_metric(
         universe_id=settings.roblox_universe_id,
         api_key=settings.roblox_api_key.get_secret_value(),
         base_url=settings.roblox_analytics_base_url,
+        request_timeout_seconds=settings.external_request_timeout_seconds,
+        retry_attempts=settings.external_retry_attempts,
+        retry_backoff_seconds=settings.external_retry_backoff_seconds,
     )
     response = await client.query_metric(
         MetricQuery(

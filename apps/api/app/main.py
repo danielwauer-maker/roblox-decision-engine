@@ -3,6 +3,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from starlette.responses import JSONResponse
 
 from app.config import get_settings
 from app.db import Base, engine
@@ -56,15 +58,21 @@ def health() -> dict[str, str]:
 
 
 @app.get("/ready", tags=["system"])
-def ready() -> dict[str, object]:
-    with engine.connect() as connection:
-        connection.execute(text("SELECT 1"))
-    return {
-        "status": "ready",
-        "database": "ok",
+def ready():
+    dependency_state = {
         "roblox_configured": bool(settings.roblox_universe_id and settings.roblox_api_key),
         "ai_mode": "model" if settings.openai_api_key else "deterministic",
     }
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+    except SQLAlchemyError:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "database": "unavailable", **dependency_state},
+        )
+
+    return {"status": "ready", "database": "ok", **dependency_state}
 
 
 @app.get("/v1/product", tags=["product"])

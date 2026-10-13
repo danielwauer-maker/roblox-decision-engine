@@ -5,119 +5,150 @@ This document is the working source of truth for post-go-live product delivery. 
 ## Status legend
 
 - `DONE` — implemented and validated
+- `CODE COMPLETE / ACCEPTANCE PENDING` — implementation is complete, but provider configuration and/or real production acceptance is still required
 - `IN PROGRESS` — actively being built
 - `NEXT` — committed next phase
 - `PLANNED` — scoped but not started
 
 ## Phase 2A — Private workspace parity
 
-**Status: IN PROGRESS**
+**Status: CODE COMPLETE / ACCEPTANCE PENDING**
 
 Goal: bring the real invited studio workspace to the same decision workflow demonstrated in the public product demo.
 
-Scope:
+Implemented scope:
 - authenticated studio overview
 - real tenant decision queue
 - evidence drill-down for each priority
 - AI Product Analyst using tenant observations
-- investigation view with evidence and supported hypotheses
+- investigation/evidence view with supported hypotheses
 - Experiment Copilot using the top supported priority
 - Weekly Brief using tenant observations
-- consistent navigation, empty states, degraded states, and tenant isolation
-- no simulated data presented as live customer data
+- live/simulated/empty/degraded state separation
+- tenant isolation and no simulated data presented as live customer data
 
-Exit criteria:
-- invited pilot customer can move from connection -> sync -> priority -> evidence -> analyst -> experiment -> weekly brief without operator assistance
-- all views are tenant-scoped
-- empty/live/simulated states are visually explicit
-- real workspace does not promise capabilities that only exist in the public demo
+Remaining acceptance:
+- execute the complete flow with a real external studio and real Roblox analytics data
 
 ## Phase 2B — Pilot progress and onboarding state machine
 
-**Status: NEXT**
+**Status: CODE COMPLETE / ACCEPTANCE PENDING**
 
-Goal: replace internal pilot-readiness/QA concepts with a customer-facing progress experience driven by real workspace state.
-
-Customer journey:
+Implemented customer journey:
 1. Connect experience
 2. Complete first successful sync
 3. Review first priority and evidence
-4. Build first experiment
+4. Review first generated experiment
 5. Receive/review first Weekly Brief
 
-Status examples:
-- `Locked`
-- `Waiting for connection`
-- `Waiting for data`
-- `Ready`
-- `Completed`
-- `Needs attention`
-
-Scope:
+Implemented scope:
 - customer-facing pilot progress view
-- dynamic state derived from tenant data, not static badges
+- dynamic state derived from real tenant data
+- persisted review milestones for priority/evidence, experiment and Weekly Brief
 - clear next action for every state
-- feedback prompts after useful product moments
-- keep internal QA/success criteria out of the customer UI
+- tenant-scoped feedback prompt inside the workspace
+- internal QA criteria kept out of the customer UI
+
+Remaining acceptance:
+- confirm state transitions in the real-life acceptance run
 
 ## Phase 3 — Notification and lifecycle system
 
-**Status: PLANNED**
+**Status: CODE COMPLETE / PROVIDER CONFIGURATION + ACCEPTANCE PENDING**
 
-Goal: provide reliable transactional and lifecycle notifications for studios and operators.
+Provider direction: **Resend** for transactional email.
 
-Planned notifications:
+Implemented notifications:
 - pilot request received — customer confirmation
 - pilot request received — operator notification
-- invite created — email with secure invite link and expiration
+- approved workspace invite with secure single-use link
 - invite redeemed / workspace activated
+- passwordless email sign-in link
 - sync failed / connection needs attention
-- no new analytics for a configurable period
-- experiment decision threshold reached
-- Weekly Report / Weekly Brief notification with deep link back to PlayDirective
+- no fresh analytics for the configured stale period
+- experiment-ready notification
+- Weekly Brief notification with deep link
 
-Delivery principles:
-- use a transactional email provider rather than running our own mail server
-- templates must never contain raw API credentials or session tokens beyond the intended one-time invite link
-- unsubscribe/preferences for non-essential lifecycle mail where applicable
-- delivery status and provider errors observable to operators
+Implemented controls:
+- provider secrets remain server-side
+- templates never contain Roblox API credentials
+- one-time auth links are the only intended email tokens
+- idempotent notification event keys prevent intentional repeat sends for the same event window
+- delivery state/provider errors are visible in the operator console
+- customers can disable non-essential experiment/Weekly Brief lifecycle email while essential auth/invite/connection-attention email remains transactional
 
-Likely provider candidates: Resend or Postmark. Final provider choice remains open until implementation.
+Remaining activation:
+- verify `playdirective.com` as a sender domain in Resend
+- configure Resend API key/sender/operator mailbox in the production API environment
+- execute the email sections of `docs/REAL_LIFE_ACCEPTANCE_TEST.md`
 
 ## Phase 4 — Subscription and billing
 
-**Status: PLANNED**
+**Status: CODE COMPLETE / STRIPE TEST CONFIGURATION + ACCEPTANCE PENDING**
 
-Goal: convert validated pilots into manageable paid subscriptions without building billing infrastructure ourselves.
+Provider direction: **Stripe hosted Checkout + Customer Portal + verified webhooks**.
 
-Scope:
-- plan selection and conversion after pilot
-- checkout through a billing provider
-- customer portal / `Manage subscription`
-- invoices and payment method management
-- plan changes and cancellation
-- entitlement mapping to PlayDirective plan limits
-- billing state visible in operator console
+Implemented scope:
+- founding pilot stays explicitly free
+- plan selection in the private OWNER workspace
+- Indie `$19/month` / 1 experience
+- Growth `$49/month` / up to 3 experiences
+- Studio `$99/month` / up to 10 experiences
+- Stripe subscription Checkout Session creation server-side
+- Stripe Customer Portal launch for existing customers
+- raw card details are never handled by PlayDirective
+- signed webhook verification using the original request payload
+- subscription create/update/delete state synchronization
+- plan entitlement mapping
+- cancellation-at-period-end state
+- billing/subscription state visible to both studio OWNER and operator console
+- plan changes, invoices, payment methods and cancellation delegated to Stripe Customer Portal
 
-Preferred direction: hosted billing/customer portal, e.g. Stripe, rather than custom card handling.
+Remaining activation:
+- create test-mode Stripe Products/Prices and Customer Portal configuration
+- configure test secret key, webhook signing secret and Price IDs in the production API environment
+- execute Stripe test-mode section H of `docs/REAL_LIFE_ACCEPTANCE_TEST.md`
+
+## R16 — Real Pilot Go-Live
+
+**Status: CODE COMPLETE / EXTERNAL CONFIGURATION + REAL-LIFE ACCEPTANCE PENDING**
+
+R16 combines the remaining customer-acquisition and production acceptance work:
+
+- public `/apply` Founding Studio application
+- customer/operator application emails
+- operator approval flow
+- secure single-use invite enrollment
+- passwordless email return login
+- Phase 2A live workspace
+- Phase 2B progress/milestones/feedback
+- Phase 3 lifecycle notifications/preferences/operator observability
+- Phase 4 Stripe test-mode subscription plumbing and operator visibility
+- canonical `playdirective.com` production domain
+- `www.playdirective.com` redirect to apex domain
+- manual acceptance runbook
+
+R16 is not `DONE` until external provider configuration is active and sections A–I of `docs/REAL_LIFE_ACCEPTANCE_TEST.md` pass on the exact production release.
 
 ## Public demo / internal QA separation
 
 The public demo explains the product workflow using clearly labelled simulated data. It must never look like a place where a visitor should enter real Roblox credentials.
 
-The old `/demo/pilot` internal-readiness presentation is being converted into a customer-facing explanation of how the founding pilot works. Internal success criteria and QA notes belong in repository documentation/tests/operator tooling, not in the public customer journey.
+The production landing page labels the illustrative decision queue as simulated. Real credentials are accepted only after approval inside the private studio workspace.
 
 ## Go-live baseline
 
-Current public pilot baseline includes:
-- PlayDirective brand and domain
-- HTTPS
+Current code-complete pilot baseline includes:
+- PlayDirective brand and canonical domain
+- HTTPS/domain routing through the production frontend project
 - landing page and public simulated demo
+- real public founding-pilot application flow
 - pricing hypothesis and founding pilot positioning
-- invite-only tenant authentication
+- invite-only first enrollment plus passwordless email return login
 - encrypted Roblox credentials in private workspace
 - tenant-scoped sync and decisions
-- operator console
+- dynamic customer progress and persisted milestones
+- operator console with applications, delivery events and billing state
 - privacy / terms / legal notice
 - public sitemap and robots configuration for playdirective.com
 

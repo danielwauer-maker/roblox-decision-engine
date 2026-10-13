@@ -2,6 +2,12 @@
 
 import { FormEvent, useState } from "react";
 
+const attributionKeys = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
+
+function attributionValue(key: (typeof attributionKeys)[number], params: URLSearchParams) {
+  return params.get(key) || sessionStorage.getItem(`playdirective_${key}`) || null;
+}
+
 export default function ApplyPage() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -22,13 +28,13 @@ export default function ApplyPage() {
       universe_id: String(form.get("universe_id") ?? "").trim() || null,
       monthly_active_users: String(form.get("monthly_active_users") ?? "").trim() || null,
       message: String(form.get("message") ?? "").trim() || null,
-      utm_source: params.get("utm_source"),
-      utm_medium: params.get("utm_medium"),
-      utm_campaign: params.get("utm_campaign"),
-      utm_content: params.get("utm_content"),
-      utm_term: params.get("utm_term"),
-      referrer: document.referrer || null,
-      landing_page: window.location.href,
+      utm_source: attributionValue("utm_source", params),
+      utm_medium: attributionValue("utm_medium", params),
+      utm_campaign: attributionValue("utm_campaign", params),
+      utm_content: attributionValue("utm_content", params),
+      utm_term: attributionValue("utm_term", params),
+      referrer: sessionStorage.getItem("playdirective_referrer") || document.referrer || null,
+      landing_page: sessionStorage.getItem("playdirective_landing_page") || window.location.href,
     };
     const response = await fetch("/api/enrollment/apply", {
       method: "POST",

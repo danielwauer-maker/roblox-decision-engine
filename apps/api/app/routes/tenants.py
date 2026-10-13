@@ -4,7 +4,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
@@ -17,6 +17,7 @@ from app.models import (
     PilotSessionRecord,
     PilotUserRecord,
     RobloxConnectionRecord,
+    SubscriptionRecord,
 )
 from app.services.decision_snapshots import build_decision_snapshot
 from app.services.roblox_metrics import (
@@ -80,6 +81,17 @@ def _organization_for_principal(session: Session, organization_id: int) -> Organ
     if not organization or not organization.active:
         raise HTTPException(status_code=403, detail="Organization disabled")
     return organization
+
+
+def _experience_limit(session: Session, organization_id: int) -> int:
+    subscription = session.scalar(
+        select(SubscriptionRecord).where(SubscriptionRecord.organization_id == organization_id)
+    )
+    if not subscription or subscription.plan_id == "pilot" or subscription.status == "pilot":
+        return 1
+    if subscription.status not in {"active", "trialing", "past_due"}:
+        return 0
+    return {"indie": 1, "growth": 3, "studio": 10}.get(subscription.plan_id, 0)
 
 
 @router.post("/admin/organizations")
@@ -210,6 +222,19 @@ def upsert_connection(payload: RobloxConnectionCreate, principal: TenantDep, ses
             RobloxConnectionRecord.universe_id == payload.universe_id,
         )
     )
+    if not connection:
+        active_count = session.scalar(
+            select(func.count(RobloxConnectionRecord.id)).where(
+                RobloxConnectionRecord.organization_id == principal.organization_id,
+                RobloxConnectionRecord.active.is_(True),
+            )
+        ) or 0
+        limit = _experience_limit(session, principal.organization_id)
+        if active_count >= limit:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Your current plan allows {limit} active Roblox experience{'s' if limit != 1 else ''}. Upgrade the plan before adding another experience.",
+            )
     now = datetime.now(UTC)
     encrypted = encrypt_credential(payload.api_key)
     if connection:
@@ -235,6 +260,7 @@ def upsert_connection(payload: RobloxConnectionCreate, principal: TenantDep, ses
         "universe_id": connection.universe_id,
         "experience_name": connection.experience_name,
         "configured": True,
+        "experience_limit": _experience_limit(session, principal.organization_id),
     }
 
 
@@ -248,6 +274,7 @@ def connections(principal: TenantDep, session: SessionDep):
     ).all()
     return {
         "count": len(rows),
+        "experience_limit": _experience_limit(session, principal.organization_id),
         "items": [
             {
                 "id": row.id,

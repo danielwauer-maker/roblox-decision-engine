@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://roblox-decision-engine.vercel.app"),
+  metadataBase: new URL("https://playdirective.com"),
   title: {
-    default: "Roblox Decision Engine",
-    template: "%s · Roblox Decision Engine",
+    default: "PlayDirective",
+    template: "%s · PlayDirective",
   },
-  description: "AI Product & Growth Analyst for Roblox studios that turns analytics into evidence-backed priorities and experiments.",
+  description: "Decision intelligence for Roblox studios. Know what changed. Know what to do next.",
   openGraph: {
-    title: "Roblox Decision Engine",
-    description: "Know what to fix next. Evidence-backed product decisions for Roblox studios.",
+    title: "PlayDirective",
+    description: "Turn Roblox analytics into evidence-backed priorities and your next best move.",
     type: "website",
     url: "/",
   },
@@ -24,7 +24,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {children}
         <footer style={{ borderTop: "1px solid rgba(255,255,255,.08)", background: "#07101f", color: "#718198", fontFamily: "Arial, sans-serif" }}>
           <div style={{ maxWidth: 1180, margin: "0 auto", padding: "22px clamp(20px,5vw,24px)", display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", fontSize: 12 }}>
-            <span>Roblox Decision Engine · Early Access</span>
+            <span>PlayDirective · Early Access</span>
             <nav style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
               <a href="/privacy" style={{ color: "#9fb1c7", textDecoration: "none" }}>Privacy</a>
               <a href="/terms" style={{ color: "#9fb1c7", textDecoration: "none" }}>Terms</a>

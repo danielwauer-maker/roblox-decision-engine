@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/demo/report",
     "/demo/analyst",
     "/demo/pilot",
+    "/help/roblox-connection",
     "/privacy",
     "/terms",
     "/legal",

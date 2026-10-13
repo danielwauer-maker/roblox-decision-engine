@@ -48,7 +48,7 @@ export default function Home() {
             <p style={{ margin: "26px 0 0", maxWidth: 690, color: "#9fb1c7", fontSize: "clamp(18px,3vw,21px)", lineHeight: 1.58 }}>PlayDirective turns retention, monetization and funnel signals into evidence-backed priorities and concrete experiments — without forcing your team to live inside another analytics dashboard.</p>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 32 }}>
               <a href="/demo/priorities" style={{ background: "#67e8f9", color: "#07101f", padding: "13px 18px", borderRadius: 12, fontWeight: 900, textDecoration: "none", fontSize: 15 }}>See PlayDirective in action</a>
-              <a href="/pricing" style={{ border: "1px solid rgba(255,255,255,.14)", color: "#eef7ff", padding: "13px 18px", borderRadius: 12, fontWeight: 800, textDecoration: "none", fontSize: 15 }}>Start free pilot</a>
+              <a href="/apply" style={{ border: "1px solid rgba(255,255,255,.14)", color: "#eef7ff", padding: "13px 18px", borderRadius: 12, fontWeight: 800, textDecoration: "none", fontSize: 15 }}>Apply for founding pilot</a>
             </div>
           </div>
 
@@ -58,7 +58,7 @@ export default function Home() {
                 <div style={{ color: "#718198", fontSize: 10, letterSpacing: ".14em", textTransform: "uppercase" }}>Today&apos;s decision queue</div>
                 <div style={{ marginTop: 7, fontWeight: 900, fontSize: 19 }}>What deserves attention first</div>
               </div>
-              <div style={{ color: "#86efac", fontSize: 11, fontWeight: 800, padding: "6px 9px", borderRadius: 999, background: "rgba(134,239,172,.07)", border: "1px solid rgba(134,239,172,.14)" }}>LIVE SIGNALS</div>
+              <div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, padding: "6px 9px", borderRadius: 999, background: "rgba(103,232,249,.07)", border: "1px solid rgba(103,232,249,.14)" }}>SIMULATED SIGNALS</div>
             </div>
             <div style={{ marginTop: 18, display: "grid", gap: 10 }}>
               {[
@@ -78,7 +78,7 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <div style={{ marginTop: 15, color: "#60738c", fontSize: 10, lineHeight: 1.55 }}>Illustrative decision queue based on the product&apos;s current pilot workflow.</div>
+            <div style={{ marginTop: 15, color: "#60738c", fontSize: 10, lineHeight: 1.55 }}>Illustrative decision queue based on simulated product data. Real pilot workspaces use only their own tenant-scoped Roblox observations.</div>
           </div>
         </div>
       </section>
@@ -121,7 +121,7 @@ export default function Home() {
           <div style={{ color: "#67e8f9", fontWeight: 800, fontSize: 12, letterSpacing: ".13em", textTransform: "uppercase" }}>30-day founding studio pilot</div>
           <h2 style={{ margin: "12px 0 0", maxWidth: 800, fontSize: "clamp(30px,6vw,44px)", lineHeight: 1.06, letterSpacing: "-.04em" }}>Prove PlayDirective is useful before you pay for it.</h2>
           <p style={{ maxWidth: 790, color: "#9fb1c7", lineHeight: 1.7 }}>The founding pilot is free during validation. Connect one Roblox experience, let PlayDirective surface the highest-priority decisions, and only consider a paid plan after your team has seen something genuinely useful.</p>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}><a href="/pricing" style={{ background: "#67e8f9", color: "#07101f", padding: "12px 16px", borderRadius: 11, fontWeight: 900, textDecoration: "none" }}>Start free pilot</a><a href="/demo/pilot" style={{ border: "1px solid rgba(255,255,255,.13)", color: "#eef7ff", padding: "12px 16px", borderRadius: 11, fontWeight: 800, textDecoration: "none" }}>Preview pilot workspace</a></div>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 20 }}><a href="/apply" style={{ background: "#67e8f9", color: "#07101f", padding: "12px 16px", borderRadius: 11, fontWeight: 900, textDecoration: "none" }}>Apply for founding pilot</a><a href="/demo/pilot" style={{ border: "1px solid rgba(255,255,255,.13)", color: "#eef7ff", padding: "12px 16px", borderRadius: 11, fontWeight: 800, textDecoration: "none" }}>Preview pilot workspace</a></div>
         </div>
       </section>
     </main>

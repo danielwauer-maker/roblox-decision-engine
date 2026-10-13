@@ -35,7 +35,6 @@ export default function Home() {
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
             <a href="#security" style={{ color: "#9fb1c7", textDecoration: "none", padding: "9px 11px", fontSize: 13 }}>Security</a>
             <a href="/pricing" style={{ color: "#9fb1c7", textDecoration: "none", padding: "9px 11px", fontSize: 13 }}>Pricing</a>
-            <a href="/portfolio" style={{ color: "#9fb1c7", textDecoration: "none", padding: "9px 11px", fontSize: 13 }}>Build log</a>
             <a href="/demo" style={{ border: "1px solid rgba(103,232,249,.34)", color: "#a5f3fc", textDecoration: "none", padding: "10px 13px", borderRadius: 10, fontSize: 13, fontWeight: 800 }}>See PlayDirective in action</a>
           </div>
         </div>

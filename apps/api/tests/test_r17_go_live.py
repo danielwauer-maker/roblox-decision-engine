@@ -6,7 +6,11 @@ from sqlalchemy.orm import Session
 
 from app.db import Base
 from app.models import OrganizationRecord, SubscriptionRecord
-from app.r17_models import ApplicationAttributionRecord, ApplicationReviewRecord, PilotLifecycleRecord
+from app.r17_models import (
+    ApplicationAttributionRecord,
+    ApplicationReviewRecord,
+    PilotLifecycleRecord,
+)
 from app.routes.enrollment import ApplicationCreate, create_application
 from app.routes.r17 import _ensure_lifecycle, _payload
 from app.routes.tenants import _experience_limit

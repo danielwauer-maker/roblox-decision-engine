@@ -3,11 +3,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.db import SessionLocal
 from app.models import OrganizationRecord
+from app.r16_models import NotificationPreferenceRecord
 from app.services.notifications import send_notification_once
 from app.tenant_security import TenantDep
 
@@ -27,6 +29,48 @@ SessionDep = Annotated[Session, Depends(get_session)]
 
 class SyncAttention(BaseModel):
     detail: str = Field(default="Roblox analytics sync needs attention.", max_length=1000)
+
+
+class NotificationPreferenceUpdate(BaseModel):
+    lifecycle_email_enabled: bool
+
+
+def _preference(session: Session, organization_id: int) -> NotificationPreferenceRecord:
+    record = session.scalar(
+        select(NotificationPreferenceRecord).where(
+            NotificationPreferenceRecord.organization_id == organization_id
+        )
+    )
+    if record:
+        return record
+    record = NotificationPreferenceRecord(
+        organization_id=organization_id,
+        lifecycle_email_enabled=True,
+        updated_at=datetime.now(UTC),
+    )
+    session.add(record)
+    session.commit()
+    session.refresh(record)
+    return record
+
+
+@router.get("/preferences")
+def get_preferences(principal: TenantDep, session: SessionDep):
+    record = _preference(session, principal.organization_id)
+    return {"lifecycle_email_enabled": record.lifecycle_email_enabled}
+
+
+@router.put("/preferences")
+def update_preferences(
+    payload: NotificationPreferenceUpdate,
+    principal: TenantDep,
+    session: SessionDep,
+):
+    record = _preference(session, principal.organization_id)
+    record.lifecycle_email_enabled = payload.lifecycle_email_enabled
+    record.updated_at = datetime.now(UTC)
+    session.commit()
+    return {"lifecycle_email_enabled": record.lifecycle_email_enabled}
 
 
 @router.post("/activated")

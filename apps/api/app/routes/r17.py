@@ -32,6 +32,10 @@ class PilotExtension(BaseModel):
     days: int = Field(default=7, ge=1, le=90)
 
 
+def _aware(value: datetime) -> datetime:
+    return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+
+
 def _ensure_lifecycle(session: Session, organization_id: int) -> PilotLifecycleRecord:
     row = session.scalar(select(PilotLifecycleRecord).where(PilotLifecycleRecord.organization_id == organization_id))
     if row:
@@ -54,20 +58,22 @@ def _ensure_lifecycle(session: Session, organization_id: int) -> PilotLifecycleR
 
 def _payload(row: PilotLifecycleRecord) -> dict[str, object]:
     now = datetime.now(UTC)
-    remaining_seconds = (row.ends_at - now).total_seconds()
+    started_at = _aware(row.started_at)
+    ends_at = _aware(row.ends_at)
+    remaining_seconds = (ends_at - now).total_seconds()
     days_remaining = max(0, int((remaining_seconds + 86399) // 86400))
-    elapsed = max(0, (now.date() - row.started_at.date()).days)
+    elapsed = max(0, (now.date() - started_at.date()).days)
     current_day = min(30, elapsed + 1)
     effective_status = row.status
-    if effective_status == "ACTIVE" and row.ends_at <= now:
+    if effective_status == "ACTIVE" and ends_at <= now:
         effective_status = "EXPIRED"
     return {
         "status": effective_status,
-        "started_at": row.started_at,
-        "ends_at": row.ends_at,
+        "started_at": started_at,
+        "ends_at": ends_at,
         "current_day": current_day,
         "days_remaining": days_remaining,
-        "converted_at": row.converted_at,
+        "converted_at": _aware(row.converted_at) if row.converted_at else None,
     }
 
 
@@ -102,7 +108,7 @@ def extend_pilot(organization_id: int, payload: PilotExtension, session: Session
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
     row = _ensure_lifecycle(session, organization_id)
-    base = max(row.ends_at, datetime.now(UTC))
+    base = max(_aware(row.ends_at), datetime.now(UTC))
     row.ends_at = base + timedelta(days=payload.days)
     row.status = "ACTIVE"
     row.updated_at = datetime.now(UTC)
@@ -158,8 +164,10 @@ async def run_r17_lifecycle(session: SessionDep, _: AdminDep):
         if not organization or not owner:
             continue
 
-        elapsed = max(0, (now.date() - lifecycle.started_at.date()).days)
-        remaining = (lifecycle.ends_at.date() - now.date()).days
+        started_at = _aware(lifecycle.started_at)
+        ends_at = _aware(lifecycle.ends_at)
+        elapsed = max(0, (now.date() - started_at.date()).days)
+        remaining = (ends_at.date() - now.date()).days
         milestones: list[tuple[str, str, str]] = []
         if elapsed >= 2:
             milestones.append(("day-3", "Need help connecting PlayDirective?", "Open your workspace and complete the Roblox connection if you have not already."))

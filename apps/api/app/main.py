@@ -22,6 +22,7 @@ from app.routes.pilot import router as pilot_router
 from app.routes.progress import router as progress_router
 from app.routes.roblox import router as roblox_router
 from app.routes.tenant_insights import router as tenant_insights_router
+from app.routes.tenant_notifications import router as tenant_notifications_router
 from app.routes.tenants import router as tenant_router
 from app.security import SecurityHeadersMiddleware, WriteRateLimitMiddleware
 
@@ -71,6 +72,7 @@ app.include_router(admin_simulation_router)
 app.include_router(enrollment_router)
 app.include_router(progress_router)
 app.include_router(lifecycle_router)
+app.include_router(tenant_notifications_router)
 app.include_router(billing_router)
 
 

@@ -30,7 +30,7 @@ export function DemoShell({ children, eyebrow = "Validation demo · simulated da
     <main style={{ minHeight: "100vh", background: palette.bg, color: palette.text, fontFamily: "Arial, sans-serif" }}>
       <header style={{ position: "sticky", top: 0, zIndex: 10, borderBottom: `1px solid ${palette.border}`, background: "rgba(7,16,31,.94)", backdropFilter: "blur(14px)" }}>
         <div style={{ maxWidth: 1240, margin: "0 auto", padding: "14px clamp(16px,4vw,24px)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, flexWrap: "wrap" }}>
-          <a href="/" style={{ textDecoration: "none", color: palette.text, fontWeight: 800, letterSpacing: "-.02em" }}>Roblox Decision Engine</a>
+          <a href="/" style={{ textDecoration: "none", color: palette.text, fontWeight: 900, letterSpacing: "-.025em" }}>PlayDirective</a>
           <nav style={{ display: "flex", gap: 6, overflowX: "auto", maxWidth: "100%", paddingBottom: 2 }}>
             {nav.map(([label, href]) => <a key={href} href={href} style={{ color: palette.muted, textDecoration: "none", fontSize: 13, whiteSpace: "nowrap", padding: "8px 10px", borderRadius: 10, border: `1px solid ${palette.border}` }}>{label}</a>)}
           </nav>

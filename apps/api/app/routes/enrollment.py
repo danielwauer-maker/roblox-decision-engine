@@ -1,6 +1,6 @@
 import re
 from datetime import UTC, datetime, timedelta
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -17,6 +17,7 @@ from app.models import (
     PilotSessionRecord,
     PilotUserRecord,
 )
+from app.r17_models import ApplicationAttributionRecord, ApplicationReviewRecord
 from app.services.notifications import send_notification_once
 from app.tenant_security import (
     hash_token,
@@ -49,10 +50,26 @@ class ApplicationCreate(BaseModel):
     universe_id: str | None = Field(default=None, max_length=64, pattern=r"^[0-9]*$")
     monthly_active_users: str | None = Field(default=None, max_length=64)
     message: str | None = Field(default=None, max_length=3000)
+    utm_source: str | None = Field(default=None, max_length=160)
+    utm_medium: str | None = Field(default=None, max_length=160)
+    utm_campaign: str | None = Field(default=None, max_length=240)
+    utm_content: str | None = Field(default=None, max_length=240)
+    utm_term: str | None = Field(default=None, max_length=240)
+    referrer: str | None = Field(default=None, max_length=1000)
+    landing_page: str | None = Field(default=None, max_length=1000)
 
 
 class ApplicationApprove(BaseModel):
     slug: str | None = Field(default=None, max_length=80, pattern=r"^[a-z0-9-]*$")
+
+
+class ApplicationReviewUpdate(BaseModel):
+    pipeline_status: Literal[
+        "APPLIED", "REVIEWING", "APPROVED", "ACTIVATED", "CONNECTED",
+        "FIRST_VALUE", "PILOT_ACTIVE", "CONVERSION", "PAID", "REJECTED",
+        "PAUSED", "EXPIRED", "CHURNED"
+    ]
+    internal_note: str | None = Field(default=None, max_length=5000)
 
 
 class LoginLinkRequest(BaseModel):
@@ -86,24 +103,64 @@ def _unique_slug(session: Session, preferred: str) -> str:
     return candidate
 
 
+def _clean_optional(value: str | None) -> str | None:
+    return (value or "").strip() or None
+
+
 @router.post("/applications")
 async def create_application(payload: ApplicationCreate, session: SessionDep):
     email = _clean_email(payload.email)
     now = datetime.now(UTC)
+    duplicate_since = now - timedelta(hours=24)
+    existing = session.scalar(
+        select(PilotApplicationRecord).where(
+            PilotApplicationRecord.email == email,
+            PilotApplicationRecord.created_at >= duplicate_since,
+            PilotApplicationRecord.status == "PENDING",
+        ).order_by(desc(PilotApplicationRecord.created_at))
+    )
+    if existing:
+        return {
+            "status": "received",
+            "message": "Application received. Check your email for confirmation.",
+        }
+
     application = PilotApplicationRecord(
         contact_name=payload.contact_name.strip(),
         email=email,
         studio_name=payload.studio_name.strip(),
-        experience_url=(payload.experience_url or "").strip() or None,
-        universe_id=(payload.universe_id or "").strip() or None,
-        monthly_active_users=(payload.monthly_active_users or "").strip() or None,
-        message=(payload.message or "").strip() or None,
+        experience_url=_clean_optional(payload.experience_url),
+        universe_id=_clean_optional(payload.universe_id),
+        monthly_active_users=_clean_optional(payload.monthly_active_users),
+        message=_clean_optional(payload.message),
         status="PENDING",
         organization_id=None,
         created_at=now,
         reviewed_at=None,
     )
     session.add(application)
+    session.flush()
+    session.add(
+        ApplicationAttributionRecord(
+            application_id=application.id,
+            utm_source=_clean_optional(payload.utm_source),
+            utm_medium=_clean_optional(payload.utm_medium),
+            utm_campaign=_clean_optional(payload.utm_campaign),
+            utm_content=_clean_optional(payload.utm_content),
+            utm_term=_clean_optional(payload.utm_term),
+            referrer=_clean_optional(payload.referrer),
+            landing_page=_clean_optional(payload.landing_page),
+            created_at=now,
+        )
+    )
+    session.add(
+        ApplicationReviewRecord(
+            application_id=application.id,
+            pipeline_status="APPLIED",
+            internal_note=None,
+            updated_at=now,
+        )
+    )
     session.commit()
     session.refresh(application)
 
@@ -154,26 +211,73 @@ def list_applications(
     if status:
         query = query.where(PilotApplicationRecord.status == status.upper())
     rows = session.scalars(query.order_by(desc(PilotApplicationRecord.created_at)).limit(limit)).all()
-    return {
-        "count": len(rows),
-        "items": [
-            {
-                "id": row.id,
-                "contact_name": row.contact_name,
-                "email": row.email,
-                "studio_name": row.studio_name,
-                "experience_url": row.experience_url,
-                "universe_id": row.universe_id,
-                "monthly_active_users": row.monthly_active_users,
-                "message": row.message,
-                "status": row.status,
-                "organization_id": row.organization_id,
-                "created_at": row.created_at,
-                "reviewed_at": row.reviewed_at,
-            }
-            for row in rows
-        ],
-    }
+    items = []
+    for row in rows:
+        attribution = session.scalar(
+            select(ApplicationAttributionRecord).where(ApplicationAttributionRecord.application_id == row.id)
+        )
+        review = session.scalar(
+            select(ApplicationReviewRecord).where(ApplicationReviewRecord.application_id == row.id)
+        )
+        items.append({
+            "id": row.id,
+            "contact_name": row.contact_name,
+            "email": row.email,
+            "studio_name": row.studio_name,
+            "experience_url": row.experience_url,
+            "universe_id": row.universe_id,
+            "monthly_active_users": row.monthly_active_users,
+            "message": row.message,
+            "status": row.status,
+            "organization_id": row.organization_id,
+            "created_at": row.created_at,
+            "reviewed_at": row.reviewed_at,
+            "pipeline_status": review.pipeline_status if review else row.status,
+            "internal_note": review.internal_note if review else None,
+            "attribution": {
+                "utm_source": attribution.utm_source if attribution else None,
+                "utm_medium": attribution.utm_medium if attribution else None,
+                "utm_campaign": attribution.utm_campaign if attribution else None,
+                "utm_content": attribution.utm_content if attribution else None,
+                "utm_term": attribution.utm_term if attribution else None,
+                "referrer": attribution.referrer if attribution else None,
+                "landing_page": attribution.landing_page if attribution else None,
+            },
+        })
+    return {"count": len(items), "items": items}
+
+
+@router.put("/admin/applications/{application_id}/review")
+def update_application_review(
+    application_id: int,
+    payload: ApplicationReviewUpdate,
+    session: SessionDep,
+    _: AdminDep,
+):
+    application = session.get(PilotApplicationRecord, application_id)
+    if not application:
+        raise HTTPException(status_code=404, detail="Application not found")
+    now = datetime.now(UTC)
+    review = session.scalar(
+        select(ApplicationReviewRecord).where(ApplicationReviewRecord.application_id == application_id)
+    )
+    if not review:
+        review = ApplicationReviewRecord(
+            application_id=application_id,
+            pipeline_status=payload.pipeline_status,
+            internal_note=_clean_optional(payload.internal_note),
+            updated_at=now,
+        )
+        session.add(review)
+    else:
+        review.pipeline_status = payload.pipeline_status
+        review.internal_note = _clean_optional(payload.internal_note)
+        review.updated_at = now
+    if payload.pipeline_status == "REJECTED":
+        application.status = "REJECTED"
+        application.reviewed_at = now
+    session.commit()
+    return {"status": "updated", "pipeline_status": review.pipeline_status}
 
 
 @router.post("/admin/applications/{application_id}/approve")
@@ -216,6 +320,12 @@ async def approve_application(
     application.status = "APPROVED"
     application.organization_id = organization.id
     application.reviewed_at = now
+    review = session.scalar(
+        select(ApplicationReviewRecord).where(ApplicationReviewRecord.application_id == application.id)
+    )
+    if review:
+        review.pipeline_status = "APPROVED"
+        review.updated_at = now
     session.commit()
 
     invite_url = f"{get_settings().public_origin}/app/login?token={raw_invite}"

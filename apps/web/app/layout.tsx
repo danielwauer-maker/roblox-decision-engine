@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import MarketingAttribution from "./MarketingAttribution";
-
 export const metadata: Metadata = {
   metadataBase: new URL("https://playdirective.com"),
   title: {
@@ -23,7 +21,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body style={{ margin: 0, background: "#07101f" }}>
-        <MarketingAttribution />
         {children}
         <footer style={{ borderTop: "1px solid rgba(255,255,255,.08)", background: "#07101f", color: "#718198", fontFamily: "Arial, sans-serif" }}>
           <div style={{ maxWidth: 1180, margin: "0 auto", padding: "22px clamp(20px,5vw,24px)", display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", fontSize: 12 }}>

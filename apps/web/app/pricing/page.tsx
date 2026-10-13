@@ -5,8 +5,8 @@ const plans = [
     subtitle: "For live indie teams that need one clear weekly priority.",
     experiences: "1 experience",
     features: ["Top-3 decision queue", "AI Product Analyst", "Experiment Copilot", "Weekly Growth Brief"],
-    cta: "Start founding pilot",
-    href: "/demo/pilot",
+    cta: "Apply for founding pilot",
+    href: "/apply",
     featured: true,
   },
   {
@@ -15,8 +15,8 @@ const plans = [
     subtitle: "For teams running recurring updates and paid acquisition.",
     experiences: "Up to 3 experiences",
     features: ["Everything in Indie", "Priority evidence history", "Pilot feedback workflow", "Multi-experience coverage"],
-    cta: "Start founding pilot",
-    href: "/demo/pilot",
+    cta: "Apply for founding pilot",
+    href: "/apply",
   },
   {
     name: "Studio",
@@ -24,8 +24,8 @@ const plans = [
     subtitle: "For multi-experience teams that need one decision layer.",
     experiences: "Up to 10 experiences",
     features: ["Everything in Growth", "Portfolio-level weekly review", "Priority support", "Expanded experience limits"],
-    cta: "Talk to us",
-    href: "/demo/pilot",
+    cta: "Apply for founding pilot",
+    href: "/apply",
   },
 ];
 
@@ -52,7 +52,7 @@ export default function PricingPage() {
             <h2 style={{ margin: "8px 0 6px", fontSize: 28 }}>One live experience. One useful decision before you pay.</h2>
             <p style={{ margin: 0, color: "#9fb1c7", lineHeight: 1.65 }}>Invite-only and guided during validation. No card required. We only ask you to consider a paid plan after PlayDirective has surfaced something your team finds genuinely useful.</p>
           </div>
-          <a href="/demo/pilot" style={{ background: "#67e8f9", color: "#07101f", padding: "13px 17px", borderRadius: 11, fontWeight: 800, textDecoration: "none" }}>Start founding pilot</a>
+          <a href="/apply" style={{ background: "#67e8f9", color: "#07101f", padding: "13px 17px", borderRadius: 11, fontWeight: 800, textDecoration: "none" }}>Apply for founding pilot</a>
         </div>
       </section>
 

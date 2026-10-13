@@ -16,6 +16,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(payload, { status: upstream.status });
   }
 
+  await fetch(`${apiBase}/v1/lifecycle/tenant/activated`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${payload.access_token}` },
+    cache: "no-store",
+  }).catch(() => undefined);
+
   const response = NextResponse.json({ organization: payload.organization, user: payload.user });
   response.cookies.set("rde_pilot_session", payload.access_token, {
     httpOnly: true,

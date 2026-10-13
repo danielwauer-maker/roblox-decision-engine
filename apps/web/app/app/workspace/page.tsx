@@ -9,6 +9,13 @@ type Decision = { title?: string; recommendation?: string; priority_score?: numb
 type SyncMetric = { metric?: string; received?: number; inserted?: number };
 type SyncPayload = { metrics?: SyncMetric[]; days?: number; detail?: string };
 
+type SyncDiagnostic = {
+  title: string;
+  summary: string;
+  tone: "info" | "good" | "warn" | "bad";
+  items: string[];
+};
+
 export default function PilotWorkspacePage() {
   const [me, setMe] = useState<Me | null>(null);
   const [connections, setConnections] = useState<Connection[]>([]);
@@ -18,6 +25,7 @@ export default function PilotWorkspacePage() {
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [status, setStatus] = useState("Loading workspace…");
   const [busy, setBusy] = useState(false);
+  const [syncDiagnostic, setSyncDiagnostic] = useState<SyncDiagnostic | null>(null);
 
   async function load(markReady = true) {
     const identity = await fetch("/api/pilot/me", { cache: "no-store" });
@@ -48,6 +56,7 @@ export default function PilotWorkspacePage() {
   async function connect(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
+    setSyncDiagnostic(null);
     setStatus("Saving encrypted Roblox connection…");
     const response = await fetch("/api/pilot/connection", {
       method: "PUT",
@@ -57,22 +66,52 @@ export default function PilotWorkspacePage() {
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
       setStatus(payload.detail ?? "Connection could not be saved.");
+      setSyncDiagnostic({
+        title: "Connection needs attention",
+        summary: "PlayDirective could not save the Roblox connection.",
+        tone: "bad",
+        items: [
+          "Verify that the Universe ID contains digits only.",
+          "Use a valid read-only Roblox Open Cloud API key.",
+          "Make sure this workspace has OWNER access.",
+        ],
+      });
       setBusy(false);
       return;
     }
     setApiKey("");
     await load(false);
     setStatus("Connection saved securely. You can sync Roblox analytics now.");
+    setSyncDiagnostic({
+      title: "Connection saved",
+      summary: "The Roblox credential was stored encrypted and is ready for analytics sync.",
+      tone: "good",
+      items: [
+        "Run Sync last 30 days to request Roblox analytics.",
+        "If Roblox returns no datapoints, PlayDirective will explain the likely reasons instead of inventing recommendations.",
+      ],
+    });
     setBusy(false);
   }
 
   async function sync() {
     setBusy(true);
+    setSyncDiagnostic(null);
     setStatus("Syncing the last 30 days of Roblox analytics…");
     const response = await fetch("/api/pilot/sync?days=30", { method: "POST" });
     const payload: SyncPayload = await response.json().catch(() => ({}));
     if (!response.ok) {
       setStatus(payload.detail ?? "Analytics sync failed.");
+      setSyncDiagnostic({
+        title: "Sync needs attention",
+        summary: payload.detail ?? "Roblox did not return a successful analytics response.",
+        tone: "bad",
+        items: [
+          "Verify that the API key still has analytics read access to this Universe.",
+          "Confirm that the Universe ID belongs to the connected experience.",
+          "If the key was regenerated in Roblox, save the new key here before retrying.",
+        ],
+      });
       setBusy(false);
       return;
     }
@@ -82,10 +121,42 @@ export default function PilotWorkspacePage() {
     await load(false);
     if (received === 0) {
       setStatus("Sync successful · no Roblox analytics are available for this experience yet.");
+      setSyncDiagnostic({
+        title: "Connection valid · no datapoints yet",
+        summary: "Roblox accepted the analytics request, but returned no metric datapoints for the selected period.",
+        tone: "warn",
+        items: [
+          "The experience may not have enough live player activity yet.",
+          "Roblox Studio playtests may not produce the same analytics as real live sessions.",
+          "Roblox analytics can take time to aggregate before they become queryable.",
+          "Retention metrics need additional player history across multiple days.",
+          "Try again later after real players have joined the published experience.",
+        ],
+      });
     } else if (inserted === 0) {
       setStatus(`Sync successful · ${received} observations received · no new rows to import.`);
+      setSyncDiagnostic({
+        title: "Analytics are available",
+        summary: "Roblox returned data, but PlayDirective already had those observations stored.",
+        tone: "info",
+        items: [
+          "The connection is working.",
+          "No duplicate observations were imported.",
+          "New priorities will appear when fresh data crosses a supported decision threshold.",
+        ],
+      });
     } else {
       setStatus(`Sync successful · ${received} observations received · ${inserted} new rows imported.`);
+      setSyncDiagnostic({
+        title: "Fresh analytics imported",
+        summary: "PlayDirective received Roblox analytics and added new observations to this private workspace.",
+        tone: "good",
+        items: [
+          "The decision engine has been refreshed from the new observations.",
+          "Open Priorities and Evidence below to review any supported findings.",
+          "If no priority appears, the current data did not cross a supported decision threshold.",
+        ],
+      });
     }
     setBusy(false);
   }
@@ -96,6 +167,13 @@ export default function PilotWorkspacePage() {
   }
 
   const isOwner = me?.user.role === "OWNER";
+  const diagnosticPalette = syncDiagnostic?.tone === "good"
+    ? { border: "rgba(134,239,172,.22)", bg: "rgba(134,239,172,.05)", title: "#86efac" }
+    : syncDiagnostic?.tone === "warn"
+      ? { border: "rgba(250,204,21,.22)", bg: "rgba(250,204,21,.045)", title: "#fde047" }
+      : syncDiagnostic?.tone === "bad"
+        ? { border: "rgba(251,113,133,.22)", bg: "rgba(251,113,133,.05)", title: "#fda4af" }
+        : { border: "rgba(103,232,249,.2)", bg: "rgba(103,232,249,.04)", title: "#67e8f9" };
 
   return (
     <main style={{ minHeight: "100vh", background: "#07101f", color: "#eef7ff", fontFamily: "Arial, sans-serif" }}>
@@ -128,6 +206,17 @@ export default function PilotWorkspacePage() {
             {decisions.length ? decisions.slice(0, 3).map((item, index) => <div key={index} style={{ marginTop: 14, paddingTop: 14, borderTop: index ? "1px solid rgba(255,255,255,.08)" : "none" }}><strong>#{index + 1} {item.title ?? item.recommendation ?? "Priority"}</strong>{typeof item.priority_score === "number" && <div style={{ color: "#67e8f9", fontSize: 12, marginTop: 5 }}>Priority score {item.priority_score.toFixed(2)}</div>}</div>) : <p style={{ color: "#9fb1c7", lineHeight: 1.6 }}>Connect and sync an experience to generate private priorities.</p>}
           </article>
         </div>
+
+        {syncDiagnostic && (
+          <section style={{ marginTop: 18, border: `1px solid ${diagnosticPalette.border}`, borderRadius: 20, padding: 20, background: diagnosticPalette.bg }}>
+            <div style={{ color: diagnosticPalette.title, fontSize: 11, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase" }}>Sync diagnostic</div>
+            <h2 style={{ margin: "8px 0 6px", fontSize: 21 }}>{syncDiagnostic.title}</h2>
+            <p style={{ margin: 0, color: "#9fb1c7", lineHeight: 1.65 }}>{syncDiagnostic.summary}</p>
+            <div style={{ marginTop: 14, display: "grid", gap: 8 }}>
+              {syncDiagnostic.items.map((item) => <div key={item} style={{ color: "#c9d7e7", fontSize: 13, lineHeight: 1.55 }}>✓ {item}</div>)}
+            </div>
+          </section>
+        )}
 
         {isOwner && <section style={{ marginTop: 18, border: "1px solid rgba(103,232,249,.22)", borderRadius: 22, padding: 22, background: "rgba(103,232,249,.045)" }}>
           <div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".14em", textTransform: "uppercase" }}>Owner setup</div>

@@ -54,6 +54,75 @@ class PilotSessionRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class PilotApplicationRecord(Base):
+    __tablename__ = "pilot_applications"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    contact_name: Mapped[str] = mapped_column(String(160))
+    email: Mapped[str] = mapped_column(String(254), index=True)
+    studio_name: Mapped[str] = mapped_column(String(160), index=True)
+    experience_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    universe_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    monthly_active_users: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="PENDING", index=True)
+    organization_id: Mapped[int | None] = mapped_column(
+        ForeignKey("organizations.id"), nullable=True, index=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class PilotLoginLinkRecord(Base):
+    __tablename__ = "pilot_login_links"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("pilot_users.id"), index=True)
+    organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id"), index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    redeemed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class NotificationRecord(Base):
+    __tablename__ = "notifications"
+    __table_args__ = (UniqueConstraint("event_key", name="uq_notification_event_key"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    organization_id: Mapped[int | None] = mapped_column(
+        ForeignKey("organizations.id"), nullable=True, index=True
+    )
+    recipient: Mapped[str] = mapped_column(String(254), index=True)
+    kind: Mapped[str] = mapped_column(String(64), index=True)
+    event_key: Mapped[str] = mapped_column(String(255), unique=True, index=True)
+    provider: Mapped[str] = mapped_column(String(32), default="resend")
+    provider_message_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    status: Mapped[str] = mapped_column(String(32), default="PENDING", index=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class SubscriptionRecord(Base):
+    __tablename__ = "subscriptions"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    organization_id: Mapped[int] = mapped_column(
+        ForeignKey("organizations.id"), unique=True, index=True
+    )
+    plan_id: Mapped[str] = mapped_column(String(32), default="pilot", index=True)
+    status: Mapped[str] = mapped_column(String(32), default="pilot", index=True)
+    stripe_customer_id: Mapped[str | None] = mapped_column(String(160), nullable=True, index=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(
+        String(160), nullable=True, unique=True, index=True
+    )
+    current_period_end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cancel_at_period_end: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class RobloxConnectionRecord(Base):
     __tablename__ = "roblox_connections"
     __table_args__ = (UniqueConstraint("organization_id", "universe_id", name="uq_org_universe"),)

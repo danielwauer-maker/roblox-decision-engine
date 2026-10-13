@@ -1,11 +1,11 @@
 import { Button, Card, DemoShell, PageTitle, Pill, palette } from "../_components";
 
 const steps = [
-  ["1", "Receive your private invite", "A founding-pilot studio gets a private invite link for its own isolated workspace."],
-  ["2", "Connect one Roblox experience", "Inside the invited workspace, an owner adds a read-only Open Cloud key scoped to analytics."],
-  ["3", "Sync and review the first priority", "PlayDirective reads available analytics, ranks supported decisions and shows the evidence behind them."],
-  ["4", "Turn evidence into an experiment", "Use the strongest supported finding to create a bounded test with a KPI, sample target and guardrails."],
-  ["5", "Close the loop with a Weekly Brief", "Review what changed, what deserves attention next and how current experiments should move forward."],
+  ["1", "Apply for the founding pilot", "Tell us who you are and which Roblox experience you want to evaluate. Never submit API credentials in the application."],
+  ["2", "Receive your private invite", "Approved founding-pilot studios receive a private single-use invite by email for their isolated workspace."],
+  ["3", "Connect one Roblox experience", "Inside the invited workspace, an owner adds a read-only Open Cloud key scoped to analytics."],
+  ["4", "Sync and review the first priority", "PlayDirective reads available analytics, ranks supported decisions and shows the evidence behind them."],
+  ["5", "Experiment and review", "Turn evidence into a bounded experiment and close the loop with a tenant-scoped Weekly Brief."],
 ] as const;
 
 const principles = [
@@ -19,8 +19,8 @@ export default function PilotPage() {
   return (
     <DemoShell eyebrow="Founding studio pilot · how it works">
       <PageTitle
-        title="From invite to first useful decision."
-        copy="The public demo shows the workflow with simulated data. Real Roblox connections happen only after a studio receives and redeems a private PlayDirective invite."
+        title="From application to first useful decision."
+        copy="The public demo shows the workflow with simulated data. Real Roblox connections happen only after a studio applies, is approved and redeems its private PlayDirective invitation."
         action={<Pill tone="good">30-day guided pilot</Pill>}
       />
 
@@ -35,7 +35,7 @@ export default function PilotPage() {
             </div>
           ))}
           <div style={{ marginTop: 20, display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Button href="/pricing" primary>Start with the founding pilot</Button>
+            <Button href="/apply" primary>Apply for the founding pilot</Button>
             <Button href="/demo/priorities">See the decision workflow</Button>
           </div>
         </Card>
@@ -53,7 +53,7 @@ export default function PilotPage() {
       </div>
 
       <div style={{ marginTop: 18 }}>
-        <div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>What happens after the invite</div>
+        <div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>What happens after approval</div>
         <h2 style={{ margin: "10px 0 16px" }}>A private workspace with a clear next action.</h2>
         <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit,minmax(235px,1fr))" }}>
           <Card><Pill tone="neutral">Step 1</Pill><h3 style={{ margin: "12px 0 7px" }}>Connect</h3><p style={{ margin: 0, color: palette.muted, lineHeight: 1.6 }}>The studio owner securely stores a read-only Roblox Open Cloud key and universe ID inside the invited workspace.</p></Card>

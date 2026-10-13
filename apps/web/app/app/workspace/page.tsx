@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import WorkspacePhase2A from "./WorkspaceClient";
 
 type Me = { user: { email: string; role: string }; organization: { name: string; slug: string } };
 type Connection = { id: number; universe_id: string; experience_name?: string | null; configured: boolean };
@@ -139,6 +140,8 @@ export default function PilotWorkspacePage() {
             <button disabled={busy} style={{ background: "#67e8f9", color: "#07101f", border: 0, borderRadius: 11, padding: "12px 14px", fontWeight: 800 }}>Save connection</button>
           </form>
         </section>}
+
+        <WorkspacePhase2A />
       </section>
     </main>
   );

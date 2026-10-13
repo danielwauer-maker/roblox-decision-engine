@@ -15,6 +15,7 @@ from app.models import (
     PilotUserRecord,
     RobloxConnectionRecord,
 )
+from app.r16_models import NotificationPreferenceRecord
 from app.services.decision_snapshots import build_decision_snapshot
 from app.services.notifications import send_notification_once
 from app.tenant_security import require_admin
@@ -37,6 +38,15 @@ AdminDep = Annotated[None, Depends(require_admin)]
 def _period_key(now: datetime) -> str:
     iso = now.isocalendar()
     return f"{iso.year}-W{iso.week:02d}"
+
+
+def _lifecycle_enabled(session: Session, organization_id: int) -> bool:
+    preference = session.scalar(
+        select(NotificationPreferenceRecord).where(
+            NotificationPreferenceRecord.organization_id == organization_id
+        )
+    )
+    return preference is None or preference.lifecycle_email_enabled
 
 
 @router.post("/admin/run")
@@ -100,7 +110,7 @@ async def run_lifecycle(session: SessionDep, _: AdminDep):
                 organization_id=organization.id,
             )
             priorities = evaluate_snapshot(snapshot)
-            if priorities:
+            if priorities and _lifecycle_enabled(session, organization.id):
                 top_priority = priorities[0]
                 priority_key = getattr(top_priority, "key", None) or "top-priority"
                 experiment_record = await send_notification_once(

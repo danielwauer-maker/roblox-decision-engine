@@ -50,7 +50,7 @@ Implemented scope:
 - internal QA criteria kept out of the customer UI
 
 Remaining acceptance:
-- confirm state transitions in the real-life acceptance run
+- confirm state transitions in the real-life acceptance run on Hetzner production
 
 ## Phase 3 — Notification and lifecycle system
 
@@ -78,8 +78,8 @@ Implemented controls:
 - customers can disable non-essential experiment/Weekly Brief lifecycle email while essential auth/invite/connection-attention email remains transactional
 
 Remaining activation:
-- verify `playdirective.com` as a sender domain in Resend
-- configure Resend API key/sender/operator mailbox in the production API environment
+- verify `playdirective.com` as a sender domain in Resend using Hetzner DNS
+- configure Resend API key/sender/operator mailbox in the Hetzner `.env.production`
 - execute the email sections of `docs/REAL_LIFE_ACCEPTANCE_TEST.md`
 
 ## Phase 4 — Subscription and billing
@@ -106,12 +106,12 @@ Implemented scope:
 
 Remaining activation:
 - create test-mode Stripe Products/Prices and Customer Portal configuration
-- configure test secret key, webhook signing secret and Price IDs in the production API environment
+- configure test secret key, webhook signing secret and Price IDs in the Hetzner `.env.production`
 - execute Stripe test-mode section H of `docs/REAL_LIFE_ACCEPTANCE_TEST.md`
 
 ## R16 — Real Pilot Go-Live
 
-**Status: CODE COMPLETE / EXTERNAL CONFIGURATION + REAL-LIFE ACCEPTANCE PENDING**
+**Status: CODE COMPLETE / HETZNER DEPLOYMENT + EXTERNAL CONFIGURATION + REAL-LIFE ACCEPTANCE PENDING**
 
 R16 combines the remaining customer-acquisition and production acceptance work:
 
@@ -125,10 +125,10 @@ R16 combines the remaining customer-acquisition and production acceptance work:
 - Phase 3 lifecycle notifications/preferences/operator observability
 - Phase 4 Stripe test-mode subscription plumbing and operator visibility
 - canonical `playdirective.com` production domain
-- `www.playdirective.com` redirect to apex domain
+- Hetzner-only application/database production runtime
 - manual acceptance runbook
 
-R16 is not `DONE` until external provider configuration is active and sections A–I of `docs/REAL_LIFE_ACCEPTANCE_TEST.md` pass on the exact production release.
+R16 is not `DONE` until the current main release is running on Hetzner, external provider configuration is active and sections A–I of `docs/REAL_LIFE_ACCEPTANCE_TEST.md` pass on that exact production release.
 
 ## Public demo / internal QA separation
 
@@ -140,7 +140,9 @@ The production landing page labels the illustrative decision queue as simulated.
 
 Current code-complete pilot baseline includes:
 - PlayDirective brand and canonical domain
-- HTTPS/domain routing through the production frontend project
+- HTTPS/domain routing to the Hetzner production host
+- Next.js + FastAPI + PostgreSQL colocated on the Hetzner server using Docker Compose
+- no production dependency on Vercel, Neon or Render
 - landing page and public simulated demo
 - real public founding-pilot application flow
 - pricing hypothesis and founding pilot positioning

@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/app", "/api"],
+      disallow: ["/admin", "/app", "/api", "/portfolio"],
     },
-    sitemap: "https://roblox-decision-engine.vercel.app/sitemap.xml",
+    sitemap: "https://playdirective.com/sitemap.xml",
   };
 }

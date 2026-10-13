@@ -23,25 +23,32 @@ const proofPoints = [
   ["15", "launch routes", "Landing, product demo, pilot, portfolio and public release metadata are included in the production route manifest."],
 ];
 
+const roadmapPhases = [
+  ["2A", "Private workspace parity", "IN PROGRESS", "Bring the invited customer workspace to the same decision workflow as the demo: priorities, evidence, analyst, investigation, experiment and weekly brief."],
+  ["2B", "Pilot progress state machine", "NEXT", "Replace internal QA concepts with a dynamic customer journey: connect, sync, review priority, build experiment and complete the first weekly review."],
+  ["3", "Notifications & lifecycle", "PLANNED", "Pilot request, invite, activation, sync alerts, experiment milestones and Weekly Report email delivery."],
+  ["4", "Subscription & billing", "PLANNED", "Convert validated pilots to paid plans with hosted checkout, manage-subscription portal, invoices and plan entitlements."],
+] as const;
+
 export default function PortfolioPage() {
   return (
     <main style={{ minHeight: "100vh", background: "#07101f", color: "#eef7ff", fontFamily: "Arial, sans-serif" }}>
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "clamp(64px, 12vw, 80px) clamp(20px, 5vw, 24px) 44px" }}>
-        <a href="/" style={{ color: "#67e8f9", fontSize: 14, textDecoration: "none" }}>← Roblox Decision Engine</a>
+        <a href="/" style={{ color: "#67e8f9", fontSize: 14, textDecoration: "none" }}>← PlayDirective</a>
         <div style={{ marginTop: 32, display: "grid", gap: 28, gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))" }}>
           <div>
-            <div style={{ color: "#67e8f9", fontSize: "clamp(10px, 2.8vw, 12px)", fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Portfolio Case Study · Delivery Complete</div>
-            <h1 style={{ margin: "16px 0 0", fontSize: "clamp(42px, 11vw, 58px)", lineHeight: 0.98, letterSpacing: "-.05em" }}>Roblox Decision Engine</h1>
-            <p style={{ marginTop: 22, maxWidth: 760, color: "#9fb1c7", fontSize: "clamp(17px, 4.5vw, 19px)", lineHeight: 1.62 }}>AI Product & Growth Analyst for Roblox studios. The product turns retention, monetization and funnel signals into prioritized, evidence-backed actions and experiment decisions.</p>
+            <div style={{ color: "#67e8f9", fontSize: "clamp(10px, 2.8vw, 12px)", fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Portfolio Case Study · Active Product Delivery</div>
+            <h1 style={{ margin: "16px 0 0", fontSize: "clamp(42px, 11vw, 58px)", lineHeight: 0.98, letterSpacing: "-.05em" }}>PlayDirective</h1>
+            <p style={{ marginTop: 22, maxWidth: 760, color: "#9fb1c7", fontSize: "clamp(17px, 4.5vw, 19px)", lineHeight: 1.62 }}>Decision intelligence for Roblox studios. PlayDirective turns retention, monetization and funnel signals into prioritized, evidence-backed actions and experiment decisions.</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 26 }}>{capabilities.map((item) => <span key={item} style={{ border: "1px solid rgba(255,255,255,.11)", background: "rgba(255,255,255,.03)", borderRadius: 999, padding: "7px 10px", fontSize: 12, color: "#c7d5e5" }}>{item}</span>)}</div>
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 24 }}><a href="/demo" style={{ background: "#67e8f9", color: "#07101f", padding: "11px 14px", borderRadius: 11, fontWeight: 800, textDecoration: "none", fontSize: 13 }}>Open validation demo</a><a href="/pricing" style={{ border: "1px solid rgba(103,232,249,.24)", color: "#a5f3fc", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View pricing</a><a href="/demo/pilot" style={{ border: "1px solid rgba(255,255,255,.12)", color: "#eef7ff", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View pilot workspace</a></div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 24 }}><a href="/demo" style={{ background: "#67e8f9", color: "#07101f", padding: "11px 14px", borderRadius: 11, fontWeight: 800, textDecoration: "none", fontSize: 13 }}>Open validation demo</a><a href="/pricing" style={{ border: "1px solid rgba(103,232,249,.24)", color: "#a5f3fc", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View pricing</a><a href="/demo/pilot" style={{ border: "1px solid rgba(255,255,255,.12)", color: "#eef7ff", padding: "11px 14px", borderRadius: 11, fontWeight: 700, textDecoration: "none", fontSize: 13 }}>View pilot flow</a></div>
           </div>
           <aside style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.03)", borderRadius: 24, padding: 22 }}>
-            <div style={{ color: "#718198", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase" }}>Portfolio delivery</div>
-            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>Complete</div>
-            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>All R0–R12 delivery gates are complete. The case study now combines product thesis, architecture, verified engineering evidence, launch readiness and explicit commercial limitations without overstating market validation.</div>
+            <div style={{ color: "#718198", fontSize: 11, letterSpacing: ".16em", textTransform: "uppercase" }}>Foundation delivery</div>
+            <div style={{ marginTop: 12, fontSize: "clamp(26px, 7vw, 31px)", fontWeight: 700, color: "#a5f3fc" }}>R0–R12 complete</div>
+            <div style={{ marginTop: 8, color: "#9fb1c7", fontSize: 14 }}>The original product, engineering, security and launch gates are complete. Post-launch work now focuses on private workspace parity, pilot lifecycle, notifications and commercial conversion.</div>
             <div style={{ marginTop: 22, height: 8, borderRadius: 99, background: "rgba(255,255,255,.08)", overflow: "hidden" }}><div style={{ width: "100%", height: "100%", background: "#67e8f9" }} /></div>
-            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>13 sprints done</span><span>100%</span></div>
+            <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, color: "#718198", fontSize: 12 }}><span>Foundation gates</span><span>100%</span></div>
           </aside>
         </div>
       </section>
@@ -52,7 +59,7 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "48px clamp(20px, 5vw, 24px) 20px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Product Thesis</div><h2 style={{ marginTop: 12, maxWidth: 850, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Roblox tells studios what happened. The Decision Engine tells them what to do next.</h2><p style={{ maxWidth: 840, color: "#9fb1c7", fontSize: 16, lineHeight: 1.75 }}>The system validates metric changes deterministically, compares baselines and segments, generates a structured evidence bundle and only then lets the AI layer explain the finding. Supported findings can be turned into bounded experiments with explicit success thresholds and guardrails.</p></section>
+      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "48px clamp(20px, 5vw, 24px) 20px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Product Thesis</div><h2 style={{ marginTop: 12, maxWidth: 850, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Roblox tells studios what happened. PlayDirective helps decide what to do next.</h2><p style={{ maxWidth: 840, color: "#9fb1c7", fontSize: 16, lineHeight: 1.75 }}>The system validates metric changes deterministically, compares baselines and segments, generates a structured evidence bundle and only then lets the AI layer explain the finding. Supported findings can be turned into bounded experiments with explicit success thresholds and guardrails.</p></section>
 
       <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px)" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Architecture</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>Thin analytics layer. Strong decision layer.</h2><div style={{ marginTop: 24, display: "grid", gap: 10, gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))" }}>{["Roblox Analytics", "Query Adapter", "Metric Normalization", "PostgreSQL", "Decision Engine", "Evidence Bundle", "AI Analyst", "Experiment Copilot"].map((item, index) => <div key={item} style={{ border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.025)", borderRadius: 18, padding: 15, textAlign: "center", color: "#c7d5e5", fontSize: 13 }}><div style={{ color: "#52627a", fontSize: 10 }}>{String(index + 1).padStart(2, "0")}</div><div style={{ marginTop: 7 }}>{item}</div></div>)}</div></section>
 
@@ -71,7 +78,20 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px) 80px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Delivery</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>R0–R12 delivery complete</h2><div style={{ marginTop: 24, border: "1px solid rgba(255,255,255,.1)", borderRadius: 24, overflow: "hidden" }}>{sprints.map(([id, title, status], index) => <div key={id} style={{ display: "grid", gridTemplateColumns: "52px minmax(0, 1fr) auto", gap: 10, alignItems: "center", padding: "14px", borderTop: index ? "1px solid rgba(255,255,255,.08)" : "none" }}><div style={{ color: "#67e8f9", fontFamily: "monospace", fontSize: 13 }}>{id}</div><div style={{ color: "#dce8f5", fontSize: 13 }}>{title}</div><div style={{ borderRadius: 999, padding: "5px 7px", fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", color: "#a7f3d0", background: "rgba(52,211,153,.1)" }}>{status}</div></div>)}</div></section>
+      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px)" }}>
+        <div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Active delivery roadmap</div>
+        <h2 style={{ marginTop: 12, maxWidth: 860, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>From pilot-ready infrastructure to a complete customer lifecycle.</h2>
+        <p style={{ maxWidth: 860, color: "#9fb1c7", fontSize: 15, lineHeight: 1.7 }}>The canonical roadmap is tracked in <code>docs/PLAYDIRECTIVE_ROADMAP.md</code>. This page mirrors the current phase status and should be updated whenever delivery state changes.</p>
+        <div style={{ marginTop: 24, display: "grid", gap: 14 }}>
+          {roadmapPhases.map(([id, title, status, copy]) => {
+            const active = status === "IN PROGRESS";
+            const next = status === "NEXT";
+            return <article key={id} style={{ display: "grid", gridTemplateColumns: "58px minmax(0,1fr) auto", gap: 14, alignItems: "start", border: active ? "1px solid rgba(103,232,249,.35)" : "1px solid rgba(255,255,255,.1)", background: active ? "rgba(103,232,249,.055)" : "rgba(255,255,255,.025)", borderRadius: 20, padding: 20 }}><div style={{ color: "#67e8f9", fontFamily: "monospace", fontWeight: 800 }}>{id}</div><div><div style={{ fontWeight: 800, fontSize: 18 }}>{title}</div><p style={{ margin: "7px 0 0", color: "#9fb1c7", lineHeight: 1.65, fontSize: 14 }}>{copy}</p></div><div style={{ borderRadius: 999, padding: "6px 9px", fontSize: 9, fontWeight: 800, whiteSpace: "nowrap", color: active ? "#a5f3fc" : next ? "#fde68a" : "#9fb1c7", background: active ? "rgba(103,232,249,.09)" : next ? "rgba(251,191,36,.08)" : "rgba(255,255,255,.04)" }}>{status}</div></article>;
+          })}
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 1160, margin: "0 auto", padding: "42px clamp(20px, 5vw, 24px) 80px" }}><div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 700, letterSpacing: ".18em", textTransform: "uppercase" }}>Foundation delivery</div><h2 style={{ marginTop: 12, fontSize: "clamp(30px, 7vw, 40px)", lineHeight: 1.08, letterSpacing: "-.035em" }}>R0–R12 delivery complete</h2><div style={{ marginTop: 24, border: "1px solid rgba(255,255,255,.1)", borderRadius: 24, overflow: "hidden" }}>{sprints.map(([id, title, status], index) => <div key={id} style={{ display: "grid", gridTemplateColumns: "52px minmax(0, 1fr) auto", gap: 10, alignItems: "center", padding: "14px", borderTop: index ? "1px solid rgba(255,255,255,.08)" : "none" }}><div style={{ color: "#67e8f9", fontFamily: "monospace", fontSize: 13 }}>{id}</div><div style={{ color: "#dce8f5", fontSize: 13 }}>{title}</div><div style={{ borderRadius: 999, padding: "5px 7px", fontSize: 9, fontWeight: 700, whiteSpace: "nowrap", color: "#a7f3d0", background: "rgba(52,211,153,.1)" }}>{status}</div></div>)}</div></section>
     </main>
   );
 }

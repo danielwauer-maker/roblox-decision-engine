@@ -43,15 +43,15 @@ export default function PricingPage() {
     <main style={{ minHeight: "100vh", background: "#07101f", color: "#eef7ff", fontFamily: "Arial, sans-serif" }}>
       <header style={{ borderBottom: "1px solid rgba(255,255,255,.08)" }}>
         <div style={{ maxWidth: 1180, margin: "0 auto", padding: "18px clamp(20px,5vw,24px)", display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <a href="/" style={{ color: "#eef7ff", textDecoration: "none", fontWeight: 800 }}>Roblox Decision Engine</a>
-          <div style={{ display: "flex", gap: 8 }}><a href="/demo" style={{ color: "#9fb1c7", textDecoration: "none", padding: "9px 11px" }}>Demo</a><a href="/portfolio" style={{ color: "#9fb1c7", textDecoration: "none", padding: "9px 11px" }}>Build log</a></div>
+          <a href="/" style={{ color: "#eef7ff", textDecoration: "none", fontWeight: 800 }}>PlayDirective</a>
+          <div style={{ display: "flex", gap: 8 }}><a href="/demo" style={{ color: "#9fb1c7", textDecoration: "none", padding: "9px 11px" }}>Demo</a></div>
         </div>
       </header>
 
       <section style={{ maxWidth: 1180, margin: "0 auto", padding: "72px clamp(20px,5vw,24px) 28px", textAlign: "center" }}>
         <div style={{ color: "#67e8f9", fontSize: 12, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase" }}>Commercial validation</div>
         <h1 style={{ margin: "16px auto 0", maxWidth: 850, fontSize: "clamp(42px,8vw,68px)", lineHeight: .98, letterSpacing: "-.05em" }}>Pay for clearer decisions, not more dashboards.</h1>
-        <p style={{ margin: "24px auto 0", maxWidth: 760, color: "#9fb1c7", fontSize: 18, lineHeight: 1.65 }}>Roblox already tells you what happened. The Decision Engine ranks what deserves attention, shows the evidence and turns the strongest finding into a bounded experiment plan.</p>
+        <p style={{ margin: "24px auto 0", maxWidth: 760, color: "#9fb1c7", fontSize: 18, lineHeight: 1.65 }}>Roblox already tells you what happened. PlayDirective ranks what deserves attention, shows the evidence and turns the strongest finding into a bounded experiment plan.</p>
       </section>
 
       <section style={{ maxWidth: 1180, margin: "0 auto", padding: "28px clamp(20px,5vw,24px)" }}>

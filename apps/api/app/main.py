@@ -12,10 +12,14 @@ from app.reliability import RequestObservabilityMiddleware
 from app.routes.admin_console import router as admin_console_router
 from app.routes.admin_simulation import router as admin_simulation_router
 from app.routes.analyst import router as analyst_router
+from app.routes.billing import router as billing_router
 from app.routes.commercial import router as commercial_router
 from app.routes.decisions import router as decisions_router
+from app.routes.enrollment import router as enrollment_router
 from app.routes.experiments import router as experiments_router
+from app.routes.lifecycle import router as lifecycle_router
 from app.routes.pilot import router as pilot_router
+from app.routes.progress import router as progress_router
 from app.routes.roblox import router as roblox_router
 from app.routes.tenant_insights import router as tenant_insights_router
 from app.routes.tenants import router as tenant_router
@@ -30,8 +34,8 @@ async def lifespan(_: FastAPI):
 
 settings = get_settings()
 app = FastAPI(
-    title="Roblox Decision Engine API",
-    version="1.2.0",
+    title="PlayDirective API",
+    version="1.3.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -39,7 +43,13 @@ app.add_middleware(
     allow_origins=settings.cors_origin_list,
     allow_credentials=False,
     allow_methods=["GET", "POST", "PUT"],
-    allow_headers=["Content-Type", "Authorization", "X-Request-ID", "X-Admin-Token"],
+    allow_headers=[
+        "Content-Type",
+        "Authorization",
+        "X-Request-ID",
+        "X-Admin-Token",
+        "Stripe-Signature",
+    ],
 )
 app.add_middleware(
     WriteRateLimitMiddleware,
@@ -58,11 +68,15 @@ app.include_router(tenant_router)
 app.include_router(tenant_insights_router)
 app.include_router(admin_console_router)
 app.include_router(admin_simulation_router)
+app.include_router(enrollment_router)
+app.include_router(progress_router)
+app.include_router(lifecycle_router)
+app.include_router(billing_router)
 
 
 @app.get("/health", tags=["system"])
 def health() -> dict[str, str]:
-    return {"status": "ok", "service": "roblox-decision-engine-api"}
+    return {"status": "ok", "service": "playdirective-api"}
 
 
 @app.get("/ready", tags=["system"])
@@ -71,6 +85,14 @@ def ready():
         "roblox_configured": bool(settings.roblox_universe_id and settings.roblox_api_key),
         "ai_mode": "model" if settings.openai_api_key else "deterministic",
         "pilot_auth_configured": bool(settings.pilot_admin_token and settings.pilot_credential_key),
+        "transactional_email_configured": bool(settings.resend_api_key),
+        "stripe_configured": bool(
+            settings.stripe_secret_key
+            and settings.stripe_webhook_secret
+            and settings.stripe_price_indie
+            and settings.stripe_price_growth
+            and settings.stripe_price_studio
+        ),
     }
     try:
         with engine.connect() as connection:
@@ -87,8 +109,8 @@ def ready():
 @app.get("/v1/product", tags=["product"])
 def product() -> dict[str, object]:
     return {
-        "name": "Roblox Decision Engine",
-        "positioning": "AI Product & Growth Analyst for Roblox studios",
+        "name": "PlayDirective",
+        "positioning": "Decision intelligence for Roblox studios",
         "principle": "Evidence before explanation",
-        "status": "pilot-simulation-build",
+        "status": "founding-studio-pilot",
     }

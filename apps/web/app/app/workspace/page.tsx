@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import R16Panel from "./R16Panel";
 import WorkspacePhase2A from "./WorkspaceClient";
 
 type Me = { user: { email: string; role: string }; organization: { name: string; slug: string } };
@@ -193,6 +194,8 @@ export default function PilotWorkspacePage() {
           </div>
           <div style={{ color: "#9fb1c7", fontSize: 13, maxWidth: 460, textAlign: "right" }}>{status}</div>
         </div>
+
+        <R16Panel />
 
         <div style={{ marginTop: 30, display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))" }}>
           <article style={{ border: "1px solid rgba(255,255,255,.1)", borderRadius: 22, padding: 22, background: "rgba(255,255,255,.025)" }}>

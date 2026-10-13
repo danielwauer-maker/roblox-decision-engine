@@ -21,6 +21,7 @@ from app.routes.experiments import router as experiments_router
 from app.routes.lifecycle import router as lifecycle_router
 from app.routes.pilot import router as pilot_router
 from app.routes.progress import router as progress_router
+from app.routes.r17 import router as r17_router
 from app.routes.roblox import router as roblox_router
 from app.routes.tenant_insights import router as tenant_insights_router
 from app.routes.tenant_notifications import router as tenant_notifications_router
@@ -37,7 +38,7 @@ async def lifespan(_: FastAPI):
 settings = get_settings()
 app = FastAPI(
     title="PlayDirective API",
-    version="1.3.0",
+    version="1.4.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -76,6 +77,7 @@ app.include_router(lifecycle_router)
 app.include_router(tenant_notifications_router)
 app.include_router(billing_router)
 app.include_router(billing_admin_router)
+app.include_router(r17_router)
 
 
 @app.get("/health", tags=["system"])

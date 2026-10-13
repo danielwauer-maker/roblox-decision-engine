@@ -203,7 +203,7 @@ export default function AdminDashboard() {
       <div style={{ maxWidth: 1440, margin: "0 auto", padding: "28px clamp(18px, 4vw, 42px) 70px" }}>
         <header style={{ display: "flex", justifyContent: "space-between", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
           <div>
-            <div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".17em", textTransform: "uppercase" }}>Roblox Decision Engine · Private</div>
+            <div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".17em", textTransform: "uppercase" }}>PlayDirective · Private</div>
             <h1 style={{ margin: "9px 0 4px", fontSize: "clamp(32px, 6vw, 48px)", letterSpacing: "-.045em" }}>Operator Console</h1>
             <p style={{ margin: 0, color: "#8095ae", fontSize: 14 }}>Studios, onboarding, analytics flow, decisions, pilot health and customer support.</p>
           </div>

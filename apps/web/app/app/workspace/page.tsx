@@ -5,6 +5,8 @@ import { FormEvent, useEffect, useState } from "react";
 type Me = { user: { email: string; role: string }; organization: { name: string; slug: string } };
 type Connection = { id: number; universe_id: string; experience_name?: string | null; configured: boolean };
 type Decision = { title?: string; recommendation?: string; priority_score?: number };
+type SyncMetric = { metric?: string; received?: number; inserted?: number };
+type SyncPayload = { metrics?: SyncMetric[]; days?: number; detail?: string };
 
 export default function PilotWorkspacePage() {
   const [me, setMe] = useState<Me | null>(null);
@@ -16,7 +18,7 @@ export default function PilotWorkspacePage() {
   const [status, setStatus] = useState("Loading workspace…");
   const [busy, setBusy] = useState(false);
 
-  async function load() {
+  async function load(markReady = true) {
     const identity = await fetch("/api/pilot/me", { cache: "no-store" });
     if (identity.status === 401) {
       window.location.href = "/app/login";
@@ -37,7 +39,7 @@ export default function PilotWorkspacePage() {
       const payload = await decisionResponse.json();
       setDecisions(payload.items ?? []);
     }
-    setStatus("Ready");
+    if (markReady) setStatus("Ready");
   }
 
   useEffect(() => { void load(); }, []);
@@ -58,24 +60,33 @@ export default function PilotWorkspacePage() {
       return;
     }
     setApiKey("");
-    setStatus("Connection saved. You can sync analytics now.");
+    await load(false);
+    setStatus("Connection saved securely. You can sync Roblox analytics now.");
     setBusy(false);
-    await load();
   }
 
   async function sync() {
     setBusy(true);
     setStatus("Syncing the last 30 days of Roblox analytics…");
     const response = await fetch("/api/pilot/sync?days=30", { method: "POST" });
+    const payload: SyncPayload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      const payload = await response.json().catch(() => ({}));
       setStatus(payload.detail ?? "Analytics sync failed.");
       setBusy(false);
       return;
     }
-    setStatus("Sync complete. Decision queue refreshed.");
+
+    const received = (payload.metrics ?? []).reduce((sum, item) => sum + (item.received ?? 0), 0);
+    const inserted = (payload.metrics ?? []).reduce((sum, item) => sum + (item.inserted ?? 0), 0);
+    await load(false);
+    if (received === 0) {
+      setStatus("Sync successful · no Roblox analytics are available for this experience yet.");
+    } else if (inserted === 0) {
+      setStatus(`Sync successful · ${received} observations received · no new rows to import.`);
+    } else {
+      setStatus(`Sync successful · ${received} observations received · ${inserted} new rows imported.`);
+    }
     setBusy(false);
-    await load();
   }
 
   async function logout() {
@@ -89,22 +100,26 @@ export default function PilotWorkspacePage() {
     <main style={{ minHeight: "100vh", background: "#07101f", color: "#eef7ff", fontFamily: "Arial, sans-serif" }}>
       <header style={{ borderBottom: "1px solid rgba(255,255,255,.08)" }}>
         <div style={{ maxWidth: 1180, margin: "0 auto", padding: "18px 22px", display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
-          <div><strong>Roblox Decision Engine</strong><div style={{ color: "#718198", fontSize: 12, marginTop: 4 }}>{me ? `${me.organization.name} · ${me.user.email}` : "Pilot workspace"}</div></div>
+          <div><strong>PlayDirective</strong><div style={{ color: "#718198", fontSize: 12, marginTop: 4 }}>{me ? `${me.organization.name} · ${me.user.email}` : "Pilot workspace"}</div></div>
           <button onClick={logout} style={{ background: "transparent", color: "#9fb1c7", border: "1px solid rgba(255,255,255,.12)", borderRadius: 10, padding: "9px 12px" }}>Sign out</button>
         </div>
       </header>
 
       <section style={{ maxWidth: 1180, margin: "0 auto", padding: "42px 22px 80px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 18, flexWrap: "wrap", alignItems: "end" }}>
-          <div><div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".15em", textTransform: "uppercase" }}>30-day founding studio pilot</div><h1 style={{ margin: "10px 0 0", fontSize: "clamp(34px,7vw,54px)", letterSpacing: "-.05em" }}>Your private studio workspace.</h1></div>
-          <div style={{ color: "#9fb1c7", fontSize: 13 }}>{status}</div>
+          <div>
+            <div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".15em", textTransform: "uppercase" }}>30-day founding studio pilot</div>
+            <h1 style={{ margin: "10px 0 0", fontSize: "clamp(34px,7vw,54px)", letterSpacing: "-.05em" }}>Your private studio workspace.</h1>
+            <p style={{ margin: "12px 0 0", color: "#8095ae", fontSize: 14 }}>Decision intelligence for Roblox studios · Know what changed. Know what to do next.</p>
+          </div>
+          <div style={{ color: "#9fb1c7", fontSize: 13, maxWidth: 460, textAlign: "right" }}>{status}</div>
         </div>
 
         <div style={{ marginTop: 30, display: "grid", gap: 18, gridTemplateColumns: "repeat(auto-fit,minmax(300px,1fr))" }}>
           <article style={{ border: "1px solid rgba(255,255,255,.1)", borderRadius: 22, padding: 22, background: "rgba(255,255,255,.025)" }}>
             <div style={{ color: "#718198", fontSize: 11, letterSpacing: ".14em", textTransform: "uppercase" }}>Roblox connection</div>
             {connections.length > 0 ? <div style={{ marginTop: 14 }}>{connections.map((item) => <div key={item.id}><strong>{item.experience_name || `Universe ${item.universe_id}`}</strong><div style={{ color: "#9fb1c7", fontSize: 13, marginTop: 5 }}>Universe {item.universe_id} · private to this studio</div></div>)}</div> : <p style={{ color: "#9fb1c7", lineHeight: 1.6 }}>No experience connected yet.</p>}
-            {connections.length > 0 && <button disabled={busy} onClick={sync} style={{ marginTop: 18, background: "#67e8f9", color: "#07101f", border: 0, borderRadius: 11, padding: "11px 14px", fontWeight: 800 }}>Sync last 30 days</button>}
+            {connections.length > 0 && <button disabled={busy} onClick={sync} style={{ marginTop: 18, background: "#67e8f9", color: "#07101f", border: 0, borderRadius: 11, padding: "11px 14px", fontWeight: 800 }}>{busy ? "Syncing…" : "Sync last 30 days"}</button>}
           </article>
 
           <article style={{ border: "1px solid rgba(255,255,255,.1)", borderRadius: 22, padding: 22, background: "rgba(255,255,255,.025)" }}>

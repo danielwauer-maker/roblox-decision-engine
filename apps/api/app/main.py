@@ -13,6 +13,7 @@ from app.routes.admin_console import router as admin_console_router
 from app.routes.admin_simulation import router as admin_simulation_router
 from app.routes.analyst import router as analyst_router
 from app.routes.billing import router as billing_router
+from app.routes.billing_admin import router as billing_admin_router
 from app.routes.commercial import router as commercial_router
 from app.routes.decisions import router as decisions_router
 from app.routes.enrollment import router as enrollment_router
@@ -74,6 +75,7 @@ app.include_router(progress_router)
 app.include_router(lifecycle_router)
 app.include_router(tenant_notifications_router)
 app.include_router(billing_router)
+app.include_router(billing_admin_router)
 
 
 @app.get("/health", tags=["system"])

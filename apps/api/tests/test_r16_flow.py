@@ -11,9 +11,20 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.db import Base
-from app.models import NotificationRecord, OrganizationRecord, PilotApplicationRecord, SubscriptionRecord
+from app.models import (
+    NotificationRecord,
+    OrganizationRecord,
+    PilotApplicationRecord,
+    SubscriptionRecord,
+)
 from app.routes.billing import _entitlements, _verify_signature
-from app.routes.enrollment import ApplicationApprove, ApplicationCreate, _slugify, approve_application, create_application
+from app.routes.enrollment import (
+    ApplicationApprove,
+    ApplicationCreate,
+    _slugify,
+    approve_application,
+    create_application,
+)
 
 
 def _session() -> Session:

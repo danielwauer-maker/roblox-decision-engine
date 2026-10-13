@@ -13,7 +13,25 @@ export async function POST(request: NextRequest) {
     headers: { Authorization: `Bearer ${token}` },
     cache: "no-store",
   });
-  return new NextResponse(await upstream.text(), {
+  const text = await upstream.text();
+
+  if (!upstream.ok) {
+    let detail = "Roblox analytics sync needs attention.";
+    try {
+      const parsed = JSON.parse(text);
+      if (typeof parsed.detail === "string") detail = parsed.detail;
+    } catch {
+      // Keep the generic safe customer-facing detail.
+    }
+    await fetch(`${apiBase}/v1/lifecycle/tenant/sync-attention`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ detail }),
+      cache: "no-store",
+    }).catch(() => undefined);
+  }
+
+  return new NextResponse(text, {
     status: upstream.status,
     headers: { "Content-Type": "application/json" },
   });

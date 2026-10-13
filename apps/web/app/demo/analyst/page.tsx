@@ -24,7 +24,7 @@ export default function AnalystPage() {
     <DemoShell>
       <PageTitle
         title="AI Product Analyst"
-        copy="The analyst layer explains only what the deterministic Decision Engine can support. Root-cause ideas are explicitly labeled as hypotheses, not facts."
+        copy="The analyst layer explains only what PlayDirective's deterministic decision layer can support. Root-cause ideas are explicitly labeled as hypotheses, not facts."
         action={<Pill tone="good">Grounded mode</Pill>}
       />
 

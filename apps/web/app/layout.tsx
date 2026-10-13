@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <nav style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
               <a href="/privacy" style={{ color: "#9fb1c7", textDecoration: "none" }}>Privacy</a>
               <a href="/terms" style={{ color: "#9fb1c7", textDecoration: "none" }}>Terms</a>
-              <a href="/portfolio" style={{ color: "#9fb1c7", textDecoration: "none" }}>Build log</a>
+              <a href="/admin/login" style={{ color: "#9fb1c7", textDecoration: "none" }}>Admin</a>
             </nav>
           </div>
         </footer>

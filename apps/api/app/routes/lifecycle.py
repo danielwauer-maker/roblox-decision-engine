@@ -101,7 +101,32 @@ async def run_lifecycle(session: SessionDep, _: AdminDep):
             )
             priorities = evaluate_snapshot(snapshot)
             if priorities:
-                record = await send_notification_once(
+                top_priority = priorities[0]
+                priority_key = getattr(top_priority, "key", None) or "top-priority"
+                experiment_record = await send_notification_once(
+                    session,
+                    event_key=f"experiment-ready:{organization.id}:{priority_key}",
+                    recipient=owner.email,
+                    organization_id=organization.id,
+                    kind="EXPERIMENT_READY",
+                    subject="A PlayDirective experiment is ready to review",
+                    body_html=(
+                        f"<p>PlayDirective has a supported priority ready for {organization.name}: "
+                        f"<strong>{top_priority.title}</strong>.</p>"
+                        "<p>The Experiment Copilot can now turn the evidence into a bounded test with "
+                        "a primary KPI, sample guidance and guardrails.</p>"
+                        f'<p><a href="{settings.public_origin}/app/workspace">Review the experiment</a>.</p>'
+                    ),
+                )
+                results.append(
+                    {
+                        "organization_id": organization.id,
+                        "kind": experiment_record.kind,
+                        "status": experiment_record.status,
+                    }
+                )
+
+                weekly_record = await send_notification_once(
                     session,
                     event_key=f"weekly-brief-ready:{organization.id}:{week_key}",
                     recipient=owner.email,
@@ -114,7 +139,13 @@ async def run_lifecycle(session: SessionDep, _: AdminDep):
                         f'<p><a href="{settings.public_origin}/app/workspace">Review the Weekly Brief</a>.</p>'
                     ),
                 )
-                results.append({"organization_id": organization.id, "kind": record.kind, "status": record.status})
+                results.append(
+                    {
+                        "organization_id": organization.id,
+                        "kind": weekly_record.kind,
+                        "status": weekly_record.status,
+                    }
+                )
 
     return {"status": "completed", "period": week_key, "notifications": results}
 

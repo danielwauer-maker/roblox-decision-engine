@@ -33,9 +33,7 @@ class PilotExtension(BaseModel):
 
 
 def _ensure_lifecycle(session: Session, organization_id: int) -> PilotLifecycleRecord:
-    row = session.scalar(
-        select(PilotLifecycleRecord).where(PilotLifecycleRecord.organization_id == organization_id)
-    )
+    row = session.scalar(select(PilotLifecycleRecord).where(PilotLifecycleRecord.organization_id == organization_id))
     if row:
         return row
     now = datetime.now(UTC)
@@ -73,18 +71,33 @@ def _payload(row: PilotLifecycleRecord) -> dict[str, object]:
     }
 
 
+def _mark_converted_if_paid(session: Session, organization_id: int, lifecycle: PilotLifecycleRecord) -> None:
+    subscription = session.scalar(select(SubscriptionRecord).where(SubscriptionRecord.organization_id == organization_id))
+    if not subscription or subscription.plan_id == "pilot" or subscription.status not in {"active", "trialing", "past_due"}:
+        return
+    if lifecycle.status != "CONVERTED":
+        now = datetime.now(UTC)
+        lifecycle.status = "CONVERTED"
+        lifecycle.converted_at = now
+        lifecycle.updated_at = now
+        application = session.scalar(select(PilotApplicationRecord).where(PilotApplicationRecord.organization_id == organization_id))
+        if application:
+            review = session.scalar(select(ApplicationReviewRecord).where(ApplicationReviewRecord.application_id == application.id))
+            if review:
+                review.pipeline_status = "PAID"
+                review.updated_at = now
+        session.commit()
+
+
 @router.get("/tenant/pilot")
 def tenant_pilot(principal: TenantDep, session: SessionDep):
-    return _payload(_ensure_lifecycle(session, principal.organization_id))
+    lifecycle = _ensure_lifecycle(session, principal.organization_id)
+    _mark_converted_if_paid(session, principal.organization_id, lifecycle)
+    return _payload(lifecycle)
 
 
 @router.post("/admin/pilot/{organization_id}/extend")
-def extend_pilot(
-    organization_id: int,
-    payload: PilotExtension,
-    session: SessionDep,
-    _: AdminDep,
-):
+def extend_pilot(organization_id: int, payload: PilotExtension, session: SessionDep, _: AdminDep):
     organization = session.get(OrganizationRecord, organization_id)
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
@@ -102,20 +115,14 @@ def admin_pilots(session: SessionDep, _: AdminDep):
     organizations = session.scalars(select(OrganizationRecord).order_by(desc(OrganizationRecord.created_at))).all()
     items = []
     for organization in organizations:
-        lifecycle = session.scalar(
-            select(PilotLifecycleRecord).where(PilotLifecycleRecord.organization_id == organization.id)
-        )
-        subscription = session.scalar(
-            select(SubscriptionRecord).where(SubscriptionRecord.organization_id == organization.id)
-        )
-        application = session.scalar(
-            select(PilotApplicationRecord).where(PilotApplicationRecord.organization_id == organization.id)
-        )
+        lifecycle = session.scalar(select(PilotLifecycleRecord).where(PilotLifecycleRecord.organization_id == organization.id))
+        subscription = session.scalar(select(SubscriptionRecord).where(SubscriptionRecord.organization_id == organization.id))
+        if lifecycle:
+            _mark_converted_if_paid(session, organization.id, lifecycle)
+        application = session.scalar(select(PilotApplicationRecord).where(PilotApplicationRecord.organization_id == organization.id))
         review = None
         if application:
-            review = session.scalar(
-                select(ApplicationReviewRecord).where(ApplicationReviewRecord.application_id == application.id)
-            )
+            review = session.scalar(select(ApplicationReviewRecord).where(ApplicationReviewRecord.application_id == application.id))
         items.append({
             "organization_id": organization.id,
             "organization_name": organization.name,
@@ -132,13 +139,14 @@ def admin_pilots(session: SessionDep, _: AdminDep):
 @router.post("/admin/lifecycle/run")
 async def run_r17_lifecycle(session: SessionDep, _: AdminDep):
     now = datetime.now(UTC)
-    lifecycles = session.scalars(
-        select(PilotLifecycleRecord).where(PilotLifecycleRecord.status == "ACTIVE")
-    ).all()
+    lifecycles = session.scalars(select(PilotLifecycleRecord).where(PilotLifecycleRecord.status == "ACTIVE")).all()
     results: list[dict[str, object]] = []
     settings = get_settings()
 
     for lifecycle in lifecycles:
+        _mark_converted_if_paid(session, lifecycle.organization_id, lifecycle)
+        if lifecycle.status == "CONVERTED":
+            continue
         organization = session.get(OrganizationRecord, lifecycle.organization_id)
         owner = session.scalar(
             select(PilotUserRecord).where(
@@ -182,13 +190,9 @@ async def run_r17_lifecycle(session: SessionDep, _: AdminDep):
             lifecycle.status = "EXPIRED"
             lifecycle.closed_at = now
             lifecycle.updated_at = now
-            application = session.scalar(
-                select(PilotApplicationRecord).where(PilotApplicationRecord.organization_id == organization.id)
-            )
+            application = session.scalar(select(PilotApplicationRecord).where(PilotApplicationRecord.organization_id == organization.id))
             if application:
-                review = session.scalar(
-                    select(ApplicationReviewRecord).where(ApplicationReviewRecord.application_id == application.id)
-                )
+                review = session.scalar(select(ApplicationReviewRecord).where(ApplicationReviewRecord.application_id == application.id))
                 if review and review.pipeline_status not in {"PAID", "CHURNED"}:
                     review.pipeline_status = "EXPIRED"
                     review.updated_at = now

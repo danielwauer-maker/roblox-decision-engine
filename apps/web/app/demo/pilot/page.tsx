@@ -1,65 +1,65 @@
 import { Button, Card, DemoShell, PageTitle, Pill, palette } from "../_components";
 
-const checklist = [
-  ["1", "Connect experience", "Use a read-only Roblox analytics key and universe ID.", "done"],
-  ["2", "Validate data", "Confirm the sync returns observations or a clear empty-data state.", "done"],
-  ["3", "Review priorities", "Open the top evidence-backed decision and inspect the supporting signal.", "done"],
-  ["4", "Build experiment", "Generate a KPI, guardrail and decision rule from the supported finding.", "done"],
-  ["5", "Weekly review", "Use the brief to review changes, experiment status and next focus.", "ready"],
+const steps = [
+  ["1", "Receive your private invite", "A founding-pilot studio gets a private invite link for its own isolated workspace."],
+  ["2", "Connect one Roblox experience", "Inside the invited workspace, an owner adds a read-only Open Cloud key scoped to analytics."],
+  ["3", "Sync and review the first priority", "PlayDirective reads available analytics, ranks supported decisions and shows the evidence behind them."],
+  ["4", "Turn evidence into an experiment", "Use the strongest supported finding to create a bounded test with a KPI, sample target and guardrails."],
+  ["5", "Close the loop with a Weekly Brief", "Review what changed, what deserves attention next and how current experiments should move forward."],
 ] as const;
 
-const states = [
-  ["Disconnected", "No credentials", "Connect a least-privilege analytics key before analysis starts.", "warn"],
-  ["Connected · no data", "Valid connection", "Explain that analytics are not available yet and offer retry/demo paths.", "neutral"],
-  ["Ready", "Observations available", "Surface priorities, evidence and experiments without extra setup.", "good"],
-  ["Degraded", "Sync needs attention", "Keep previous evidence visible and give a precise recovery action.", "bad"],
+const principles = [
+  ["Invite-only", "Real studio access starts in a private workspace. The public demo never accepts real credentials."],
+  ["Read-only", "PlayDirective only needs Roblox analytics permissions for the connected experience."],
+  ["Evidence first", "Every priority is grounded in tenant-scoped observations before analyst prose or experiment guidance is shown."],
+  ["Private", "Studio sessions, credentials, observations and decisions stay isolated to that studio tenant."],
 ] as const;
 
 export default function PilotPage() {
   return (
-    <DemoShell eyebrow="Pilot readiness · end-to-end validation">
+    <DemoShell eyebrow="Founding studio pilot · how it works">
       <PageTitle
-        title="Pilot workspace"
-        copy="Everything a first Roblox studio needs to go from connection to a defensible product decision without analyst support."
-        action={<Pill tone="good">Pilot-ready flow</Pill>}
+        title="From invite to first useful decision."
+        copy="The public demo shows the workflow with simulated data. Real Roblox connections happen only after a studio receives and redeems a private PlayDirective invite."
+        action={<Pill tone="good">30-day guided pilot</Pill>}
       />
 
-      <div style={{ marginTop: 28, display: "grid", gap: 16, gridTemplateColumns: "minmax(0,1.2fr) minmax(300px,.8fr)" }}>
+      <div style={{ marginTop: 28, display: "grid", gap: 16, gridTemplateColumns: "minmax(0,1.25fr) minmax(300px,.75fr)" }}>
         <Card>
-          <div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>Pilot checklist</div>
-          <h2 style={{ margin: "10px 0 18px" }}>First-value path</h2>
-          {checklist.map(([id, title, copy, status]) => (
-            <div key={id} style={{ display: "grid", gridTemplateColumns: "34px minmax(0,1fr) auto", gap: 12, alignItems: "start", padding: "15px 0", borderTop: `1px solid ${palette.border}` }}>
-              <div style={{ width: 28, height: 28, borderRadius: 999, display: "grid", placeItems: "center", color: palette.bg, background: status === "done" ? palette.green : palette.cyan, fontWeight: 900, fontSize: 12 }}>{id}</div>
+          <div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>Your pilot journey</div>
+          <h2 style={{ margin: "10px 0 18px" }}>Five steps to first value</h2>
+          {steps.map(([id, title, copy]) => (
+            <div key={id} style={{ display: "grid", gridTemplateColumns: "34px minmax(0,1fr)", gap: 12, alignItems: "start", padding: "15px 0", borderTop: `1px solid ${palette.border}` }}>
+              <div style={{ width: 28, height: 28, borderRadius: 999, display: "grid", placeItems: "center", color: palette.bg, background: palette.cyan, fontWeight: 900, fontSize: 12 }}>{id}</div>
               <div><div style={{ fontWeight: 800 }}>{title}</div><div style={{ marginTop: 5, color: palette.muted, lineHeight: 1.55, fontSize: 14 }}>{copy}</div></div>
-              <Pill tone={status === "done" ? "good" : "neutral"}>{status === "done" ? "Ready" : "Next"}</Pill>
             </div>
           ))}
           <div style={{ marginTop: 20, display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <Button href="/demo/connect" primary>Start pilot onboarding</Button>
-            <Button href="/demo/priorities">Open first decision</Button>
+            <Button href="/pricing" primary>Start with the founding pilot</Button>
+            <Button href="/demo/priorities">See the decision workflow</Button>
           </div>
         </Card>
 
         <Card>
-          <div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>Pilot success criteria</div>
-          <h3 style={{ margin: "12px 0" }}>What must work without us</h3>
-          {["Studio can connect with read-only access", "Empty and error states explain the next action", "Top priority links to evidence, not a black-box score", "Experiment proposal contains KPI + guardrails", "Weekly brief closes the loop"].map((item) => <div key={item} style={{ padding: "11px 0", borderBottom: `1px solid ${palette.border}`, color: palette.muted }}>✓ {item}</div>)}
-          <div style={{ marginTop: 20, color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>Pilot feedback loop</div>
-          <p style={{ color: palette.muted, lineHeight: 1.6 }}>After each decision, capture usefulness from 1–5 plus one short note. Feedback is categorized by onboarding, priority, analyst, experiment or weekly brief so pilot learning maps directly to product work.</p>
+          <div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>What stays private</div>
+          <h3 style={{ margin: "12px 0" }}>Real credentials never belong in the demo.</h3>
+          {principles.map(([title, copy]) => (
+            <div key={title} style={{ padding: "13px 0", borderBottom: `1px solid ${palette.border}` }}>
+              <div style={{ color: palette.text, fontWeight: 800 }}>{title}</div>
+              <div style={{ marginTop: 5, color: palette.muted, lineHeight: 1.55, fontSize: 14 }}>{copy}</div>
+            </div>
+          ))}
         </Card>
       </div>
 
       <div style={{ marginTop: 18 }}>
-        <div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>Connection-state UX</div>
-        <h2 style={{ margin: "10px 0 16px" }}>No dead ends.</h2>
+        <div style={{ color: palette.faint, fontSize: 11, textTransform: "uppercase", letterSpacing: ".12em" }}>What happens after the invite</div>
+        <h2 style={{ margin: "10px 0 16px" }}>A private workspace with a clear next action.</h2>
         <div style={{ display: "grid", gap: 12, gridTemplateColumns: "repeat(auto-fit,minmax(235px,1fr))" }}>
-          {states.map(([title, signal, copy, tone]) => (
-            <Card key={title}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "center" }}><strong>{title}</strong><Pill tone={tone}>{signal}</Pill></div>
-              <p style={{ color: palette.muted, lineHeight: 1.6, marginBottom: 0 }}>{copy}</p>
-            </Card>
-          ))}
+          <Card><Pill tone="neutral">Step 1</Pill><h3 style={{ margin: "12px 0 7px" }}>Connect</h3><p style={{ margin: 0, color: palette.muted, lineHeight: 1.6 }}>The studio owner securely stores a read-only Roblox Open Cloud key and universe ID inside the invited workspace.</p></Card>
+          <Card><Pill tone="good">Step 2</Pill><h3 style={{ margin: "12px 0 7px" }}>Sync</h3><p style={{ margin: 0, color: palette.muted, lineHeight: 1.6 }}>PlayDirective syncs the available analytics or explains clearly when the experience has not produced enough data yet.</p></Card>
+          <Card><Pill tone="good">Step 3</Pill><h3 style={{ margin: "12px 0 7px" }}>Decide</h3><p style={{ margin: 0, color: palette.muted, lineHeight: 1.6 }}>The private decision queue, evidence, analyst and experiment workflow are generated from that studio&apos;s own observations.</p></Card>
+          <Card><Pill tone="neutral">Ongoing</Pill><h3 style={{ margin: "12px 0 7px" }}>Review</h3><p style={{ margin: 0, color: palette.muted, lineHeight: 1.6 }}>Weekly Briefs close the loop by summarizing what changed, what remains important and what the studio should review next.</p></Card>
         </div>
       </div>
     </DemoShell>

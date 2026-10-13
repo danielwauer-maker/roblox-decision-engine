@@ -8,7 +8,12 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.db import SessionLocal
-from app.models import OrganizationRecord, PilotApplicationRecord, PilotUserRecord, SubscriptionRecord
+from app.models import (
+    OrganizationRecord,
+    PilotApplicationRecord,
+    PilotUserRecord,
+    SubscriptionRecord,
+)
 from app.r17_models import ApplicationReviewRecord, PilotLifecycleRecord
 from app.services.notifications import send_notification_once
 from app.tenant_security import TenantDep, require_admin

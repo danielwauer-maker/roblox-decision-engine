@@ -13,6 +13,7 @@ export default function ApplyPage() {
     setStatus("");
     setError("");
     const form = new FormData(event.currentTarget);
+    const params = new URLSearchParams(window.location.search);
     const payload = {
       contact_name: String(form.get("contact_name") ?? "").trim(),
       email: String(form.get("email") ?? "").trim(),
@@ -21,6 +22,13 @@ export default function ApplyPage() {
       universe_id: String(form.get("universe_id") ?? "").trim() || null,
       monthly_active_users: String(form.get("monthly_active_users") ?? "").trim() || null,
       message: String(form.get("message") ?? "").trim() || null,
+      utm_source: params.get("utm_source"),
+      utm_medium: params.get("utm_medium"),
+      utm_campaign: params.get("utm_campaign"),
+      utm_content: params.get("utm_content"),
+      utm_term: params.get("utm_term"),
+      referrer: document.referrer || null,
+      landing_page: window.location.href,
     };
     const response = await fetch("/api/enrollment/apply", {
       method: "POST",
@@ -65,7 +73,7 @@ export default function ApplyPage() {
             <label style={{ color: "#9fb1c7", fontSize: 12 }}>Universe ID (optional)<input name="universe_id" inputMode="numeric" pattern="[0-9]*" maxLength={64} style={{ ...input, marginTop: 7 }} /></label>
           </div>
           <label style={{ color: "#9fb1c7", fontSize: 12 }}>What would make the pilot useful for your team? (optional)<textarea name="message" maxLength={3000} rows={5} style={{ ...input, marginTop: 7, resize: "vertical" }} /></label>
-          <div style={{ color: "#718198", fontSize: 12, lineHeight: 1.6 }}>By submitting, you ask us to contact you about the PlayDirective founding pilot. Roblox credentials are entered only after approval inside your private workspace.</div>
+          <div style={{ color: "#718198", fontSize: 12, lineHeight: 1.6 }}>By submitting, you ask us to contact you about the PlayDirective founding pilot and confirm that you have read our <a href="/privacy" style={{ color: "#a5f3fc" }}>Privacy Notice</a> and <a href="/terms" style={{ color: "#a5f3fc" }}>Founding Pilot Terms</a>. Roblox credentials are entered only after approval inside your private workspace.</div>
           {error && <div style={{ color: "#fb7185", fontSize: 13 }}>{error}</div>}
           {status && <div style={{ color: "#86efac", fontSize: 13 }}>{status}</div>}
           <button disabled={loading} style={{ background: "#67e8f9", color: "#07101f", border: 0, borderRadius: 12, padding: "13px 16px", fontWeight: 900, cursor: "pointer" }}>{loading ? "Submitting…" : "Apply for founding pilot"}</button>

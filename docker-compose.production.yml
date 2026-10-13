@@ -54,6 +54,7 @@ services:
     environment:
       NODE_ENV: production
       API_BASE_URL: http://api:8000
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8091}
       ADMIN_DASHBOARD_USERNAME: ${ADMIN_DASHBOARD_USERNAME:-operator}
       ADMIN_DASHBOARD_PASSWORD: ${ADMIN_DASHBOARD_PASSWORD:?ADMIN_DASHBOARD_PASSWORD is required}

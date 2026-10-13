@@ -6,6 +6,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     "",
     "/pricing",
+    "/apply",
     "/demo",
     "/demo/connect",
     "/demo/priorities",
@@ -21,6 +22,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${baseUrl}${path}`,
     lastModified: new Date("2026-10-13"),
     changeFrequency: path === "" ? "weekly" : "monthly",
-    priority: path === "" ? 1 : path === "/pricing" ? 0.9 : path.startsWith("/demo") ? 0.8 : 0.6,
+    priority: path === "" ? 1 : path === "/pricing" || path === "/apply" ? 0.9 : path.startsWith("/demo") ? 0.8 : 0.6,
   }));
 }

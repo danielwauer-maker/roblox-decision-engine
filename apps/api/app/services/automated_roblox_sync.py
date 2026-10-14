@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
-from typing import Callable
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -139,7 +139,7 @@ async def sync_connection(
             api_key=api_key,
             days=days,
         )
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - tenant boundary must persist unexpected failures
         session.rollback()
         failed_at = datetime.now(UTC)
         state = _sync_state(session, connection, now=failed_at)
@@ -192,7 +192,7 @@ async def run_automated_sync(
                 connection_id=connection_id,
                 days=days,
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - one tenant must never abort the scheduler
             tenant_session.rollback()
             result = ConnectionSyncResult(
                 connection_id=connection_id,

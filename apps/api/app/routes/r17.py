@@ -90,7 +90,7 @@ def _payload(row: PilotLifecycleRecord) -> dict[str, object]:
 
 def _mark_converted_if_paid(session: Session, organization_id: int, lifecycle: PilotLifecycleRecord) -> None:
     subscription = session.scalar(select(SubscriptionRecord).where(SubscriptionRecord.organization_id == organization_id))
-    if not subscription or subscription.plan_id == "pilot" or subscription.status not in {"active", "trialing", "past_due"}:
+    if not subscription or subscription.plan_id == "pilot" or subscription.status not in {"active", "trialing"}:
         return
     if lifecycle.status != "CONVERTED":
         now = datetime.now(UTC)

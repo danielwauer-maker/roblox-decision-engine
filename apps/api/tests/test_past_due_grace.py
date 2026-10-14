@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 
 from app.access_control import PAST_DUE_GRACE_PERIOD, evaluate_product_access
@@ -8,6 +8,7 @@ from app.db import Base
 from app.models import OrganizationRecord, SubscriptionRecord
 from app.r17_models import PilotLifecycleRecord
 from app.routes.billing import _upsert_from_subscription
+from app.routes.r17 import _mark_converted_if_paid
 
 
 def _session() -> Session:
@@ -163,6 +164,58 @@ def test_active_pilot_falls_back_to_free_pilot_after_payment_grace_expires():
     assert access.reason == "pilot_active"
     assert access.experience_limit == 1
     assert access.billing_status == "past_due"
+
+
+def test_converted_lifecycle_still_falls_back_inside_original_pilot_window():
+    now = datetime(2026, 10, 14, 12, 0, tzinfo=UTC)
+    session = _session()
+    organization = _active_pilot_tenant(session, now)
+    lifecycle = session.scalar(
+        select(PilotLifecycleRecord).where(
+            PilotLifecycleRecord.organization_id == organization.id
+        )
+    )
+    assert lifecycle is not None
+    lifecycle.status = "CONVERTED"
+    lifecycle.converted_at = now - timedelta(days=2)
+    session.commit()
+    _subscription(
+        session,
+        organization.id,
+        status="past_due",
+        status_since=now - timedelta(days=8),
+    )
+
+    access = evaluate_product_access(session, organization.id, now=now)
+
+    assert access.allowed is True
+    assert access.access_mode == "pilot"
+    assert access.reason == "pilot_active"
+    assert access.experience_limit == 1
+
+
+def test_past_due_alone_does_not_mark_active_pilot_converted():
+    now = datetime.now(UTC)
+    session = _session()
+    organization = _active_pilot_tenant(session, now)
+    _subscription(
+        session,
+        organization.id,
+        status="past_due",
+        status_since=now,
+    )
+    lifecycle = session.scalar(
+        select(PilotLifecycleRecord).where(
+            PilotLifecycleRecord.organization_id == organization.id
+        )
+    )
+    assert lifecycle is not None
+
+    _mark_converted_if_paid(session, organization.id, lifecycle)
+    session.refresh(lifecycle)
+
+    assert lifecycle.status == "ACTIVE"
+    assert lifecycle.converted_at is None
 
 
 def test_recovered_active_subscription_restores_paid_access_immediately():

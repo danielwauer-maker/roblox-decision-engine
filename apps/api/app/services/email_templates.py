@@ -8,14 +8,55 @@ from sqlalchemy.orm import Session
 from app.email_models import EmailTemplateRecord
 
 DEFAULT_EMAIL_TEMPLATES: tuple[dict[str, str], ...] = (
-    {"key": "pilot_application_customer", "name": "Pilot application · customer confirmation", "category": "acquisition", "subject": "{{default_subject}}", "body_html": "{{default_body}}"},
-    {"key": "pilot_application_operator", "name": "Pilot application · operator alert", "category": "acquisition", "subject": "{{default_subject}}", "body_html": "{{default_body}}"},
-    {"key": "workspace_invite", "name": "Workspace invitation", "category": "authentication", "subject": "{{default_subject}}", "body_html": "{{default_body}}"},
-    {"key": "login_link", "name": "Passwordless sign-in", "category": "authentication", "subject": "{{default_subject}}", "body_html": "{{default_body}}"},
-    {"key": "sync_failed", "name": "Roblox sync failed", "category": "operations", "subject": "{{default_subject}}", "body_html": "{{default_body}}"},
-    {"key": "stale_analytics", "name": "Analytics data is stale", "category": "operations", "subject": "{{default_subject}}", "body_html": "{{default_body}}"},
-    {"key": "experiment_ready", "name": "Experiment ready", "category": "lifecycle", "subject": "{{default_subject}}", "body_html": "{{default_body}}"},
-    {"key": "weekly_brief", "name": "Weekly Brief", "category": "lifecycle", "subject": "{{default_subject}}", "body_html": "{{default_body}}"},
+    {
+        "key": "PILOT_APPLICATION_RECEIVED",
+        "name": "Pilot application · customer confirmation",
+        "category": "acquisition",
+        "subject": "{{default_subject}}",
+        "body_html": "{{default_body}}",
+    },
+    {
+        "key": "PILOT_APPLICATION_OPERATOR",
+        "name": "Pilot application · operator alert",
+        "category": "acquisition",
+        "subject": "{{default_subject}}",
+        "body_html": "{{default_body}}",
+    },
+    {
+        "key": "WORKSPACE_INVITE",
+        "name": "Workspace invitation",
+        "category": "authentication",
+        "subject": "{{default_subject}}",
+        "body_html": "{{default_body}}",
+    },
+    {
+        "key": "PASSWORDLESS_LOGIN",
+        "name": "Passwordless sign-in",
+        "category": "authentication",
+        "subject": "{{default_subject}}",
+        "body_html": "{{default_body}}",
+    },
+    {
+        "key": "ANALYTICS_STALE",
+        "name": "Analytics data is stale",
+        "category": "operations",
+        "subject": "{{default_subject}}",
+        "body_html": "{{default_body}}",
+    },
+    {
+        "key": "EXPERIMENT_READY",
+        "name": "Experiment ready",
+        "category": "lifecycle",
+        "subject": "{{default_subject}}",
+        "body_html": "{{default_body}}",
+    },
+    {
+        "key": "WEEKLY_BRIEF_READY",
+        "name": "Weekly Brief",
+        "category": "lifecycle",
+        "subject": "{{default_subject}}",
+        "body_html": "{{default_body}}",
+    },
 )
 
 

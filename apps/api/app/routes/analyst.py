@@ -4,6 +4,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.access_control import ProductAccessDep
 from app.config import get_settings
 from app.db import SessionLocal
 from app.domain.decision_engine import DecisionSnapshot, evaluate_snapshot
@@ -40,12 +41,12 @@ async def _brief(snapshot: DecisionSnapshot, source: str) -> dict[str, object]:
 
 
 @router.post("/evaluate")
-async def evaluate(snapshot: DecisionSnapshot) -> dict[str, object]:
+async def evaluate(snapshot: DecisionSnapshot, _: ProductAccessDep) -> dict[str, object]:
     return await _brief(snapshot, "request_snapshot")
 
 
 @router.get("/current")
-async def current(session: SessionDep) -> dict[str, object]:
+async def current(_: ProductAccessDep, session: SessionDep) -> dict[str, object]:
     settings = get_settings()
     if not settings.roblox_universe_id:
         raise HTTPException(status_code=503, detail="ROBLOX_UNIVERSE_ID is not configured")

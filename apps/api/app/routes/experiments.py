@@ -3,6 +3,7 @@ from dataclasses import asdict
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from app.access_control import ProductAccessDep
 from app.domain.decision_engine import DecisionSnapshot, evaluate_snapshot
 from app.domain.experiments import build_experiment_plan, evaluate_experiment
 
@@ -24,13 +25,13 @@ def _plan_for_snapshot(snapshot: DecisionSnapshot):
 
 
 @router.post("/plan")
-def plan(snapshot: DecisionSnapshot) -> dict[str, object]:
+def plan(snapshot: DecisionSnapshot, _: ProductAccessDep) -> dict[str, object]:
     experiment = _plan_for_snapshot(snapshot)
     return {"source": "decision_engine", "plan": asdict(experiment)}
 
 
 @router.post("/evaluate")
-def evaluate(request: ExperimentEvaluationRequest) -> dict[str, object]:
+def evaluate(request: ExperimentEvaluationRequest, _: ProductAccessDep) -> dict[str, object]:
     experiment = _plan_for_snapshot(request.snapshot)
     result = evaluate_experiment(
         experiment,

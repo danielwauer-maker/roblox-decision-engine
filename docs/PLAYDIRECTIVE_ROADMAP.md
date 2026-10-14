@@ -130,6 +130,36 @@ R16 combines the remaining customer-acquisition and production acceptance work:
 
 R16 is not `DONE` until the current main release is running on Hetzner, external provider configuration is active and sections A–I of `docs/REAL_LIFE_ACCEPTANCE_TEST.md` pass on that exact production release.
 
+## Sprint 1 — Pilot expiry enforcement
+
+**Status: CODE COMPLETE / HETZNER ACCEPTANCE PENDING**
+
+Goal: an expired unpaid founding pilot must not retain access to commercial product capabilities.
+
+Implemented scope:
+- centralized server-side product-access decision combining pilot lifecycle and subscription state
+- Day 29 remains available while the pilot is still before `ends_at`
+- Day 30 is blocked as soon as `ends_at` is reached; access does not depend on the daily lifecycle cron having run first
+- Day 31 / `EXPIRED` + unpaid has zero commercial feature entitlement
+- Roblox connection changes, Roblox sync, observations, Decision Queue, AI Analyst, Experiment Copilot and Weekly Brief are protected server-side
+- functional decision/analyst/experiment API paths cannot be used as an expired-pilot bypass; public static demo paths remain available
+- login, account, pilot status, billing, pricing/plan discovery, Stripe Checkout and Customer Portal remain reachable
+- active or trialing paid subscriptions restore product access immediately after Stripe state synchronization
+- `past_due` remains temporarily access-bearing until Sprint 5 introduces the explicit grace-period policy
+- canceled/non-active paid state does not unlock an expired pilot
+- missing legacy `PilotLifecycle` records are anchored to the original organization creation time instead of silently starting a fresh 30-day window
+- workspace UI explicitly states `Your founding pilot has ended` and presents a `Choose a plan` CTA
+
+Validation:
+- regression coverage for Day 29, Day 30 boundary, Day 31, expired/unpaid, expired/active paid, canceled, `past_due`, missing lifecycle fallback and the central 403 guard
+- GitHub CI run 357 passed backend tests, Ruff and frontend validation
+
+Remaining acceptance:
+- deploy the merged `main` release to Hetzner without replacing `.env.production`
+- confirm production HEAD before and after deployment
+- smoke-test login/account/billing access plus a blocked commercial endpoint for an expired unpaid test tenant
+- confirm an active paid test state restores the protected endpoint during Stripe acceptance work
+
 ## Public demo / internal QA separation
 
 The public demo explains the product workflow using clearly labelled simulated data. It must never look like a place where a visitor should enter real Roblox credentials.
@@ -156,4 +186,4 @@ Current code-complete pilot baseline includes:
 
 Commercial validation remains separate from engineering readiness. Paid conversion, willingness to pay, retention lift, and recurring revenue must not be presented as validated until supported by real pilot evidence.
 
-Last updated: 13 October 2026
+Last updated: 14 October 2026

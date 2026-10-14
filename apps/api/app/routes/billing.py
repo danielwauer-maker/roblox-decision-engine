@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.access_control import evaluate_product_access
 from app.config import get_settings
 from app.db import SessionLocal
 from app.models import SubscriptionRecord
@@ -114,6 +115,18 @@ def _entitlements(plan_id: str, status: str) -> dict[str, object]:
     }
 
 
+def _blocked_entitlements() -> dict[str, object]:
+    return {
+        "pilot_access": False,
+        "paid": False,
+        "experience_limit": 0,
+        "decision_queue": False,
+        "ai_analyst": False,
+        "experiment_copilot": False,
+        "weekly_brief": False,
+    }
+
+
 def _subscription(session: Session, organization_id: int) -> SubscriptionRecord | None:
     return session.scalar(
         select(SubscriptionRecord).where(SubscriptionRecord.organization_id == organization_id)
@@ -140,22 +153,36 @@ def plans():
 @router.get("/tenant")
 def tenant_billing(principal: TenantDep, session: SessionDep):
     record = _subscription(session, principal.organization_id)
-    if not record:
+    access = evaluate_product_access(session, principal.organization_id)
+    stripe_configured = bool(get_settings().stripe_secret_key)
+
+    if access.access_mode == "paid" and record:
+        return {
+            "plan_id": record.plan_id,
+            "status": record.status,
+            "cancel_at_period_end": record.cancel_at_period_end,
+            "current_period_end": record.current_period_end,
+            "entitlements": _entitlements(record.plan_id, record.status),
+            "stripe_configured": stripe_configured,
+        }
+
+    if access.access_mode == "pilot":
         return {
             "plan_id": "pilot",
             "status": "pilot",
-            "cancel_at_period_end": False,
-            "current_period_end": None,
+            "cancel_at_period_end": record.cancel_at_period_end if record else False,
+            "current_period_end": record.current_period_end if record else None,
             "entitlements": _entitlements("pilot", "pilot"),
-            "stripe_configured": bool(get_settings().stripe_secret_key),
+            "stripe_configured": stripe_configured,
         }
+
     return {
-        "plan_id": record.plan_id,
-        "status": record.status,
-        "cancel_at_period_end": record.cancel_at_period_end,
-        "current_period_end": record.current_period_end,
-        "entitlements": _entitlements(record.plan_id, record.status),
-        "stripe_configured": bool(get_settings().stripe_secret_key),
+        "plan_id": record.plan_id if record else "pilot",
+        "status": record.status if record else "expired",
+        "cancel_at_period_end": record.cancel_at_period_end if record else False,
+        "current_period_end": record.current_period_end if record else None,
+        "entitlements": _blocked_entitlements(),
+        "stripe_configured": stripe_configured,
     }
 
 

@@ -135,3 +135,26 @@ async def test_operation_error_is_raised() -> None:
         )
         with pytest.raises(RobloxAnalyticsError, match="2001"):
             await client.query_metric(query())
+
+
+@pytest.mark.asyncio
+async def test_invalid_api_key_fails_without_retry() -> None:
+    calls = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return httpx.Response(401, request=request, json={"message": "invalid key"})
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http_client:
+        client = RobloxAnalyticsClient(
+            universe_id="123",
+            api_key="revoked-key",
+            http_client=http_client,
+            retry_attempts=3,
+            retry_backoff_seconds=0,
+        )
+        with pytest.raises(RobloxAnalyticsError, match="authentication/resource failure"):
+            await client.query_metric(query())
+
+    assert calls == 1

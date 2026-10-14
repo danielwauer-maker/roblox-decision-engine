@@ -1,6 +1,5 @@
 import httpx
 import pytest
-from pydantic import SecretStr
 
 from app.config import get_settings
 from app.services import email_delivery

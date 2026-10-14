@@ -148,7 +148,7 @@ Current production state:
 - Hetzner application/database runtime is live
 - automated Roblox sync is live
 - transactional email is live and accepted
-- pilot expiry, billing hardening, payment grace and experience-limit enforcement are deployed and runtime-tested
+- pilot expiry, billing hardening, payment grace, experience-limit enforcement and explicit experience selection/management are deployed and runtime-tested
 - Stripe remains intentionally unconfigured in production (`stripe_configured: false`) until its acceptance phase
 
 R16 is not `DONE` until sections A–I of `docs/REAL_LIFE_ACCEPTANCE_TEST.md` pass on the intended production release or any remaining exception is explicitly accepted and documented.
@@ -291,16 +291,32 @@ Acceptance result:
 
 ## Sprint 7 — Experience selection & management
 
-**Status: NEXT**
+**Status: DONE**
 
 Goal: let multi-experience studios explicitly control which saved experience is selected for the decision workflow and which connections remain active inside the current plan entitlement, instead of relying on implicit recency ordering.
 
-Planned scope:
-- explicit active/selected experience state
-- customer-facing experience management
-- clear entitlement/over-limit state after downgrade
-- no automatic deletion of stored connections
-- deterministic selection for Decision Queue, Analyst, Experiments and Weekly Brief
+Implemented scope:
+- explicit OWNER-managed active/inactive experience state using the existing connection record
+- customer-facing experience management in the private workspace
+- clear active, entitled, over-limit and sync state after plan changes
+- saved connections are never automatically deleted during downgrade handling
+- Decision Queue, Analyst, Experiments and Weekly Brief are scoped to an explicit selected connection when more than one experience is entitled
+- plan downgrade is fail-closed: if active connections exceed the new limit, no connection is implicitly selected or entitled until the OWNER resolves the selection
+- automated sync checks entitlement before credential decryption or any Roblox request
+
+Validation:
+- GitHub CI #387 passed 88 backend tests, Ruff and frontend build
+- production deployed from merge commit `d67985e3d8dfabd3b6c3794108ecef8100b543ae`
+- Growth runtime acceptance: limit 3 with 3 active connections produced 3 entitled connections
+- Studio runtime acceptance: limit 10 with the same 3 active connections produced 3 entitled connections
+- Studio → Indie downgrade with 3 active connections produced 0 entitled connections, proving fail-closed selection instead of implicit ordering
+- explicit OWNER resolution left only the real connection active and restored exactly 1 entitled connection under Indie
+- an inactive over-limit test connection was skipped by automated sync with `inactive`, before credential use or a Roblox request
+- temporary subscription and test connections were removed after acceptance; the original live connection remained active
+- final production `/health` returned `ok`, `/ready` returned `ready`, PostgreSQL remained healthy, and API/web containers remained up
+
+Acceptance result:
+- `SPRINT_7_RUNTIME_ACCEPTANCE=PASS`
 
 ## Public demo / internal QA separation
 
@@ -324,6 +340,7 @@ Current production pilot baseline includes:
 - dynamic customer progress and persisted milestones
 - operator console with applications, delivery events and billing state
 - pilot expiry/payment-grace/plan-limit enforcement
+- explicit multi-experience selection and downgrade-safe entitlement management
 - privacy / terms / legal notice
 - public sitemap and robots configuration for playdirective.com
 

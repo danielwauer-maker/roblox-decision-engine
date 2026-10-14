@@ -6,9 +6,19 @@ from sqlalchemy.orm import Session
 
 from app.access_control import evaluate_product_access
 from app.db import Base
-from app.models import OrganizationRecord, RobloxConnectionRecord, RobloxSyncStateRecord, SubscriptionRecord
+from app.models import (
+    OrganizationRecord,
+    RobloxConnectionRecord,
+    RobloxSyncStateRecord,
+    SubscriptionRecord,
+)
 from app.services import automated_roblox_sync
-from app.services.experience_entitlements import active_connections_for_organization, entitled_connection_ids, entitled_connections_for_organization, stored_connections_for_organization
+from app.services.experience_entitlements import (
+    active_connections_for_organization,
+    entitled_connection_ids,
+    entitled_connections_for_organization,
+    stored_connections_for_organization,
+)
 
 
 def _session() -> Session:

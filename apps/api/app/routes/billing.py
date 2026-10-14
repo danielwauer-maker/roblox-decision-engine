@@ -215,6 +215,7 @@ def tenant_billing(principal: TenantDep, session: SessionDep):
             "status": record.status,
             "cancel_at_period_end": record.cancel_at_period_end,
             "current_period_end": record.current_period_end,
+            "billing_grace_ends_at": access.billing_grace_ends_at,
             "entitlements": _entitlements(record.plan_id, record.status),
             "stripe_configured": stripe_configured,
         }
@@ -225,6 +226,7 @@ def tenant_billing(principal: TenantDep, session: SessionDep):
             "status": "pilot",
             "cancel_at_period_end": record.cancel_at_period_end if record else False,
             "current_period_end": record.current_period_end if record else None,
+            "billing_grace_ends_at": access.billing_grace_ends_at,
             "entitlements": _entitlements("pilot", "pilot"),
             "stripe_configured": stripe_configured,
         }
@@ -234,6 +236,7 @@ def tenant_billing(principal: TenantDep, session: SessionDep):
         "status": record.status if record else "expired",
         "cancel_at_period_end": record.cancel_at_period_end if record else False,
         "current_period_end": record.current_period_end if record else None,
+        "billing_grace_ends_at": access.billing_grace_ends_at,
         "entitlements": _blocked_entitlements(),
         "stripe_configured": stripe_configured,
     }
@@ -373,6 +376,7 @@ def _upsert_from_subscription(session: Session, obj: dict) -> None:
     if not record or _has_different_managed_subscription(record, subscription_id):
         return
 
+    previous_status = record.status
     price_id = None
     items = (obj.get("items") or {}).get("data") or []
     if items:
@@ -380,12 +384,14 @@ def _upsert_from_subscription(session: Session, obj: dict) -> None:
     mapped_plan = _plan_for_price(price_id) or metadata.get("plan_id")
     if mapped_plan in PLANS:
         record.plan_id = mapped_plan
-    record.status = str(obj.get("status") or record.status)
+    incoming_status = str(obj.get("status") or record.status)
+    record.status = incoming_status
     record.stripe_customer_id = str(customer_id) if customer_id else record.stripe_customer_id
     record.stripe_subscription_id = subscription_id or record.stripe_subscription_id
     record.current_period_end = _period_end(obj.get("current_period_end"))
     record.cancel_at_period_end = bool(obj.get("cancel_at_period_end", False))
-    record.updated_at = datetime.now(UTC)
+    if not (previous_status == "past_due" and incoming_status == "past_due"):
+        record.updated_at = datetime.now(UTC)
 
 
 @router.post("/webhook")

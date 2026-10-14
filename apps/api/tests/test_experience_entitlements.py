@@ -100,7 +100,7 @@ def test_entitled_connections_follow_current_plan_after_downgrade():
 @pytest.mark.asyncio
 async def test_automated_sync_skips_connections_over_downgraded_limit(monkeypatch):
     session = _session()
-    organization, connections = _paid_org_with_connections(session, plan_id="indie")
+    _organization, connections = _paid_org_with_connections(session, plan_id="indie")
     blocked_connection = connections[0]
 
     def should_not_decrypt(_value: str) -> str:

@@ -54,9 +54,9 @@ Remaining acceptance:
 
 ## Phase 3 — Notification and lifecycle system
 
-**Status: CODE COMPLETE / PROVIDER CONFIGURATION + ACCEPTANCE PENDING**
+**Status: DONE**
 
-Provider direction: **Resend** for transactional email.
+Provider direction: **Resend** for transactional sending, **Zoho Mail** for human inbound/replies.
 
 Implemented notifications:
 - pilot request received — customer confirmation
@@ -77,10 +77,24 @@ Implemented controls:
 - delivery state/provider errors are visible in the operator console
 - customers can disable non-essential experiment/Weekly Brief lifecycle email while essential auth/invite/connection-attention email remains transactional
 
-Remaining activation:
-- verify `playdirective.com` as a sender domain in Resend using Hetzner DNS
-- configure Resend API key/sender/operator mailbox in the Hetzner `.env.production`
-- execute the email sections of `docs/REAL_LIFE_ACCEPTANCE_TEST.md`
+Production activation and acceptance:
+- Zoho MX, SPF and DKIM are verified for `playdirective.com`
+- Resend sender domain, DKIM and sending CNAME records are verified
+- production uses a least-privilege Resend sending key restricted to `playdirective.com`
+- production sender is `PlayDirective <support@playdirective.com>`
+- `support@playdirective.com` is a Zoho alias for the PlayDirective mailbox and real Gmail replies arrive in Zoho
+- `OPERATOR_EMAIL` uses `support@playdirective.com`; `admin@playdirective.com` is retained as the account/login identity but was not used as the inbound operator recipient because it was not accepted as a mailbox recipient during acceptance
+- `/ready` reports `transactional_email_configured: true`
+- real external delivery to Gmail succeeded with a Resend provider message ID
+- real pilot-application customer confirmation and operator notification both arrived
+- real workspace invite arrived and redeemed successfully once; a second redemption was rejected
+- real passwordless sign-in email arrived and authenticated successfully once; a second use was rejected
+- a real lifecycle acceptance email arrived exactly once; a repeated execution returned the same notification record and same provider message ID with exactly one persisted event-key record
+- API keys, invite tokens and session tokens were not recorded in repository acceptance evidence
+
+Acceptance result:
+- `SPRINT_3_LIFECYCLE_IDEMPOTENCY=PASS`
+- outbound Resend delivery and inbound Zoho reply routing are production-verified
 
 ## Phase 4 — Subscription and billing
 
@@ -103,18 +117,20 @@ Implemented scope:
 - cancellation-at-period-end state
 - billing/subscription state visible to both studio OWNER and operator console
 - plan changes, invoices, payment methods and cancellation delegated to Stripe Customer Portal
+- duplicate-checkout protection, checkout idempotency and canonical subscription protection
+- explicit 7-day `past_due` grace policy without shortening the 30-day founding pilot
+- plan experience limits remain enforced after upgrades/downgrades
 
 Remaining activation:
-- create test-mode Stripe Products/Prices and Customer Portal configuration
-- configure test secret key, webhook signing secret and Price IDs in the Hetzner `.env.production`
+- create Stripe test-mode Products/Prices and Customer Portal configuration
+- configure test secret key, webhook signing secret and Price IDs in Hetzner `.env.production`
 - execute Stripe test-mode section H of `docs/REAL_LIFE_ACCEPTANCE_TEST.md`
 
 ## R16 — Real Pilot Go-Live
 
-**Status: CODE COMPLETE / HETZNER DEPLOYMENT + EXTERNAL CONFIGURATION + REAL-LIFE ACCEPTANCE PENDING**
+**Status: PRODUCTION DEPLOYED / FINAL REAL-LIFE ACCEPTANCE PENDING**
 
 R16 combines the remaining customer-acquisition and production acceptance work:
-
 - public `/apply` Founding Studio application
 - customer/operator application emails
 - operator approval flow
@@ -128,7 +144,14 @@ R16 combines the remaining customer-acquisition and production acceptance work:
 - Hetzner-only application/database production runtime
 - manual acceptance runbook
 
-R16 is not `DONE` until the current main release is running on Hetzner, external provider configuration is active and sections A–I of `docs/REAL_LIFE_ACCEPTANCE_TEST.md` pass on that exact production release.
+Current production state:
+- Hetzner application/database runtime is live
+- automated Roblox sync is live
+- transactional email is live and accepted
+- pilot expiry, billing hardening, payment grace and experience-limit enforcement are deployed and runtime-tested
+- Stripe remains intentionally unconfigured in production (`stripe_configured: false`) until its acceptance phase
+
+R16 is not `DONE` until sections A–I of `docs/REAL_LIFE_ACCEPTANCE_TEST.md` pass on the intended production release or any remaining exception is explicitly accepted and documented.
 
 ## Sprint 1 — Pilot expiry enforcement
 
@@ -139,30 +162,18 @@ Goal: an expired unpaid founding pilot must not retain access to commercial prod
 Implemented scope:
 - centralized server-side product-access decision combining pilot lifecycle and subscription state
 - Day 29 remains available while the pilot is still before `ends_at`
-- Day 30 is blocked as soon as `ends_at` is reached; access does not depend on the daily lifecycle cron having run first
+- Day 30 is blocked as soon as `ends_at` is reached
 - Day 31 / `EXPIRED` + unpaid has zero commercial feature entitlement
-- Roblox connection changes, Roblox sync, observations, Decision Queue, AI Analyst, Experiment Copilot and Weekly Brief are protected server-side
-- functional decision/analyst/experiment API paths cannot be used as an expired-pilot bypass; public static demo paths remain available
-- login, account, pilot status, billing, pricing/plan discovery, Stripe Checkout and Customer Portal remain reachable
-- active or trialing paid subscriptions restore product access immediately after Stripe state synchronization
-- `past_due` remains temporarily access-bearing until Sprint 5 introduces the explicit grace-period policy
-- canceled/non-active paid state does not unlock an expired pilot
-- missing legacy `PilotLifecycle` records are anchored to the original organization creation time instead of silently starting a fresh 30-day window
-- workspace UI explicitly states `Your founding pilot has ended` and presents a `Choose a plan` CTA
+- protected server-side access to Roblox sync, observations, Decision Queue, AI Analyst, Experiment Copilot and Weekly Brief
+- active/trialing paid subscriptions restore product access
+- missing legacy lifecycle records are anchored to original organization creation time
 
 Validation:
-- regression coverage for Day 29, Day 30 boundary, Day 31, expired/unpaid, expired/active paid, canceled, `past_due`, missing lifecycle fallback and the central 403 guard
-- GitHub CI passed backend tests, Ruff and frontend validation on the merged Sprint 1 release
-- Hetzner production deployed at commit `edaabdb79063a9f6991ed7e28fcd062af9239561`
-- production Compose validation passed without replacing `.env.production`
-- PostgreSQL remained healthy; FastAPI `/health` returned `ok` and `/ready` returned `ready`
-- public landing page, pricing, login and workspace routes returned HTTP 200 through nginx/TLS
-- production database state was inspected read-only; no existing expired pilot or paid subscription record was available for a non-destructive live tenant test
-- the actually deployed access-control module passed a synthetic in-container runtime acceptance for Day 29, exact Day 30 expiry, Day 31/expired unpaid, active paid restoration, canceled blocking and the temporary Sprint 1 `past_due` policy
+- GitHub CI passed
+- Hetzner production runtime acceptance passed
 
 Acceptance result:
 - `SPRINT_1_RUNTIME_ACCEPTANCE=PASS`
-- no production data was modified for acceptance
 
 ## Sprint 2 — Automated Roblox data sync
 
@@ -171,70 +182,125 @@ Acceptance result:
 Goal: active entitled customers receive fresh Roblox analytics automatically without manually triggering sync.
 
 Implemented scope:
-- scheduler discovery is limited to active organizations, LIVE data mode and active Roblox connections
-- Sprint 1 product entitlement is re-evaluated before each external sync
-- the existing retry-enabled Roblox analytics client and idempotent observation persistence are reused
-- each tenant connection is processed in its own database session so one tenant failure does not stop later tenants
-- per-connection sync state persists health status, last attempt, last success and last error in a new non-destructive table
-- expired/unpaid tenants are marked `BLOCKED` and no external Roblox request is made
-- successful syncs become `HEALTHY`; failures become `ERROR`
-- a dedicated CLI job runs the scheduler and returns a failing process status only after every candidate has been processed
-- Hetzner runner script executes the job inside the production API container
-- Hetzner cron schedule runs automated Roblox analytics sync daily at 06:10 server time
+- active LIVE entitled connections are discovered and synced automatically
+- per-connection sync health is persisted
+- one tenant failure does not stop later tenants
+- blocked/expired tenants do not call Roblox
+- daily Hetzner cron runs at 06:10 server time
 
 Validation:
-- candidate filtering covers active LIVE connections only
-- successful entitled sync persists `HEALTHY`, `last_attempt_at` and `last_success_at`
-- expired/unpaid entitlement blocks external sync
-- one tenant failure does not prevent the following tenant from syncing
-- Roblox HTTP 429 rate-limit retry behavior is covered explicitly
 - GitHub CI #365 passed 69 backend tests, Ruff and frontend build
-- Hetzner production deployed at commit `80e9c61d7e7f5b248b97902f350ef56c381a4b8f`
-- Compose validation returned `CONFIG_EXIT=0`
-- PostgreSQL stayed healthy; API and web containers started cleanly
-- `roblox_sync_state` was created successfully with per-connection uniqueness and foreign keys
-- a real production scheduler run found one active LIVE connection and synced Roblox universe `10770494757` successfully with `failed=0`, `skipped=0`, `synced=1`
-- production state persisted connection `3` as `HEALTHY` with both last attempt and last success timestamps and no error
-- `/etc/cron.d/playdirective-r17` contains the daily automated Roblox sync at 06:10 server time
-- final production logs showed clean Next.js/FastAPI startup and repeated HTTP 200 responses from `/health` and `/ready`
+- real production scheduler run synced a real Roblox universe successfully
+- persisted sync state became `HEALTHY`
 
 Acceptance result:
 - automated production sync is live and scheduled daily
-- active customers no longer need to manually initiate routine Roblox analytics sync
 
 ## Sprint 3 — Transactional email / Resend production activation
 
-**Status: IN PROGRESS**
+**Status: DONE**
 
-Goal: activate PlayDirective transactional email on production so acquisition, authentication and lifecycle messages are delivered reliably from the verified `playdirective.com` domain.
+Goal: activate PlayDirective transactional email on production and prove the real acquisition/auth/lifecycle mail path.
 
-Existing code baseline:
-- Resend delivery integration is implemented server-side
-- sender defaults to `PlayDirective <pilot@playdirective.com>`
-- provider secrets remain server-side and are read from production environment configuration
-- notification records persist provider, status, provider message ID, error and sent timestamp
-- event keys provide application-level idempotency for lifecycle sends
-- applicant confirmation, operator notification, invite, activation/welcome, passwordless login, connection-attention and Weekly Brief notification flows already exist
+Production configuration:
+- Resend `playdirective.com` verified
+- least-privilege sending API key configured server-side
+- `EMAIL_FROM=PlayDirective <support@playdirective.com>`
+- `OPERATOR_EMAIL=support@playdirective.com`
+- Zoho handles replies/inbound mail for `support@playdirective.com`
+- `/ready` reports transactional email configured
 
-Activation scope:
-- add and verify `playdirective.com` in Resend for sending using the DNS records generated for the account
-- use Resend's provider-specific DNS status to confirm DKIM/SPF/MX/return-path records required for sending
-- create a production API key with `Sending access`, restricted to `playdirective.com` where supported
-- configure `RESEND_API_KEY`, `EMAIL_FROM` and `OPERATOR_EMAIL` in Hetzner `.env.production` without committing or exposing secrets
-- restart only the required production service(s) and verify `/ready` reports email configuration active
-- execute real production email acceptance for customer application confirmation, operator notification, workspace invite, passwordless login and lifecycle notification coverage
-- verify PlayDirective notification records contain successful provider message IDs and no secrets
-- verify duplicate lifecycle execution does not send the same event window twice
+Real acceptance:
+- direct production API send delivered to Gmail
+- Gmail reply delivered to Zoho
+- customer pilot-application confirmation delivered
+- operator application notification delivered
+- workspace invite delivered and single-use enforcement passed
+- passwordless sign-in delivered and single-use enforcement passed
+- lifecycle email delivered
+- duplicate lifecycle execution returned the same notification record/provider message ID and persisted exactly one event record
 
-DONE criteria:
-- `playdirective.com` has verified sending capability in Resend
-- production uses a least-privilege sending API key, not a full-access key
-- `PlayDirective <pilot@playdirective.com>` can deliver to a real external mailbox
-- the operator mailbox receives its expected production notification
-- invite and passwordless login links arrive and remain single-use
-- lifecycle email delivery is observable in PlayDirective with provider message IDs/errors
-- repeated lifecycle execution is idempotent for the same event window
-- no API keys, auth tokens or Roblox credentials are exposed in logs, UI, repository or acceptance evidence
+Acceptance result:
+- `SPRINT_3_LIFECYCLE_IDEMPOTENCY=PASS`
+
+## Sprint 4 — Billing hardening
+
+**Status: DONE**
+
+Goal: prevent duplicate subscriptions/checkouts and keep Stripe plan state canonical during subscription lifecycle changes.
+
+Implemented scope:
+- existing managed Stripe subscription blocks a second checkout
+- fresh checkout-pending state blocks duplicate checkout
+- abandoned checkout may retry after 30 minutes
+- deterministic Stripe idempotency key per checkout window
+- actual Stripe Price ID is authoritative for plan synchronization
+- stale/foreign subscription webhook cannot replace the managed canonical subscription
+- new subscription can start after terminal/canceled state
+
+Validation:
+- GitHub CI #369 passed 75 backend tests, Ruff and frontend build
+- production deploy passed health/readiness checks
+- in-container runtime acceptance proved initial checkout, duplicate blocking, active-subscription blocking and abandoned-checkout retry
+
+Acceptance result:
+- `SPRINT_4_RUNTIME_ACCEPTANCE=PASS`
+
+## Sprint 5 — `past_due` payment grace and pilot fallback
+
+**Status: DONE**
+
+Goal: protect paying customers from immediate lockout after a failed payment while preserving the full original 30-day founding pilot.
+
+Implemented scope:
+- `past_due` receives a 7-day billing grace period
+- repeated `past_due` updates do not restart the grace window
+- exact grace expiry blocks paid access
+- payment recovery to `active` restores paid access immediately
+- if the original 30-day pilot is still running, an expired billing grace falls back to remaining pilot access
+- a previously `CONVERTED` pilot can still fall back to its unexpired original pilot window
+
+Validation:
+- GitHub CI and regression tests passed
+- production runtime tests covered day 6, exact day 7, day 8, payment recovery and active-pilot fallback
+- final converted-pilot fallback regression passed on production
+
+Acceptance result:
+- `SPRINT_5_RUNTIME_ACCEPTANCE=PASS`
+- `SPRINT_5_FINAL_RUNTIME_ACCEPTANCE=PASS`
+
+## Sprint 6 — Experience entitlement enforcement after plan change
+
+**Status: DONE**
+
+Goal: enforce Indie/Growth/Studio experience limits after a downgrade without deleting stored customer configuration.
+
+Implemented scope:
+- current plan experience limit is enforced for automated sync and product workflows
+- over-limit connections remain stored but are blocked from use/sync
+- over-limit credentials are not decrypted and no Roblox request is made
+- a later upgrade can restore entitlement without re-entering the saved connection
+
+Validation:
+- GitHub CI #380 passed 87 backend tests, Ruff and frontend build
+- production Growth → Indie runtime acceptance proved 3 stored connections remain while only 1 is entitled
+- over-limit sync was skipped with `experience_limit_exceeded`
+
+Acceptance result:
+- `SPRINT_6_RUNTIME_ACCEPTANCE=PASS`
+
+## Sprint 7 — Experience selection & management
+
+**Status: NEXT**
+
+Goal: let multi-experience studios explicitly control which saved experience is selected for the decision workflow and which connections remain active inside the current plan entitlement, instead of relying on implicit recency ordering.
+
+Planned scope:
+- explicit active/selected experience state
+- customer-facing experience management
+- clear entitlement/over-limit state after downgrade
+- no automatic deletion of stored connections
+- deterministic selection for Decision Queue, Analyst, Experiments and Weekly Brief
 
 ## Public demo / internal QA separation
 
@@ -244,22 +310,23 @@ The production landing page labels the illustrative decision queue as simulated.
 
 ## Go-live baseline
 
-Current code-complete pilot baseline includes:
+Current production pilot baseline includes:
 - PlayDirective brand and canonical domain
-- HTTPS/domain routing to the Hetzner production host
+- HTTPS/domain routing to Hetzner production
 - Next.js + FastAPI + PostgreSQL colocated on the Hetzner server using Docker Compose
-- no production dependency on Vercel, Neon or Render
 - landing page and public simulated demo
-- real public founding-pilot application flow
-- pricing hypothesis and founding pilot positioning
-- invite-only first enrollment plus passwordless email return login
+- public founding-pilot application flow
+- invite-only first enrollment plus passwordless return login
+- production transactional email through Resend with Zoho reply handling
 - encrypted Roblox credentials in private workspace
-- tenant-scoped sync and decisions
+- automated tenant-scoped Roblox sync
+- tenant-scoped decisions and decision workflow
 - dynamic customer progress and persisted milestones
 - operator console with applications, delivery events and billing state
+- pilot expiry/payment-grace/plan-limit enforcement
 - privacy / terms / legal notice
 - public sitemap and robots configuration for playdirective.com
 
-Commercial validation remains separate from engineering readiness. Paid conversion, willingness to pay, retention lift, and recurring revenue must not be presented as validated until supported by real pilot evidence.
+Commercial validation remains separate from engineering readiness. Paid conversion, willingness to pay, retention lift and recurring revenue must not be presented as validated until supported by real pilot evidence.
 
 Last updated: 14 October 2026

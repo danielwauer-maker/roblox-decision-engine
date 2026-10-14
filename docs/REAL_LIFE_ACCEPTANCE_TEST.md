@@ -1,8 +1,37 @@
 # PlayDirective Real-Life Acceptance Test
 
-Status: IN PROGRESS — email/provider acceptance completed; full A–I go-live acceptance remains open.
+Status: IN PROGRESS — Sprint 8 Final Go-Live Acceptance & Operations is active; email/provider acceptance completed; full production acceptance remains open.
 
 This runbook is the manual customer-path acceptance test. It intentionally uses a real browser, a real mailbox, Stripe test mode and (for the live-data section) a real Roblox experience.
+
+## Sprint 8 execution tracker
+
+Run in this order and do not mark Sprint 8 DONE until all required gates pass:
+
+- Phase A — Admin QA: `PENDING`
+- Phase B — Real Customer Journey / sections A–G: `PENDING`
+- Phase C — Stripe Test Mode / section H plus billing-hardening scenarios: `PENDING`
+- Phase D — Failure & Recovery / section I plus provider/service failure matrix: `PENDING`
+- Phase E — Final Production Gate and cleanup/sign-off: `PENDING`
+- Final result: `FINAL_GO_LIVE_ACCEPTANCE=PENDING`
+
+Phase A minimum runtime evidence:
+1. desktop admin route/layout acceptance
+2. mobile admin route/layout acceptance
+3. Applications workflow
+4. Studios & customers workflow
+5. Pilot operations workflow
+6. Billing workflow
+7. Workspace access workflow
+8. Data & simulation workflow
+9. Build Log review
+10. Email template override saved
+11. matching automatic email received with override copy
+12. template disabled and built-in fallback copy received
+13. manual admin email received
+14. Delivery History contains expected status/provider message ID or visible provider error
+
+Customer-360 consolidation is post-go-live unless this acceptance exposes a real support blocker. Existing go-live MUST HAVE controls are customer/studio lookup, pilot/plan/billing visibility, experience/sync state, workspace access, revoke/disable/reactivate, feedback and email delivery observability.
 
 ## Test identities
 
@@ -124,22 +153,77 @@ Do not use live-mode keys for this acceptance test.
 4. Complete payment using a Stripe test card.
 5. Return to PlayDirective and verify subscription status/plan updates after webhook delivery.
 6. Open Manage subscription and verify Stripe Customer Portal opens.
-7. In test mode, change plan and verify PlayDirective reflects the webhook-updated entitlement.
-8. Cancel at period end and verify state is displayed correctly.
+7. Upgrade Indie → Growth and verify the entitlement limit moves 1 → 3.
+8. Upgrade Growth → Studio and verify the entitlement limit moves 3 → 10.
+9. Downgrade and verify fail-closed multi-experience handling remains correct.
+10. Cancel at period end and verify state is displayed correctly.
+11. Simulate payment failure / `past_due` and verify the seven-day grace starts once.
+12. Repeat `past_due` and verify the grace deadline does not move.
+13. Recover payment to `active` and verify paid access immediately recovers.
+14. Verify terminal canceled state permits a later new subscription.
+15. Verify fresh duplicate checkout is blocked.
+16. Verify an existing managed subscription blocks duplicate subscription creation.
+17. Verify a stale/foreign webhook cannot replace the canonical managed subscription.
 
-Pass: PlayDirective never handles raw card details and subscription state is driven by verified Stripe webhooks.
+Pass: PlayDirective never handles raw card details, subscription state is driven by verified Stripe webhooks, and all Sprint 4–7 billing/entitlement protections hold against real Stripe test events.
 
 ## I. Failure/recovery
 
-1. Revoke the Roblox API key and run sync: customer gets a safe needs-attention state.
-2. Restore a valid key: sync recovers.
-3. Revoke the customer session from admin: next authenticated request fails.
-4. Request a new email login link: access recovers.
-5. Disable the tenant: login/API access is blocked.
-6. Reactivate the tenant and issue/redeem a fresh login link.
+### Roblox
+1. Use an invalid/revoked Roblox API key and run sync: customer gets a safe needs-attention state and the failure is visible operationally.
+2. Exercise a transient/rate-limit/provider-unavailable path where safely reproducible and verify bounded failure rather than cross-tenant impact.
+3. Restore a valid key and confirm sync recovers.
+4. Confirm another tenant remains unaffected.
 
-Pass: the operator can recover the pilot without database edits or exposing secrets.
+### Email
+1. Verify inactive template fallback.
+2. Exercise an invalid recipient/provider failure path without exposing secrets.
+3. Confirm error/status is visible in Delivery History.
+
+### Auth / tenant
+1. Confirm expired invite rejection.
+2. Confirm already-redeemed invite rejection.
+3. Confirm expired passwordless-link rejection.
+4. Confirm second-use rejection.
+5. Revoke the customer session from admin: next authenticated request fails.
+6. Request a new email login link: access recovers.
+7. Disable the tenant: login/API access is blocked.
+8. Reactivate the tenant and issue/redeem a fresh login link.
+
+### Billing
+Verify no-subscription, active pilot fallback, expired pilot, `past_due` grace/recovery and cancellation behavior against the same server-side product access guard.
+
+### Database / service
+1. Verify `/health` and `/ready` communicate different responsibilities.
+2. Restart API and verify recovery.
+3. Restart Web and verify recovery.
+4. PostgreSQL restart is optional and only performed after explicit operator confirmation when safely justified.
+
+### AI
+1. Verify provider-unavailable path falls back deterministically.
+2. Verify malformed/ungrounded model output cannot invent authoritative metrics and does not bypass deterministic evidence.
+
+Pass: the operator can recover the pilot without database edits or exposing secrets, provider failures remain bounded, and deterministic product behavior remains available where designed.
 
 ## Final go-live sign-off
 
-Record date, production commit SHA, frontend deployment ID, API deployment ID, database project/branch, tester emails (redacted), Roblox Universe IDs, and Stripe test event IDs. Mark GO only if sections A–I pass or any exception has an explicitly accepted documented risk.
+Record date, production commit SHA, frontend/API container/deployment identifiers, database/runtime identity, tester emails (redacted), Roblox Universe IDs (non-secret), Stripe test event IDs, and any explicitly accepted exceptions.
+
+Also verify before GO:
+- `main` is current
+- intended CI checks are green; unrelated external deployment checks are documented rather than silently ignored
+- Hetzner working tree contains only expected production-local changes
+- web/API/PostgreSQL are healthy
+- `/health` = ok and `/ready` = ready
+- provider configuration/status is correct
+- backup/cron jobs are current
+- acceptance subscriptions, dummy experiences and temporary test data are cleaned up
+- no secrets/credentials appear in repository or logs/evidence
+- Privacy, Terms, legal notice, pricing, founding-pilot and billing/cancellation wording are current
+- roadmap, Build Log and this document match the actual status
+
+Mark GO only if the required Sprint 8 phases pass or any remaining exception has an explicitly accepted documented risk.
+
+Target final result:
+
+`FINAL_GO_LIVE_ACCEPTANCE=PASS`

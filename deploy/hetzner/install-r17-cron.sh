@@ -34,4 +34,4 @@ chmod +x \
   "$APP_DIR/deploy/hetzner/healthcheck.sh"
 
 echo "Installed $CRON_FILE"
-echo "Note: healthcheck and scheduled job failures are logged locally. Configure an external uptime monitor for independent alerting."
+echo "Local health/job failures are logged on Hetzner; the repository Production Uptime workflow provides the independent public-site check."

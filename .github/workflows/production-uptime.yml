@@ -1,0 +1,33 @@
+name: Production Uptime
+
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check canonical production URL
+        run: |
+          set -euo pipefail
+          body="$(mktemp)"
+          trap 'rm -f "$body"' EXIT
+          curl \
+            --fail \
+            --silent \
+            --show-error \
+            --location \
+            --retry 2 \
+            --retry-all-errors \
+            --connect-timeout 10 \
+            --max-time 30 \
+            --output "$body" \
+            https://playdirective.com/
+          grep -qi "PlayDirective" "$body"
+          echo "PlayDirective public production check passed at $(date -u +%FT%TZ)"

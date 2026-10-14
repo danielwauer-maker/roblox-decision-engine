@@ -16,10 +16,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validate Hetzner shell scripts
+        run: bash -n ../../deploy/hetzner/*.sh
       - run: python -m pip install --upgrade pip
       - run: pip install -e '.[dev]'
       - run: pytest -q
       - id: ruff
+        if: always()
         continue-on-error: true
         run: ruff check . --output-format=json > ruff-report.json
       - name: Upload Ruff diagnostics
@@ -30,7 +33,7 @@ jobs:
           path: apps/api/ruff-report.json
           if-no-files-found: error
       - name: Enforce Ruff gate
-        if: steps.ruff.outcome == 'failure'
+        if: always() && steps.ruff.outcome == 'failure'
         run: exit 1
 
   frontend:

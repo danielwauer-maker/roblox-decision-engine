@@ -1,11 +1,11 @@
 from datetime import UTC, datetime
+from typing import Annotated
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
-from typing import Annotated
 
 from app.db import SessionLocal
 from app.email_models import EmailTemplateRecord

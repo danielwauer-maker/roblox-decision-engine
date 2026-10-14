@@ -163,6 +163,8 @@ def test_one_tenant_failure_does_not_stop_following_tenant(monkeypatch):
     second_org = _organization(session, slug="second")
     first = _connection(session, first_org.id, universe_id="111")
     second = _connection(session, second_org.id, universe_id="222")
+    first_id = first.id
+    second_id = second.id
     session.close()
 
     monkeypatch.setattr(sync_service, "decrypt_credential", lambda _: "plain-key")
@@ -183,10 +185,10 @@ def test_one_tenant_failure_does_not_stop_following_tenant(monkeypatch):
 
     verify = factory()
     first_state = verify.scalar(
-        select(RobloxSyncStateRecord).where(RobloxSyncStateRecord.connection_id == first.id)
+        select(RobloxSyncStateRecord).where(RobloxSyncStateRecord.connection_id == first_id)
     )
     second_state = verify.scalar(
-        select(RobloxSyncStateRecord).where(RobloxSyncStateRecord.connection_id == second.id)
+        select(RobloxSyncStateRecord).where(RobloxSyncStateRecord.connection_id == second_id)
     )
     assert first_state.health_status == "ERROR"
     assert "Roblox unavailable" in first_state.last_error

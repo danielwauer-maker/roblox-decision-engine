@@ -137,6 +137,22 @@ class RobloxConnectionRecord(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class RobloxSyncStateRecord(Base):
+    __tablename__ = "roblox_sync_state"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    connection_id: Mapped[int] = mapped_column(
+        ForeignKey("roblox_connections.id"), unique=True, index=True
+    )
+    organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id"), index=True)
+    universe_id: Mapped[str] = mapped_column(String(64), index=True)
+    health_status: Mapped[str] = mapped_column(String(32), default="NEVER_SYNCED", index=True)
+    last_attempt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_success_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+
+
 class MetricObservationRecord(Base):
     __tablename__ = "metric_observations"
     __table_args__ = (

@@ -164,6 +164,38 @@ Acceptance result:
 - `SPRINT_1_RUNTIME_ACCEPTANCE=PASS`
 - no production data was modified for acceptance
 
+## Sprint 2 — Automated Roblox data sync
+
+**Status: IN PROGRESS**
+
+Goal: active entitled customers receive fresh Roblox analytics automatically without manually triggering sync.
+
+Implemented on the Sprint 2 branch:
+- scheduler discovery is limited to active organizations, LIVE data mode and active Roblox connections
+- Sprint 1 product entitlement is re-evaluated before each external sync
+- the existing retry-enabled Roblox analytics client and idempotent observation persistence are reused
+- each tenant connection is processed in its own database session so one tenant failure does not stop later tenants
+- per-connection sync state persists health status, last attempt, last success and last error in a new non-destructive table
+- expired/unpaid tenants are marked `BLOCKED` and no external Roblox request is made
+- successful syncs become `HEALTHY`; failures become `ERROR`
+- a dedicated CLI job runs the scheduler and returns a failing process status only after every candidate has been processed
+- Hetzner runner script executes the job inside the production API container
+- Hetzner cron schedule runs automated Roblox analytics sync daily at 06:10 server time
+
+Validation in progress:
+- active LIVE candidate filtering
+- successful entitled sync and health persistence
+- expired/unpaid entitlement blocking without an external call
+- failure isolation where a failed tenant does not prevent the next tenant from syncing
+- complete GitHub CI gate
+- Hetzner deployment and production cron acceptance
+
+DONE criteria:
+- active customers can use PlayDirective for weeks without manually starting Roblox sync
+- production scheduler runs at least daily
+- last attempt, last success, error and health status are persisted per connection
+- tenant failures remain isolated
+
 ## Public demo / internal QA separation
 
 The public demo explains the product workflow using clearly labelled simulated data. It must never look like a place where a visitor should enter real Roblox credentials.

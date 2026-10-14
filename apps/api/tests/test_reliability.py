@@ -76,3 +76,38 @@ async def test_roblox_client_retries_transient_failure() -> None:
 
     assert result.values == []
     assert calls == 2
+
+
+@pytest.mark.asyncio
+async def test_roblox_client_retries_rate_limit_429() -> None:
+    calls = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return httpx.Response(429, request=request, headers={"Retry-After": "0"})
+        return httpx.Response(
+            200,
+            request=request,
+            json={"done": True, "response": {"values": []}},
+        )
+
+    query = MetricQuery(
+        metric="DailyActiveUsers",
+        granularity=Granularity.ONE_DAY,
+        startTime="2026-10-01T00:00:00Z",
+        endTime="2026-10-02T00:00:00Z",
+    )
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as http_client:
+        roblox = RobloxAnalyticsClient(
+            universe_id="123",
+            api_key="secret",
+            http_client=http_client,
+            retry_attempts=2,
+            retry_backoff_seconds=0,
+        )
+        result = await roblox.query_metric(query)
+
+    assert result.values == []
+    assert calls == 2

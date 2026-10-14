@@ -4,6 +4,7 @@ from html import escape
 import httpx
 
 from app.config import get_settings
+from app.reliability import retry_http_request
 
 
 @dataclass(frozen=True)
@@ -39,17 +40,27 @@ async def send_email(*, to: str, subject: str, body_html: str) -> EmailResult:
     }
     try:
         async with httpx.AsyncClient(timeout=settings.external_request_timeout_seconds) as client:
-            response = await client.post(
-                "https://api.resend.com/emails",
-                json=payload,
-                headers={
-                    "Authorization": f"Bearer {settings.resend_api_key.get_secret_value()}",
-                    "Content-Type": "application/json",
-                },
+
+            async def send_request() -> httpx.Response:
+                response = await client.post(
+                    "https://api.resend.com/emails",
+                    json=payload,
+                    headers={
+                        "Authorization": f"Bearer {settings.resend_api_key.get_secret_value()}",
+                        "Content-Type": "application/json",
+                    },
+                )
+                response.raise_for_status()
+                return response
+
+            response = await retry_http_request(
+                send_request,
+                attempts=settings.external_retry_attempts,
+                backoff_seconds=settings.external_retry_backoff_seconds,
             )
-        if response.status_code >= 400:
-            return EmailResult(status="FAILED", error=f"Resend HTTP {response.status_code}")
         data = response.json()
         return EmailResult(status="SENT", provider_message_id=data.get("id"))
+    except httpx.HTTPStatusError as exc:
+        return EmailResult(status="FAILED", error=f"Resend HTTP {exc.response.status_code}")
     except (httpx.HTTPError, ValueError) as exc:
         return EmailResult(status="FAILED", error=str(exc)[:500])

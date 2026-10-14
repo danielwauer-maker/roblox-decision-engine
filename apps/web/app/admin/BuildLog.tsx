@@ -36,6 +36,7 @@ const productionSprints: BuildItem[] = [
   { sprint: "Sprint 5", title: "past_due grace + pilot fallback", status: "DONE", result: "SPRINT_5_FINAL_RUNTIME_ACCEPTANCE=PASS", summary: "Seven-day payment grace without shortening the founding pilot; payment recovery immediately restores paid access.", validation: "Day 6/7/8 boundaries · payment recovery · converted-pilot fallback" },
   { sprint: "Sprint 6", title: "Experience entitlement enforcement", status: "DONE", result: "SPRINT_6_RUNTIME_ACCEPTANCE=PASS", summary: "Indie/Growth/Studio limits remain enforced after plan changes without deleting saved customer configuration.", validation: "CI #380 · 87 backend tests · over-limit sync blocked before credential use" },
   { sprint: "Sprint 7", title: "Experience selection & management", status: "DONE", result: "SPRINT_7_RUNTIME_ACCEPTANCE=PASS", summary: "OWNER-managed active experience selection, deterministic experience-scoped workflows and fail-closed downgrade handling.", validation: "CI #387/#389 · 88 backend tests · Growth 3/3 · Studio limit · Indie downgrade fail-closed · explicit owner resolution" },
+  { sprint: "Sprint 8", title: "Final Go-Live Acceptance & Operations", status: "IN PROGRESS", result: "FINAL_GO_LIVE_ACCEPTANCE=PENDING", summary: "Final admin acceptance, real customer journey, Stripe test-mode provider acceptance, failure/recovery verification and formal production gate.", validation: "Opened 14 Oct 2026 · phases A–E must pass before DONE · no unrelated feature scope" },
 ];
 
 const card: React.CSSProperties = { border: "1px solid rgba(255,255,255,.09)", background: "rgba(255,255,255,.025)", borderRadius: 16 };
@@ -65,12 +66,12 @@ export default function BuildLog() {
     <div>
       <div style={{ color: "#67e8f9", fontSize: 10, fontWeight: 900, letterSpacing: ".16em", textTransform: "uppercase" }}>Delivery history</div>
       <h1 style={{ margin: "8px 0 6px", fontSize: 38, letterSpacing: "-.04em" }}>Build log</h1>
-      <p style={{ margin: 0, color: "#8298b1", maxWidth: 880, lineHeight: 1.6 }}>Complete project history for PlayDirective: the original R0–R17 product/readiness releases plus the later production-hardening Sprint 1–7 series.</p>
+      <p style={{ margin: 0, color: "#8298b1", maxWidth: 880, lineHeight: 1.6 }}>Complete project history for PlayDirective: the original R0–R17 product/readiness releases plus the later production-hardening and final-acceptance Sprint 1–8 series.</p>
     </div>
 
     <div style={{ marginTop: 22, display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(180px,1fr))", gap: 10 }}>
       <div style={{ ...card, padding: 17 }}><div style={eyebrow}>Product releases</div><div style={metric}>18</div><div style={caption}>R0–R17 entries, including documented R15 gap</div></div>
-      <div style={{ ...card, padding: 17 }}><div style={eyebrow}>Production hardening</div><div style={metric}>7</div><div style={caption}>all completed runtime-accepted sprints</div></div>
+      <div style={{ ...card, padding: 17 }}><div style={eyebrow}>Production & acceptance</div><div style={metric}>8</div><div style={caption}>Sprint 1–7 complete · Sprint 8 in progress</div></div>
       <div style={{ ...card, padding: 17 }}><div style={eyebrow}>Current production</div><div style={{ ...metric, color: "#86efac", fontSize: 23 }}>Healthy</div><div style={caption}>API ready · DB healthy</div></div>
       <div style={{ ...card, padding: 17 }}><div style={eyebrow}>Open commercial gate</div><div style={{ ...metric, color: "#fcd34d", fontSize: 23 }}>Stripe</div><div style={caption}>test-mode activation pending</div></div>
     </div>
@@ -83,16 +84,16 @@ export default function BuildLog() {
     </section>
 
     <section style={{ marginTop: 30 }}>
-      <div style={eyebrow}>Phase B · Production hardening</div>
-      <h2 style={{ margin: "7px 0 0", fontSize: 24 }}>Sprint 1–7</h2>
-      <p style={{ margin: "7px 0 0", color: "#71849c", fontSize: 12, lineHeight: 1.6 }}>Post-go-live hardening focused on access policy, automation, email, billing safety and multi-experience entitlement behavior.</p>
+      <div style={eyebrow}>Phase B · Production & final acceptance</div>
+      <h2 style={{ margin: "7px 0 0", fontSize: 24 }}>Sprint 1–8</h2>
+      <p style={{ margin: "7px 0 0", color: "#71849c", fontSize: 12, lineHeight: 1.6 }}>Post-go-live hardening focused on access policy, automation, email, billing safety and multi-experience entitlement behavior. Sprint 8 is the bounded final acceptance/operations gate and remains open until real production phases A–E pass.</p>
       <Timeline items={productionSprints} />
     </section>
 
     <section style={{ ...card, marginTop: 22, padding: 19 }}>
       <div style={eyebrow}>Current open gates</div>
       <h2 style={{ margin: "8px 0 8px", fontSize: 20 }}>What is not yet commercially closed</h2>
-      <p style={{ margin: 0, color: "#9fb3c8", fontSize: 12, lineHeight: 1.65 }}>Stripe test-mode activation and the remaining real-life customer acceptance phases stay open. The Build Log distinguishes these gates from engineering work that is already deployed and validated.</p>
+      <p style={{ margin: 0, color: "#9fb3c8", fontSize: 12, lineHeight: 1.65 }}>Sprint 8 remains in progress: Admin QA, the real customer journey, Stripe test-mode activation, failure/recovery and the final production gate must pass. Landing-page visual polish follows only after those gates close.</p>
     </section>
   </div>;
 }

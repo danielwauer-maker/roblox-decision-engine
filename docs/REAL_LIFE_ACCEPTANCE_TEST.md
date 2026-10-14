@@ -1,6 +1,6 @@
 # PlayDirective Real-Life Acceptance Test
 
-Status: DRAFT — complete after R16 implementation and production configuration.
+Status: IN PROGRESS — email/provider acceptance completed; full A–I go-live acceptance remains open.
 
 This runbook is the manual customer-path acceptance test. It intentionally uses a real browser, a real mailbox, Stripe test mode and (for the live-data section) a real Roblox experience.
 
@@ -89,6 +89,30 @@ Verify at minimum:
 - weekly-brief-ready notification when the lifecycle job is run for an eligible tenant
 
 Pass: delivery events are logged and repeated lifecycle runs do not spam duplicate notifications for the same event window.
+
+### Sprint 3 production acceptance evidence — 14 October 2026
+
+Completed and verified on Hetzner production:
+- `playdirective.com` verified in Resend for sending
+- Zoho MX/SPF/DKIM verified; Resend DKIM and sending CNAME records verified
+- production uses `PlayDirective <support@playdirective.com>` as sender
+- `support@playdirective.com` receives replies in Zoho
+- `/ready` reports `transactional_email_configured: true`
+- direct production send delivered to a real Gmail mailbox with provider message ID
+- real pilot-application customer confirmation delivered
+- real operator notification delivered to the configured operator mailbox
+- real workspace invite delivered and redeemed successfully once
+- second use of the same invite was rejected as expired/invalid
+- real passwordless sign-in link delivered and authenticated successfully once
+- second use of the same sign-in link was rejected as expired/invalid
+- lifecycle acceptance email delivered to Gmail
+- repeated execution of the exact same lifecycle event returned the same persisted notification row and the same provider message ID; exactly one event-key record existed
+- acceptance output: `SPRINT_3_LIFECYCLE_IDEMPOTENCY=PASS`
+
+Notes:
+- `admin@playdirective.com` was not accepted by Zoho as an inbound mailbox recipient during provider acceptance, so production `OPERATOR_EMAIL` was set to the working `support@playdirective.com` mailbox alias.
+- Zoho displayed a warning for same-domain automated inbound mail from Resend; delivery nevertheless succeeded. Treat this as a low-priority mail-hardening item, not a go-live blocker.
+- this evidence closes Sprint 3 provider activation; it does not by itself mark the entire A–I runbook complete.
 
 ## H. Stripe test mode
 

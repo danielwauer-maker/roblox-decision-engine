@@ -4,16 +4,16 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
-from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
-from app.access_control import ProductAccessDep
+from app.access_control import ProductAccessDep, evaluate_product_access
 from app.db import SessionLocal
 from app.domain.decision_engine import evaluate_snapshot
 from app.domain.experiments import build_experiment_plan
 from app.models import PilotFeedbackRecord, RobloxConnectionRecord
 from app.services.ai_analyst import generate_analyst_brief
 from app.services.decision_snapshots import build_decision_snapshot
+from app.services.experience_entitlements import entitled_connections_for_organization
 from app.tenant_security import TenantDep
 
 router = APIRouter(prefix="/v1/tenant", tags=["tenant"])
@@ -37,17 +37,15 @@ class TenantFeedback(BaseModel):
 
 
 def _connection(session: Session, organization_id: int) -> RobloxConnectionRecord:
-    connection = session.scalar(
-        select(RobloxConnectionRecord)
-        .where(
-            RobloxConnectionRecord.organization_id == organization_id,
-            RobloxConnectionRecord.active.is_(True),
-        )
-        .order_by(desc(RobloxConnectionRecord.updated_at))
+    access = evaluate_product_access(session, organization_id)
+    rows = entitled_connections_for_organization(
+        session,
+        organization_id,
+        access.experience_limit,
     )
-    if not connection:
-        raise HTTPException(status_code=409, detail="No Roblox experience connected")
-    return connection
+    if not rows:
+        raise HTTPException(status_code=409, detail="No entitled Roblox experience connected")
+    return rows[0]
 
 
 def _snapshot(session: Session, organization_id: int):

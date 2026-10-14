@@ -9,6 +9,7 @@ from starlette.responses import JSONResponse
 from app.config import get_settings
 from app.db import Base, engine
 from app.reliability import RequestObservabilityMiddleware
+from app.routes.admin_communications import router as admin_communications_router
 from app.routes.admin_console import router as admin_console_router
 from app.routes.admin_simulation import router as admin_simulation_router
 from app.routes.analyst import router as analyst_router
@@ -38,7 +39,7 @@ async def lifespan(_: FastAPI):
 settings = get_settings()
 app = FastAPI(
     title="PlayDirective API",
-    version="1.4.0",
+    version="1.5.0",
     lifespan=lifespan,
 )
 app.add_middleware(
@@ -70,6 +71,7 @@ app.include_router(commercial_router)
 app.include_router(tenant_router)
 app.include_router(tenant_insights_router)
 app.include_router(admin_console_router)
+app.include_router(admin_communications_router)
 app.include_router(admin_simulation_router)
 app.include_router(enrollment_router)
 app.include_router(progress_router)

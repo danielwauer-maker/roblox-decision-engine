@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
+from app.access_control import ProductAccessDep, evaluate_product_access
 from app.db import SessionLocal
 from app.domain.decision_engine import evaluate_snapshot
 from app.integrations.roblox.client import RobloxAnalyticsError
@@ -17,7 +18,6 @@ from app.models import (
     PilotSessionRecord,
     PilotUserRecord,
     RobloxConnectionRecord,
-    SubscriptionRecord,
 )
 from app.services.decision_snapshots import build_decision_snapshot
 from app.services.roblox_metrics import (
@@ -84,14 +84,7 @@ def _organization_for_principal(session: Session, organization_id: int) -> Organ
 
 
 def _experience_limit(session: Session, organization_id: int) -> int:
-    subscription = session.scalar(
-        select(SubscriptionRecord).where(SubscriptionRecord.organization_id == organization_id)
-    )
-    if not subscription or subscription.plan_id == "pilot" or subscription.status == "pilot":
-        return 1
-    if subscription.status not in {"active", "trialing", "past_due"}:
-        return 0
-    return {"indie": 1, "growth": 3, "studio": 10}.get(subscription.plan_id, 0)
+    return evaluate_product_access(session, organization_id).experience_limit
 
 
 @router.post("/admin/organizations")
@@ -211,7 +204,7 @@ def me(principal: TenantDep, session: SessionDep):
 
 
 @router.put("/roblox/connection")
-def upsert_connection(payload: RobloxConnectionCreate, principal: TenantDep, session: SessionDep):
+def upsert_connection(payload: RobloxConnectionCreate, principal: ProductAccessDep, session: SessionDep):
     _owner_only(principal.role)
     organization = _organization_for_principal(session, principal.organization_id)
     if organization.data_mode == "SIMULATED":
@@ -303,7 +296,7 @@ def _connection_for_tenant(session: Session, organization_id: int) -> RobloxConn
 
 @router.post("/roblox/sync")
 async def sync_tenant(
-    principal: TenantDep,
+    principal: ProductAccessDep,
     session: SessionDep,
     metric: str | None = Query(default=None),
     days: int = Query(default=30, ge=1, le=365),
@@ -341,7 +334,7 @@ async def sync_tenant(
 
 @router.get("/roblox/observations")
 def observations(
-    principal: TenantDep,
+    principal: ProductAccessDep,
     session: SessionDep,
     metric: str | None = Query(default=None),
     limit: int = Query(default=100, ge=1, le=1000),
@@ -369,7 +362,7 @@ def observations(
 
 
 @router.get("/decisions/current")
-def current_decisions(principal: TenantDep, session: SessionDep):
+def current_decisions(principal: ProductAccessDep, session: SessionDep):
     organization = _organization_for_principal(session, principal.organization_id)
     connection = _connection_for_tenant(session, principal.organization_id)
     snapshot = build_decision_snapshot(

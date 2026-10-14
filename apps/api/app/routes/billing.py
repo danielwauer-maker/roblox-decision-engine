@@ -2,7 +2,7 @@ import hashlib
 import hmac
 import json
 import time
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 import httpx
@@ -24,6 +24,16 @@ PLANS = {
     "growth": {"name": "Growth", "monthly_price_usd": 49, "experiences": 3},
     "studio": {"name": "Studio", "monthly_price_usd": 99, "experiences": 10},
 }
+
+MANAGED_SUBSCRIPTION_STATUSES = {
+    "active",
+    "trialing",
+    "past_due",
+    "unpaid",
+    "incomplete",
+    "paused",
+}
+CHECKOUT_PENDING_TTL = timedelta(minutes=30)
 
 
 def get_session():
@@ -74,13 +84,21 @@ def _stripe_headers() -> dict[str, str]:
     }
 
 
-async def _stripe_post(path: str, data: list[tuple[str, str]]) -> dict:
+async def _stripe_post(
+    path: str,
+    data: list[tuple[str, str]],
+    *,
+    idempotency_key: str | None = None,
+) -> dict:
     settings = get_settings()
+    headers = _stripe_headers()
+    if idempotency_key:
+        headers["Idempotency-Key"] = idempotency_key
     async with httpx.AsyncClient(timeout=settings.external_request_timeout_seconds) as client:
         response = await client.post(
             f"https://api.stripe.com/v1/{path.lstrip('/')}",
             data=data,
-            headers=_stripe_headers(),
+            headers=headers,
         )
     if response.status_code >= 400:
         try:
@@ -130,6 +148,41 @@ def _blocked_entitlements() -> dict[str, object]:
 def _subscription(session: Session, organization_id: int) -> SubscriptionRecord | None:
     return session.scalar(
         select(SubscriptionRecord).where(SubscriptionRecord.organization_id == organization_id)
+    )
+
+
+def _utc(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
+def _checkout_block_reason(record: SubscriptionRecord | None, now: datetime) -> str | None:
+    if not record:
+        return None
+    if record.status in MANAGED_SUBSCRIPTION_STATUSES:
+        return "An existing Stripe subscription is already managed. Use Manage subscription to change plans."
+    if record.status == "pending_subscription_webhook":
+        return "Subscription activation is still being confirmed. Refresh billing status shortly."
+    if record.status == "checkout_pending" and now - _utc(record.updated_at) < CHECKOUT_PENDING_TTL:
+        return "A Stripe Checkout session is already in progress. Complete it or retry after 30 minutes."
+    return None
+
+
+def _checkout_idempotency_key(organization_id: int, plan_id: str, now: datetime) -> str:
+    window = int(now.timestamp()) // int(CHECKOUT_PENDING_TTL.total_seconds())
+    return f"playdirective-checkout-{organization_id}-{plan_id}-{window}"
+
+
+def _has_different_managed_subscription(
+    record: SubscriptionRecord,
+    incoming_subscription_id: str | None,
+) -> bool:
+    return bool(
+        incoming_subscription_id
+        and record.stripe_subscription_id
+        and record.stripe_subscription_id != incoming_subscription_id
+        and record.status in MANAGED_SUBSCRIPTION_STATUSES
     )
 
 
@@ -195,6 +248,10 @@ async def create_checkout(payload: CheckoutCreate, principal: TenantDep, session
         raise HTTPException(status_code=503, detail=f"Stripe price for {payload.plan_id} is not configured")
 
     existing = _subscription(session, principal.organization_id)
+    now = datetime.now(UTC)
+    if block_reason := _checkout_block_reason(existing, now):
+        raise HTTPException(status_code=409, detail=block_reason)
+
     data: list[tuple[str, str]] = [
         ("mode", "subscription"),
         ("line_items[0][price]", price_id),
@@ -213,8 +270,15 @@ async def create_checkout(payload: CheckoutCreate, principal: TenantDep, session
     else:
         data.append(("customer_email", principal.email))
 
-    checkout = await _stripe_post("checkout/sessions", data)
-    now = datetime.now(UTC)
+    checkout = await _stripe_post(
+        "checkout/sessions",
+        data,
+        idempotency_key=_checkout_idempotency_key(
+            principal.organization_id,
+            payload.plan_id,
+            now,
+        ),
+    )
     if not existing:
         existing = SubscriptionRecord(
             organization_id=principal.organization_id,
@@ -293,12 +357,12 @@ def _upsert_from_subscription(session: Session, obj: dict) -> None:
     metadata = obj.get("metadata") or {}
     organization_id_raw = metadata.get("organization_id")
     customer_id = obj.get("customer")
-    subscription_id = obj.get("id")
+    subscription_id = str(obj.get("id")) if obj.get("id") else None
     record = None
     if subscription_id:
         record = session.scalar(
             select(SubscriptionRecord).where(
-                SubscriptionRecord.stripe_subscription_id == str(subscription_id)
+                SubscriptionRecord.stripe_subscription_id == subscription_id
             )
         )
     if not record and organization_id_raw:
@@ -306,19 +370,19 @@ def _upsert_from_subscription(session: Session, obj: dict) -> None:
             record = _subscription(session, int(organization_id_raw))
         except (TypeError, ValueError):
             record = None
-    if not record:
+    if not record or _has_different_managed_subscription(record, subscription_id):
         return
 
     price_id = None
     items = (obj.get("items") or {}).get("data") or []
     if items:
         price_id = ((items[0].get("price") or {}).get("id"))
-    mapped_plan = metadata.get("plan_id") or _plan_for_price(price_id)
+    mapped_plan = _plan_for_price(price_id) or metadata.get("plan_id")
     if mapped_plan in PLANS:
         record.plan_id = mapped_plan
     record.status = str(obj.get("status") or record.status)
     record.stripe_customer_id = str(customer_id) if customer_id else record.stripe_customer_id
-    record.stripe_subscription_id = str(subscription_id) if subscription_id else record.stripe_subscription_id
+    record.stripe_subscription_id = subscription_id or record.stripe_subscription_id
     record.current_period_end = _period_end(obj.get("current_period_end"))
     record.cancel_at_period_end = bool(obj.get("cancel_at_period_end", False))
     record.updated_at = datetime.now(UTC)
@@ -342,11 +406,15 @@ async def stripe_webhook(request: Request, session: SessionDep):
         except (TypeError, ValueError):
             organization_id = 0
         record = _subscription(session, organization_id) if organization_id else None
-        if record:
-            record.plan_id = metadata.get("plan_id") or record.plan_id
-            record.stripe_customer_id = str(obj.get("customer")) if obj.get("customer") else record.stripe_customer_id
-            record.stripe_subscription_id = str(obj.get("subscription")) if obj.get("subscription") else record.stripe_subscription_id
-            record.status = "pending_subscription_webhook"
+        incoming_subscription_id = str(obj.get("subscription")) if obj.get("subscription") else None
+        if record and not _has_different_managed_subscription(record, incoming_subscription_id):
+            record.stripe_customer_id = (
+                str(obj.get("customer")) if obj.get("customer") else record.stripe_customer_id
+            )
+            if record.status not in MANAGED_SUBSCRIPTION_STATUSES:
+                record.plan_id = metadata.get("plan_id") or record.plan_id
+                record.stripe_subscription_id = incoming_subscription_id or record.stripe_subscription_id
+                record.status = "pending_subscription_webhook"
             record.updated_at = datetime.now(UTC)
     elif event_type in {
         "customer.subscription.created",

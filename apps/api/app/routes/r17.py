@@ -45,14 +45,20 @@ def _ensure_lifecycle(session: Session, organization_id: int) -> PilotLifecycleR
     row = session.scalar(select(PilotLifecycleRecord).where(PilotLifecycleRecord.organization_id == organization_id))
     if row:
         return row
+    organization = session.get(OrganizationRecord, organization_id)
+    if not organization:
+        raise HTTPException(status_code=404, detail="Organization not found")
     now = datetime.now(UTC)
+    started_at = _aware(organization.created_at)
+    ends_at = started_at + timedelta(days=30)
+    expired = ends_at <= now
     row = PilotLifecycleRecord(
         organization_id=organization_id,
-        status="ACTIVE",
-        started_at=now,
-        ends_at=now + timedelta(days=30),
+        status="EXPIRED" if expired else "ACTIVE",
+        started_at=started_at,
+        ends_at=ends_at,
         converted_at=None,
-        closed_at=None,
+        closed_at=now if expired else None,
         updated_at=now,
     )
     session.add(row)
@@ -116,6 +122,7 @@ def extend_pilot(organization_id: int, payload: PilotExtension, session: Session
     base = max(_aware(row.ends_at), datetime.now(UTC))
     row.ends_at = base + timedelta(days=payload.days)
     row.status = "ACTIVE"
+    row.closed_at = None
     row.updated_at = datetime.now(UTC)
     session.commit()
     return _payload(row)

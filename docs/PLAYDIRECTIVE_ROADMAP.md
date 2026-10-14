@@ -132,7 +132,7 @@ R16 is not `DONE` until the current main release is running on Hetzner, external
 
 ## Sprint 1 — Pilot expiry enforcement
 
-**Status: CODE COMPLETE / HETZNER ACCEPTANCE PENDING**
+**Status: DONE**
 
 Goal: an expired unpaid founding pilot must not retain access to commercial product capabilities.
 
@@ -152,13 +152,17 @@ Implemented scope:
 
 Validation:
 - regression coverage for Day 29, Day 30 boundary, Day 31, expired/unpaid, expired/active paid, canceled, `past_due`, missing lifecycle fallback and the central 403 guard
-- GitHub CI run 357 passed backend tests, Ruff and frontend validation
+- GitHub CI passed backend tests, Ruff and frontend validation on the merged Sprint 1 release
+- Hetzner production deployed at commit `edaabdb79063a9f6991ed7e28fcd062af9239561`
+- production Compose validation passed without replacing `.env.production`
+- PostgreSQL remained healthy; FastAPI `/health` returned `ok` and `/ready` returned `ready`
+- public landing page, pricing, login and workspace routes returned HTTP 200 through nginx/TLS
+- production database state was inspected read-only; no existing expired pilot or paid subscription record was available for a non-destructive live tenant test
+- the actually deployed access-control module passed a synthetic in-container runtime acceptance for Day 29, exact Day 30 expiry, Day 31/expired unpaid, active paid restoration, canceled blocking and the temporary Sprint 1 `past_due` policy
 
-Remaining acceptance:
-- deploy the merged `main` release to Hetzner without replacing `.env.production`
-- confirm production HEAD before and after deployment
-- smoke-test login/account/billing access plus a blocked commercial endpoint for an expired unpaid test tenant
-- confirm an active paid test state restores the protected endpoint during Stripe acceptance work
+Acceptance result:
+- `SPRINT_1_RUNTIME_ACCEPTANCE=PASS`
+- no production data was modified for acceptance
 
 ## Public demo / internal QA separation
 

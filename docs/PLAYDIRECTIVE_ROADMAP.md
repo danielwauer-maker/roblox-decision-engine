@@ -202,6 +202,40 @@ Acceptance result:
 - automated production sync is live and scheduled daily
 - active customers no longer need to manually initiate routine Roblox analytics sync
 
+## Sprint 3 — Transactional email / Resend production activation
+
+**Status: IN PROGRESS**
+
+Goal: activate PlayDirective transactional email on production so acquisition, authentication and lifecycle messages are delivered reliably from the verified `playdirective.com` domain.
+
+Existing code baseline:
+- Resend delivery integration is implemented server-side
+- sender defaults to `PlayDirective <pilot@playdirective.com>`
+- provider secrets remain server-side and are read from production environment configuration
+- notification records persist provider, status, provider message ID, error and sent timestamp
+- event keys provide application-level idempotency for lifecycle sends
+- applicant confirmation, operator notification, invite, activation/welcome, passwordless login, connection-attention and Weekly Brief notification flows already exist
+
+Activation scope:
+- add and verify `playdirective.com` in Resend for sending using the DNS records generated for the account
+- use Resend's provider-specific DNS status to confirm DKIM/SPF/MX/return-path records required for sending
+- create a production API key with `Sending access`, restricted to `playdirective.com` where supported
+- configure `RESEND_API_KEY`, `EMAIL_FROM` and `OPERATOR_EMAIL` in Hetzner `.env.production` without committing or exposing secrets
+- restart only the required production service(s) and verify `/ready` reports email configuration active
+- execute real production email acceptance for customer application confirmation, operator notification, workspace invite, passwordless login and lifecycle notification coverage
+- verify PlayDirective notification records contain successful provider message IDs and no secrets
+- verify duplicate lifecycle execution does not send the same event window twice
+
+DONE criteria:
+- `playdirective.com` has verified sending capability in Resend
+- production uses a least-privilege sending API key, not a full-access key
+- `PlayDirective <pilot@playdirective.com>` can deliver to a real external mailbox
+- the operator mailbox receives its expected production notification
+- invite and passwordless login links arrive and remain single-use
+- lifecycle email delivery is observable in PlayDirective with provider message IDs/errors
+- repeated lifecycle execution is idempotent for the same event window
+- no API keys, auth tokens or Roblox credentials are exposed in logs, UI, repository or acceptance evidence
+
 ## Public demo / internal QA separation
 
 The public demo explains the product workflow using clearly labelled simulated data. It must never look like a place where a visitor should enter real Roblox credentials.

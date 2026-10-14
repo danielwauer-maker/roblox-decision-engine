@@ -98,6 +98,56 @@ async def test_unsupported_number_forces_deterministic_fallback() -> None:
 
 
 @pytest.mark.asyncio
+async def test_provider_outage_after_retries_uses_deterministic_fallback() -> None:
+    calls = 0
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return httpx.Response(503, request=request)
+
+    settings = Settings(
+        openai_api_key=SecretStr("test-key"),
+        external_retry_attempts=2,
+        external_retry_backoff_seconds=0,
+    )
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        result = await generate_analyst_brief(_priorities(), settings=settings, client=client)
+
+    assert result.mode == "deterministic_fallback"
+    assert "failed after retries" in (result.fallback_reason or "")
+    assert calls == 2
+
+
+@pytest.mark.asyncio
+async def test_malformed_model_json_after_repair_uses_deterministic_fallback() -> None:
+    calls = 0
+
+    async def handler(_: httpx.Request) -> httpx.Response:
+        nonlocal calls
+        calls += 1
+        return httpx.Response(
+            200,
+            json={
+                "output": [
+                    {
+                        "type": "message",
+                        "content": [{"type": "output_text", "text": "not-json"}],
+                    }
+                ]
+            },
+        )
+
+    settings = Settings(openai_api_key=SecretStr("test-key"))
+    async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+        result = await generate_analyst_brief(_priorities(), settings=settings, client=client)
+
+    assert result.mode == "deterministic_fallback"
+    assert result.fallback_reason == "Model provider returned invalid JSON"
+    assert calls == 2
+
+
+@pytest.mark.asyncio
 async def test_missing_model_key_uses_deterministic_mode() -> None:
     result = await generate_analyst_brief(_priorities(), settings=Settings(openai_api_key=None))
 

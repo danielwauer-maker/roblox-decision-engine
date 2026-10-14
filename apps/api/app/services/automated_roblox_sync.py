@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.access_control import evaluate_product_access
 from app.models import OrganizationRecord, RobloxConnectionRecord, RobloxSyncStateRecord
+from app.services.experience_entitlements import entitled_connection_ids
 from app.services.roblox_metrics import sync_default_metrics_for_connection
 from app.tenant_security import decrypt_credential
 
@@ -122,6 +123,24 @@ async def sync_connection(
             connection.universe_id,
             "skipped",
             "entitlement_inactive",
+        )
+
+    entitled_ids = entitled_connection_ids(
+        session,
+        connection.organization_id,
+        access.experience_limit,
+    )
+    if connection.id not in entitled_ids:
+        state.health_status = "BLOCKED"
+        state.last_error = "Experience limit exceeded for current plan"
+        state.updated_at = now
+        session.commit()
+        return ConnectionSyncResult(
+            connection.id,
+            connection.organization_id,
+            connection.universe_id,
+            "skipped",
+            "experience_limit_exceeded",
         )
 
     state.health_status = "SYNCING"

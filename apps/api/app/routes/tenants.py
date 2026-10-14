@@ -20,6 +20,11 @@ from app.models import (
     RobloxConnectionRecord,
 )
 from app.services.decision_snapshots import build_decision_snapshot
+from app.services.experience_entitlements import (
+    active_connections_for_organization,
+    entitled_connection_ids,
+    entitled_connections_for_organization,
+)
 from app.services.roblox_metrics import (
     sync_default_metrics_for_connection,
     sync_metric_for_connection,
@@ -215,7 +220,7 @@ def upsert_connection(payload: RobloxConnectionCreate, principal: ProductAccessD
             RobloxConnectionRecord.universe_id == payload.universe_id,
         )
     )
-    if not connection:
+    if connection is None or not connection.active:
         active_count = session.scalar(
             select(func.count(RobloxConnectionRecord.id)).where(
                 RobloxConnectionRecord.organization_id == principal.organization_id,
@@ -259,21 +264,21 @@ def upsert_connection(payload: RobloxConnectionCreate, principal: ProductAccessD
 
 @router.get("/roblox/connections")
 def connections(principal: TenantDep, session: SessionDep):
-    rows = session.scalars(
-        select(RobloxConnectionRecord).where(
-            RobloxConnectionRecord.organization_id == principal.organization_id,
-            RobloxConnectionRecord.active.is_(True),
-        )
-    ).all()
+    rows = active_connections_for_organization(session, principal.organization_id)
+    limit = _experience_limit(session, principal.organization_id)
+    entitled_ids = entitled_connection_ids(session, principal.organization_id, limit)
     return {
         "count": len(rows),
-        "experience_limit": _experience_limit(session, principal.organization_id),
+        "experience_limit": limit,
+        "entitled_count": len(entitled_ids),
+        "over_limit_count": max(0, len(rows) - limit),
         "items": [
             {
                 "id": row.id,
                 "universe_id": row.universe_id,
                 "experience_name": row.experience_name,
                 "configured": True,
+                "entitled": row.id in entitled_ids,
             }
             for row in rows
         ],
@@ -281,17 +286,11 @@ def connections(principal: TenantDep, session: SessionDep):
 
 
 def _connection_for_tenant(session: Session, organization_id: int) -> RobloxConnectionRecord:
-    connection = session.scalar(
-        select(RobloxConnectionRecord)
-        .where(
-            RobloxConnectionRecord.organization_id == organization_id,
-            RobloxConnectionRecord.active.is_(True),
-        )
-        .order_by(desc(RobloxConnectionRecord.updated_at))
-    )
-    if not connection:
-        raise HTTPException(status_code=409, detail="No Roblox experience connected")
-    return connection
+    limit = _experience_limit(session, organization_id)
+    rows = entitled_connections_for_organization(session, organization_id, limit)
+    if not rows:
+        raise HTTPException(status_code=409, detail="No entitled Roblox experience connected")
+    return rows[0]
 
 
 @router.post("/roblox/sync")

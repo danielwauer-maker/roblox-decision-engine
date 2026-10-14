@@ -48,8 +48,12 @@ def _effective_pilot_state(
     if lifecycle:
         ends_at = _aware(lifecycle.ends_at)
         status = lifecycle.status.upper()
-        if status == "ACTIVE" and ends_at <= now:
-            status = "EXPIRED"
+        # CONVERTED is a commercial lifecycle marker, not an instruction to erase
+        # the remainder of the original 30-day pilot window. Paid access wins while
+        # healthy; if billing later fails before ends_at, the customer may still use
+        # whatever time remains in the founding pilot.
+        if status in {"ACTIVE", "CONVERTED"}:
+            status = "ACTIVE" if ends_at > now else "EXPIRED"
         return status, ends_at
 
     organization = session.get(OrganizationRecord, organization_id)

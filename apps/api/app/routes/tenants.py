@@ -27,7 +27,10 @@ from app.services.experience_entitlements import (
     entitled_connections_for_organization,
     stored_connections_for_organization,
 )
-from app.services.roblox_metrics import sync_default_metrics_for_connection, sync_metric_for_connection
+from app.services.roblox_metrics import (
+    sync_default_metrics_for_connection,
+    sync_metric_for_connection,
+)
 from app.tenant_security import (
     TenantDep,
     decrypt_credential,

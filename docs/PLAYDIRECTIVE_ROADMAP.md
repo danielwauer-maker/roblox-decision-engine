@@ -166,11 +166,11 @@ Acceptance result:
 
 ## Sprint 2 — Automated Roblox data sync
 
-**Status: IN PROGRESS**
+**Status: DONE**
 
 Goal: active entitled customers receive fresh Roblox analytics automatically without manually triggering sync.
 
-Implemented on the Sprint 2 branch:
+Implemented scope:
 - scheduler discovery is limited to active organizations, LIVE data mode and active Roblox connections
 - Sprint 1 product entitlement is re-evaluated before each external sync
 - the existing retry-enabled Roblox analytics client and idempotent observation persistence are reused
@@ -182,19 +182,25 @@ Implemented on the Sprint 2 branch:
 - Hetzner runner script executes the job inside the production API container
 - Hetzner cron schedule runs automated Roblox analytics sync daily at 06:10 server time
 
-Validation in progress:
-- active LIVE candidate filtering
-- successful entitled sync and health persistence
-- expired/unpaid entitlement blocking without an external call
-- failure isolation where a failed tenant does not prevent the next tenant from syncing
-- complete GitHub CI gate
-- Hetzner deployment and production cron acceptance
+Validation:
+- candidate filtering covers active LIVE connections only
+- successful entitled sync persists `HEALTHY`, `last_attempt_at` and `last_success_at`
+- expired/unpaid entitlement blocks external sync
+- one tenant failure does not prevent the following tenant from syncing
+- Roblox HTTP 429 rate-limit retry behavior is covered explicitly
+- GitHub CI #365 passed 69 backend tests, Ruff and frontend build
+- Hetzner production deployed at commit `80e9c61d7e7f5b248b97902f350ef56c381a4b8f`
+- Compose validation returned `CONFIG_EXIT=0`
+- PostgreSQL stayed healthy; API and web containers started cleanly
+- `roblox_sync_state` was created successfully with per-connection uniqueness and foreign keys
+- a real production scheduler run found one active LIVE connection and synced Roblox universe `10770494757` successfully with `failed=0`, `skipped=0`, `synced=1`
+- production state persisted connection `3` as `HEALTHY` with both last attempt and last success timestamps and no error
+- `/etc/cron.d/playdirective-r17` contains the daily automated Roblox sync at 06:10 server time
+- final production logs showed clean Next.js/FastAPI startup and repeated HTTP 200 responses from `/health` and `/ready`
 
-DONE criteria:
-- active customers can use PlayDirective for weeks without manually starting Roblox sync
-- production scheduler runs at least daily
-- last attempt, last success, error and health status are persisted per connection
-- tenant failures remain isolated
+Acceptance result:
+- automated production sync is live and scheduled daily
+- active customers no longer need to manually initiate routine Roblox analytics sync
 
 ## Public demo / internal QA separation
 

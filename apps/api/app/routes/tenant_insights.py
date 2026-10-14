@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
+from app.access_control import ProductAccessDep
 from app.db import SessionLocal
 from app.domain.decision_engine import evaluate_snapshot
 from app.domain.experiments import build_experiment_plan
@@ -59,7 +60,7 @@ def _snapshot(session: Session, organization_id: int):
 
 
 @router.get("/analyst/current")
-async def analyst_current(principal: TenantDep, session: SessionDep):
+async def analyst_current(principal: ProductAccessDep, session: SessionDep):
     snapshot = _snapshot(session, principal.organization_id)
     priorities = evaluate_snapshot(snapshot)
     result = await generate_analyst_brief(priorities)
@@ -76,7 +77,7 @@ async def analyst_current(principal: TenantDep, session: SessionDep):
 
 
 @router.get("/experiments/current")
-def experiment_current(principal: TenantDep, session: SessionDep):
+def experiment_current(principal: ProductAccessDep, session: SessionDep):
     snapshot = _snapshot(session, principal.organization_id)
     priorities = evaluate_snapshot(snapshot)
     if not priorities:
@@ -88,7 +89,7 @@ def experiment_current(principal: TenantDep, session: SessionDep):
 
 
 @router.get("/weekly-brief")
-async def weekly_brief(principal: TenantDep, session: SessionDep):
+async def weekly_brief(principal: ProductAccessDep, session: SessionDep):
     snapshot = _snapshot(session, principal.organization_id)
     priorities = evaluate_snapshot(snapshot)
     result = await generate_analyst_brief(priorities)

@@ -10,27 +10,23 @@ async function token() {
 export async function GET() {
   const sessionToken = await token();
   if (!sessionToken) return NextResponse.json({ detail: "Not authenticated" }, { status: 401 });
-  const upstream = await fetch(`${apiBase}/v1/tenant/roblox/connections`, {
-    headers: { Authorization: `Bearer ${sessionToken}` },
-    cache: "no-store",
-  });
-  return new NextResponse(await upstream.text(), {
-    status: upstream.status,
-    headers: { "Content-Type": "application/json" },
-  });
+  const upstream = await fetch(`${apiBase}/v1/tenant/roblox/connections`, { headers: { Authorization: `Bearer ${sessionToken}` }, cache: "no-store" });
+  return new NextResponse(await upstream.text(), { status: upstream.status, headers: { "Content-Type": "application/json" } });
 }
 
 export async function PUT(request: NextRequest) {
   const sessionToken = await token();
   if (!sessionToken) return NextResponse.json({ detail: "Not authenticated" }, { status: 401 });
-  const upstream = await fetch(`${apiBase}/v1/tenant/roblox/connection`, {
-    method: "PUT",
-    headers: { Authorization: `Bearer ${sessionToken}`, "Content-Type": "application/json" },
-    body: JSON.stringify(await request.json()),
-    cache: "no-store",
-  });
-  return new NextResponse(await upstream.text(), {
-    status: upstream.status,
-    headers: { "Content-Type": "application/json" },
-  });
+  const upstream = await fetch(`${apiBase}/v1/tenant/roblox/connection`, { method: "PUT", headers: { Authorization: `Bearer ${sessionToken}`, "Content-Type": "application/json" }, body: JSON.stringify(await request.json()), cache: "no-store" });
+  return new NextResponse(await upstream.text(), { status: upstream.status, headers: { "Content-Type": "application/json" } });
+}
+
+export async function PATCH(request: NextRequest) {
+  const sessionToken = await token();
+  if (!sessionToken) return NextResponse.json({ detail: "Not authenticated" }, { status: 401 });
+  const payload = await request.json();
+  const connectionId = Number(payload.connection_id);
+  if (!Number.isInteger(connectionId) || connectionId < 1) return NextResponse.json({ detail: "Invalid connection" }, { status: 400 });
+  const upstream = await fetch(`${apiBase}/v1/tenant/roblox/connections/${connectionId}`, { method: "PATCH", headers: { Authorization: `Bearer ${sessionToken}`, "Content-Type": "application/json" }, body: JSON.stringify({ active: Boolean(payload.active) }), cache: "no-store" });
+  return new NextResponse(await upstream.text(), { status: upstream.status, headers: { "Content-Type": "application/json" } });
 }

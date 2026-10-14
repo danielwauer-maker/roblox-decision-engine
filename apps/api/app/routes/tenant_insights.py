@@ -13,7 +13,10 @@ from app.domain.experiments import build_experiment_plan
 from app.models import PilotFeedbackRecord, RobloxConnectionRecord
 from app.services.ai_analyst import generate_analyst_brief
 from app.services.decision_snapshots import build_decision_snapshot
-from app.services.experience_entitlements import active_connections_for_organization, entitled_connections_for_organization
+from app.services.experience_entitlements import (
+    active_connections_for_organization,
+    entitled_connections_for_organization,
+)
 from app.tenant_security import TenantDep
 
 router = APIRouter(prefix="/v1/tenant", tags=["tenant"])

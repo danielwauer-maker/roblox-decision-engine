@@ -318,6 +318,41 @@ Validation:
 Acceptance result:
 - `SPRINT_7_RUNTIME_ACCEPTANCE=PASS`
 
+## Sprint 8 — Final Go-Live Acceptance & Operations
+
+**Status: IN PROGRESS**
+
+Goal: close the remaining acceptance and operational gates required for a realistic ~99% Go-Live Readiness without introducing unrelated product scope.
+
+Execution order:
+1. Phase A — Admin QA
+2. Phase B — Real Customer Journey
+3. Phase C — Stripe test-mode activation and acceptance
+4. Phase D — Failure & Recovery
+5. Phase E — Final Production Gate
+6. Landing-page visual polish only after A–E pass
+
+Current execution status:
+- Phase A — `PENDING`
+- Phase B — `PENDING`
+- Phase C — `PENDING`
+- Phase D — `PENDING`
+- Phase E — `PENDING`
+
+Dedicated scope and gate definition:
+- `docs/SPRINT_8_FINAL_GO_LIVE_ACCEPTANCE.md`
+- `docs/REAL_LIFE_ACCEPTANCE_TEST.md`
+
+Sprint discipline:
+- Admin desktop/mobile and the Email Template Editor require real production runtime acceptance.
+- Phase 2A and Phase 2B stay acceptance-pending until the complete real customer journey succeeds.
+- Stripe remains test mode during acceptance; no live provider secrets are stored in repository evidence.
+- failure/recovery must prove bounded provider failures and operator recovery paths.
+- Sprint 8 is not `DONE` from code/documentation alone.
+
+Current result:
+- `FINAL_GO_LIVE_ACCEPTANCE=PENDING`
+
 ## Public demo / internal QA separation
 
 The public demo explains the product workflow using clearly labelled simulated data. It must never look like a place where a visitor should enter real Roblox credentials.

@@ -10,7 +10,6 @@ from app.models import OrganizationRecord, SubscriptionRecord
 from app.r17_models import PilotLifecycleRecord
 from app.tenant_security import SessionDep, TenantDep, TenantPrincipal
 
-
 PAID_ACCESS_STATUSES = {"active", "trialing", "past_due"}
 PLAN_LIMITS = {"indie": 1, "growth": 3, "studio": 10}
 

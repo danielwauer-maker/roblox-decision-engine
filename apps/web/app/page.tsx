@@ -6,17 +6,17 @@ const decisionQueue = [
 ];
 
 const workflow = [
-  ["01", "Connect", "Read aggregated Roblox analytics with least-privilege access.", "/brand/playdirective/workflow-connect.svg"],
-  ["02", "Prioritize", "Rank the three product decisions with the highest likely impact.", "/brand/playdirective/workflow-prioritize.svg"],
-  ["03", "Prove", "Show the segment, baseline and funnel evidence behind every recommendation.", "/brand/playdirective/workflow-prove.svg"],
-  ["04", "Experiment", "Turn a supported finding into a test plan with KPIs and guardrails.", "/brand/playdirective/workflow-experiment.svg"],
+  ["01", "Connect", "Read aggregated Roblox analytics with least-privilege access.", "/brand/playdirective/workflow-connect.png"],
+  ["02", "Prioritize", "Rank the three product decisions with the highest likely impact.", "/brand/playdirective/workflow-prioritize.png"],
+  ["03", "Prove", "Show the segment, baseline and funnel evidence behind every recommendation.", "/brand/playdirective/workflow-prove.png"],
+  ["04", "Experiment", "Turn a supported finding into a test plan with KPIs and guardrails.", "/brand/playdirective/workflow-experiment.png"],
 ];
 
 const security = [
-  ["READ-ONLY", "Read-only analytics", "PlayDirective only needs analytics access. It does not require permission to edit or publish your Roblox experience.", "/brand/playdirective/trust-readonly.svg"],
-  ["ENCRYPTED", "Encrypted credentials", "Your Roblox Open Cloud key is encrypted before storage and is never returned to browser JavaScript or the operator dashboard.", "/brand/playdirective/trust-encrypted.svg"],
-  ["PRIVATE", "Studio-isolated workspace", "Each studio has its own private tenant, session and analytics path so one customer's data never becomes another studio's evidence.", "/brand/playdirective/trust-isolated.svg"],
-  ["GERMANY", "Self-hosted production", "The PlayDirective web app, API and PostgreSQL database run on the production Hetzner server in Germany.", "/brand/playdirective/trust-germany.svg"],
+  ["READ-ONLY", "Read-only analytics", "PlayDirective only needs analytics access. It does not require permission to edit or publish your Roblox experience.", "/brand/playdirective/trust-readonly.png"],
+  ["ENCRYPTED", "Encrypted credentials", "Your Roblox Open Cloud key is encrypted before storage and is never returned to browser JavaScript or the operator dashboard.", "/brand/playdirective/trust-encrypted.png"],
+  ["PRIVATE", "Studio-isolated workspace", "Each studio has its own private tenant, session and analytics path so one customer's data never becomes another studio's evidence.", "/brand/playdirective/trust-isolated.png"],
+  ["GERMANY", "Self-hosted production", "The PlayDirective web app, API and PostgreSQL database run on the production Hetzner server in Germany.", "/brand/playdirective/trust-germany.png"],
 ];
 
 const faq = [
@@ -36,7 +36,7 @@ export default function Home() {
 
       <header className="header">
         <div className="wrap header-inner">
-          <a href="/" aria-label="PlayDirective home"><img className="brand-logo" src="/brand/playdirective/logo.svg" alt="PlayDirective" /></a>
+          <a href="/" aria-label="PlayDirective home"><img className="brand-logo" src="/brand/playdirective/logo.png" alt="PlayDirective" /></a>
           <nav className="nav" aria-label="Primary navigation">
             <a href="#workflow">How it works</a>
             <a href="#security">Security</a>
@@ -58,10 +58,10 @@ export default function Home() {
             </div>
           </div>
           <div className="hero-art">
-            <img className="hero-image" src="/brand/playdirective/hero.svg" alt="PlayDirective turns Roblox analytics into ranked decisions" />
-            <img className="deco deco-a" src="/brand/playdirective/deco-cubes.svg" alt="" aria-hidden="true" />
-            <img className="deco deco-b" src="/brand/playdirective/deco-cloud.svg" alt="" aria-hidden="true" />
-            <img className="deco deco-c" src="/brand/playdirective/deco-cubes2.svg" alt="" aria-hidden="true" />
+            <img className="hero-image" src="/brand/playdirective/hero.png" alt="PlayDirective turns Roblox analytics into ranked decisions" />
+            <img className="deco deco-a" src="/brand/playdirective/deco-cubes.png" alt="" aria-hidden="true" />
+            <img className="deco deco-b" src="/brand/playdirective/deco-cloud.png" alt="" aria-hidden="true" />
+            <img className="deco deco-c" src="/brand/playdirective/deco-cubes2.png" alt="" aria-hidden="true" />
           </div>
         </div>
       </section>
@@ -76,7 +76,7 @@ export default function Home() {
       </div>
 
       <section className="section wrap">
-        <img className="section-deco cubes-left" src="/brand/playdirective/deco-cubes.svg" alt="" aria-hidden="true" />
+        <img className="section-deco cubes-left" src="/brand/playdirective/deco-cubes.png" alt="" aria-hidden="true" />
         <div className="queue-grid">
           <div className="section-head">
             <div className="kicker">Instant clarity</div>
@@ -96,7 +96,7 @@ export default function Home() {
       </section>
 
       <section id="workflow" className="section wrap">
-        <img className="section-deco cubes-right" src="/brand/playdirective/deco-cubes2.svg" alt="" aria-hidden="true" />
+        <img className="section-deco cubes-right" src="/brand/playdirective/deco-cubes2.png" alt="" aria-hidden="true" />
         <div className="section-head">
           <div className="kicker">Decision workflow</div>
           <h2 className="section-title">Roblox shows what happened. PlayDirective helps decide what happens next.</h2>
@@ -112,7 +112,7 @@ export default function Home() {
       </section>
 
       <section id="security" className="section wrap">
-        <img className="section-deco cloud-right" src="/brand/playdirective/deco-cloud.svg" alt="" aria-hidden="true" />
+        <img className="section-deco cloud-right" src="/brand/playdirective/deco-cloud.png" alt="" aria-hidden="true" />
         <div className="security-intro">
           <div className="kicker">Built for studio trust</div>
           <h2 className="section-title">Your game stays yours. PlayDirective reads signals, not control.</h2>
@@ -136,12 +136,12 @@ export default function Home() {
             <p>Connect one Roblox experience, let PlayDirective surface the highest-priority decisions, and only consider a paid plan after your team has seen genuine value. No card and no automatic paid conversion.</p>
             <div className="cta-row"><a className="btn btn-primary" href="/apply">Apply for founding pilot →</a><a className="btn btn-secondary" href="/demo/workspace">Preview pilot workspace</a></div>
           </div>
-          <div className="pilot-art"><img src="/brand/playdirective/workflow-experiment.svg" alt="" aria-hidden="true" /></div>
+          <div className="pilot-art"><img src="/brand/playdirective/workflow-experiment.png" alt="" aria-hidden="true" /></div>
         </div>
       </section>
 
       <section className="section wrap">
-        <img className="section-deco cubes-left" src="/brand/playdirective/deco-cubes2.svg" alt="" aria-hidden="true" />
+        <img className="section-deco cubes-left" src="/brand/playdirective/deco-cubes2.png" alt="" aria-hidden="true" />
         <div className="section-head"><div className="kicker">Frequently asked questions</div><h2 className="section-title">Everything you need to know.</h2></div>
         <div className="faq-list">{faq.map(([q,a]) => <details className="faq-item" key={q}><summary>{q}</summary><p>{a}</p></details>)}</div>
       </section>

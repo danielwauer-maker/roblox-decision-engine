@@ -1,11 +1,12 @@
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 from fastapi import HTTPException
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from app.commercial_catalog import catalog, plans_by_id
+from app.commercial_catalog import _catalog_path, catalog, plans_by_id
 from app.db import Base
 from app.models import (
     DecisionCreditUsageRecord,
@@ -31,6 +32,21 @@ def test_catalog_exact_plan_matrix_and_api_contract():
         assert (plan["monthly_price_usd"], plan["max_experiences"], plan["max_team_members"], plan["history_days"], plan["monthly_decision_credits"]) == values
         assert PLANS[plan_id] == plan
     assert plans_by_id()["growth"]["recommended"] is True
+
+
+@pytest.mark.parametrize("layout", ["docker", "repository"])
+def test_catalog_path_supports_docker_and_repository_layouts(monkeypatch, layout):
+    root = Path(__file__).resolve().parents[2] / "synthetic-layout"
+    if layout == "docker":
+        module = root / "docker" / "app" / "commercial_catalog.py"
+        expected = module.parents[1] / "shared" / "commercial_plans.json"
+    else:
+        module = root / "repository" / "apps" / "api" / "app" / "commercial_catalog.py"
+        expected = module.parents[2] / "shared" / "commercial_plans.json"
+    expected = expected.resolve()
+    monkeypatch.setattr(Path, "is_file", lambda path: path == expected)
+
+    assert _catalog_path(module) == expected
 
 
 def test_website_uses_same_catalog_without_duplicate_plan_values():

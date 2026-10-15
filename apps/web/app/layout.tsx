@@ -35,32 +35,224 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             background-size:contain;
           }
 
-          .site-shell .section:nth-of-type(5)::after {
-            content:"";
-            position:absolute;
-            width:118px;
-            height:92px;
-            right:-26px;
-            top:10%;
-            background:url('/brand/playdirective/deco-cloud.png') center/contain no-repeat;
-            opacity:.48;
-            pointer-events:none;
-            filter:drop-shadow(0 14px 28px rgba(0,191,255,.14));
-            z-index:0;
+          .site-shell {
+            position:relative;
           }
 
+          .site-shell > * {
+            position:relative;
+            z-index:1;
+          }
+
+          .site-shell .deco,
+          .site-shell .section-deco {
+            display:none !important;
+          }
+
+          .site-shell .section:nth-of-type(5)::after,
           .site-shell .section:nth-of-type(6)::before {
+            content:none !important;
+          }
+
+          .site-shell::before {
             content:"";
             position:absolute;
-            width:92px;
-            height:92px;
-            right:-18px;
-            top:18%;
-            background:url('/brand/playdirective/deco-cubes.png') center/contain no-repeat;
-            opacity:.46;
-            pointer-events:none;
-            filter:drop-shadow(0 14px 28px rgba(0,191,255,.14));
+            inset:0;
             z-index:0;
+            pointer-events:none;
+            opacity:.56;
+            filter:drop-shadow(0 10px 24px rgba(0,191,255,.16));
+            background-image:
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cubes2.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png'),
+              url('/brand/playdirective/deco-cloud.png');
+            background-repeat:
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+            background-position:
+              6% 3%,
+              91% 7%,
+              4% 13%,
+              94% 18%,
+              8% 24%,
+              88% 30%,
+              3% 35%,
+              95% 41%,
+              10% 47%,
+              90% 52%,
+              5% 58%,
+              94% 63%,
+              12% 69%,
+              87% 74%,
+              4% 79%,
+              96% 84%,
+              9% 89%,
+              90% 93%,
+              3% 96%,
+              95% 98%,
+              94% 4%,
+              8% 9%,
+              89% 15%,
+              3% 20%,
+              96% 27%,
+              11% 32%,
+              91% 38%,
+              6% 43%,
+              95% 49%,
+              13% 55%,
+              88% 60%,
+              4% 66%,
+              94% 71%,
+              9% 76%,
+              90% 81%,
+              3% 86%,
+              96% 90%,
+              12% 94%,
+              87% 97%,
+              5% 99%,
+              12% 5%,
+              86% 11%,
+              5% 17%,
+              93% 22%,
+              14% 28%,
+              84% 34%,
+              7% 39%,
+              95% 45%,
+              16% 50%,
+              82% 56%,
+              4% 61%,
+              94% 67%,
+              13% 72%,
+              85% 77%,
+              6% 82%,
+              96% 87%,
+              15% 91%,
+              83% 95%,
+              5% 97%,
+              94% 99%;
+            background-size:
+              52px auto,
+              66px auto,
+              44px auto,
+              58px auto,
+              72px auto,
+              48px auto,
+              62px auto,
+              50px auto,
+              70px auto,
+              46px auto,
+              56px auto,
+              68px auto,
+              48px auto,
+              64px auto,
+              44px auto,
+              58px auto,
+              70px auto,
+              46px auto,
+              54px auto,
+              62px auto,
+              44px auto,
+              58px auto,
+              72px auto,
+              48px auto,
+              60px auto,
+              46px auto,
+              66px auto,
+              54px auto,
+              42px auto,
+              70px auto,
+              50px auto,
+              62px auto,
+              46px auto,
+              68px auto,
+              54px auto,
+              44px auto,
+              64px auto,
+              48px auto,
+              58px auto,
+              42px auto,
+              82px auto,
+              96px auto,
+              74px auto,
+              88px auto,
+              102px auto,
+              78px auto,
+              92px auto,
+              72px auto,
+              98px auto,
+              84px auto,
+              76px auto,
+              94px auto,
+              80px auto,
+              104px auto,
+              72px auto,
+              90px auto,
+              86px auto,
+              100px auto,
+              74px auto,
+              88px auto;
+          }
+
+          @media (max-width:920px) {
+            .site-shell::before {
+              opacity:.42;
+            }
           }
 
           @media (max-width:560px) {
@@ -69,39 +261,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               height:42px;
             }
 
-            .site-shell .section-deco {
-              display:block !important;
-              opacity:.34 !important;
-              width:58px !important;
-              z-index:0 !important;
-            }
-            .site-shell .section-deco.cubes-left {
-              left:auto !important;
-              right:-14px !important;
-              top:7% !important;
-            }
-            .site-shell .section-deco.cubes-right {
-              right:-14px !important;
-              top:8% !important;
-            }
-            .site-shell .section-deco.cloud-right {
-              right:-12px !important;
-              bottom:4% !important;
-              width:68px !important;
-            }
-            .site-shell .section:nth-of-type(5)::after {
-              width:72px;
-              height:62px;
-              right:-10px;
-              top:3%;
+            .site-shell::before {
               opacity:.34;
-            }
-            .site-shell .section:nth-of-type(6)::before {
-              width:62px;
-              height:62px;
-              right:-12px;
-              top:9%;
-              opacity:.34;
+              filter:drop-shadow(0 8px 18px rgba(0,191,255,.12));
             }
           }
         `}</style>

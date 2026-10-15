@@ -9,6 +9,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
   outputFileTracingRoot: process.cwd() + "/../..",
   experimental: { externalDir: true },
   async headers() {

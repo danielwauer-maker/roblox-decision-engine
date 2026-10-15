@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LegalBody, LegalSection, LegalShell } from "../_components/legal-shell";
 
 export const metadata: Metadata = {
   title: "Legal notice",
@@ -20,46 +21,43 @@ export default function LegalPage() {
   const additional = value("LEGAL_ADDITIONAL_DETAILS");
   const complete = Boolean(operator && street && postalCity && country && email);
 
-  return (
-    <main style={{ minHeight: "100vh", background: "#07101f", color: "#eef7ff", fontFamily: "Arial, sans-serif" }}>
-      <section style={{ maxWidth: 820, margin: "0 auto", padding: "72px clamp(20px,5vw,24px) 90px" }}>
-        <a href="/" style={{ color: "#67e8f9", textDecoration: "none", fontSize: 14 }}>← PlayDirective</a>
-        <div style={{ marginTop: 34, color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase" }}>Legal</div>
-        <h1 style={{ margin: "14px 0 0", fontSize: "clamp(40px,8vw,58px)", letterSpacing: "-.05em" }}>Legal notice</h1>
-        <p style={{ color: "#9fb1c7", lineHeight: 1.75, fontSize: 17 }}>Operator and contact information for PlayDirective.</p>
+  const toc = [
+    { id: "operator", label: "Operator" },
+    { id: "contact", label: "Contact" },
+    ...(additional ? [{ id: "additional", label: "Additional information" }] : []),
+  ];
 
+  return (
+    <LegalShell eyebrow="Legal" title="Legal notice" intro="Operator and contact information for PlayDirective." updated="Last updated · 13 Oct 2026">
+      <LegalBody
+        toc={toc}
+        highlights={[
+          { label: "Service", text: "PlayDirective is currently operated as an early-access founding-studio service." },
+          { label: "Contact", text: "The production contact address is configured server-side and published here." },
+          { label: "Privacy", text: "Privacy and service information is linked throughout the public site." },
+        ]}
+      >
         {!complete && (
-          <div style={{ marginTop: 28, border: "1px solid rgba(251,113,133,.35)", background: "rgba(251,113,133,.06)", color: "#fecdd3", borderRadius: 16, padding: 18, lineHeight: 1.65 }}>
-            Legal notice configuration is incomplete. Operator name, full postal address and a working contact email must be configured on the production server before commercial public launch.
-          </div>
+          <div className="notice">Legal notice configuration is incomplete. Operator name, full postal address and a working contact email must be configured on the production server before commercial public launch.</div>
         )}
 
-        <section style={{ marginTop: 34, borderTop: "1px solid rgba(255,255,255,.09)", paddingTop: 24 }}>
-          <h2 style={{ margin: 0, fontSize: 22 }}>Operator</h2>
-          <div style={{ marginTop: 12, color: "#9fb1c7", lineHeight: 1.8 }}>
-            <div>{operator || "Not configured"}</div>
-            <div>{street || "Street address not configured"}</div>
-            <div>{postalCity || "Postal code and city not configured"}</div>
-            <div>{country || "Country not configured"}</div>
-          </div>
-        </section>
+        <LegalSection id="operator" title="Operator">
+          <div>{operator || "Not configured"}</div>
+          <div>{street || "Street address not configured"}</div>
+          <div>{postalCity || "Postal code and city not configured"}</div>
+          <div>{country || "Country not configured"}</div>
+        </LegalSection>
 
-        <section style={{ marginTop: 34, borderTop: "1px solid rgba(255,255,255,.09)", paddingTop: 24 }}>
-          <h2 style={{ margin: 0, fontSize: 22 }}>Contact</h2>
-          <p style={{ margin: "10px 0 0", color: "#9fb1c7", lineHeight: 1.75 }}>
-            Email: {email ? <a href={`mailto:${email}`} style={{ color: "#67e8f9" }}>{email}</a> : "Not configured"}
-          </p>
-        </section>
+        <LegalSection id="contact" title="Contact">
+          Email: {email ? <a href={`mailto:${email}`} style={{ color: "#59e6ff" }}>{email}</a> : "Not configured"}
+        </LegalSection>
 
         {additional && (
-          <section style={{ marginTop: 34, borderTop: "1px solid rgba(255,255,255,.09)", paddingTop: 24 }}>
-            <h2 style={{ margin: 0, fontSize: 22 }}>Additional information</h2>
-            <p style={{ margin: "10px 0 0", color: "#9fb1c7", lineHeight: 1.75, whiteSpace: "pre-line" }}>{additional}</p>
-          </section>
+          <LegalSection id="additional" title="Additional information">
+            <div style={{ whiteSpace: "pre-line" }}>{additional}</div>
+          </LegalSection>
         )}
-
-        <p style={{ marginTop: 38, color: "#718198", fontSize: 12, lineHeight: 1.6 }}>Last updated: 13 October 2026.</p>
-      </section>
-    </main>
+      </LegalBody>
+    </LegalShell>
   );
 }

@@ -5,9 +5,6 @@ export default function PricingLayout({ children }: { children: ReactNode }) {
     <>
       <style>{`
         @media (max-width: 920px) {
-          /* The pricing page gives all top-level sections z-index:1. That previously
-             collapsed the sticky header into the same stacking level as the hero,
-             so the hero could paint on top of the opened mobile navigation. */
           .pricing-shell > header.header {
             position: sticky !important;
             top: 0 !important;
@@ -23,58 +20,81 @@ export default function PricingLayout({ children }: { children: ReactNode }) {
           .pricing-shell .mobile-menu summary {
             position: relative !important;
             z-index: 514 !important;
+            font-size: 0 !important;
           }
 
+          /* Compact three-line icon, matching the landing-page menu more closely. */
+          .pricing-shell .mobile-menu:not([open]) summary::before {
+            content: "" !important;
+            width: 18px !important;
+            height: 12px !important;
+            display: block !important;
+            background:
+              linear-gradient(#bfefff,#bfefff) 0 0 / 18px 1.5px no-repeat,
+              linear-gradient(#bfefff,#bfefff) 0 5px / 18px 1.5px no-repeat,
+              linear-gradient(#bfefff,#bfefff) 0 10px / 18px 1.5px no-repeat !important;
+            transform: none !important;
+          }
+
+          .pricing-shell .mobile-menu[open] summary::before {
+            content: "×" !important;
+            width: auto !important;
+            height: auto !important;
+            display: block !important;
+            background: none !important;
+            color: #dffbff !important;
+            font-size: 25px !important;
+            font-weight: 400 !important;
+            line-height: 1 !important;
+            transform: none !important;
+          }
+
+          /* Keep the page visible behind the menu, as on the landing page. */
           .pricing-shell .mobile-menu[open]::before {
             content: "" !important;
             position: fixed !important;
             inset: 60px 0 0 !important;
-            background: #06101e !important;
+            background: rgba(3, 10, 19, 0.34) !important;
+            backdrop-filter: blur(2px) !important;
             z-index: 511 !important;
             pointer-events: none !important;
           }
 
           .pricing-shell .mobile-menu-panel {
             position: fixed !important;
-            inset: 60px 0 0 0 !important;
-            width: 100vw !important;
-            max-width: none !important;
-            min-height: calc(100dvh - 60px) !important;
-            padding: 18px 14px 28px !important;
-            border: 0 !important;
-            border-top: 1px solid rgba(89, 230, 255, 0.16) !important;
-            border-radius: 0 !important;
-            background: #06101e !important;
-            box-shadow: none !important;
-            backdrop-filter: none !important;
+            top: 68px !important;
+            right: 16px !important;
+            bottom: auto !important;
+            left: auto !important;
+            width: min(300px, calc(100vw - 32px)) !important;
+            min-height: 0 !important;
+            max-height: calc(100dvh - 84px) !important;
+            padding: 10px !important;
+            border: 1px solid rgba(89, 230, 255, 0.2) !important;
+            border-radius: 16px !important;
+            background: rgba(7, 20, 35, 0.985) !important;
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42) !important;
+            backdrop-filter: blur(22px) !important;
             display: flex !important;
             flex-direction: column !important;
-            gap: 8px !important;
+            gap: 4px !important;
             z-index: 513 !important;
             overflow-y: auto !important;
-          }
-
-          /* Extra safety: while the drawer is open, page content beneath it is not
-             painted. This prevents any future stacking-context regression. */
-          .pricing-shell:has(.mobile-menu[open]) > section,
-          .pricing-shell:has(.mobile-menu[open]) > footer,
-          .pricing-shell:has(.mobile-menu[open]) > img.deco {
-            visibility: hidden !important;
           }
 
           .pricing-shell .mobile-menu-panel a {
             display: flex !important;
             align-items: center !important;
             justify-content: space-between !important;
-            width: 100% !important;
-            min-height: 52px !important;
-            padding: 0 15px !important;
-            border: 1px solid rgba(91, 169, 217, 0.18) !important;
-            border-radius: 12px !important;
-            background: #0a192b !important;
-            color: #d5e2ee !important;
+            width: auto !important;
+            min-height: 46px !important;
+            padding: 0 13px !important;
+            border: 0 !important;
+            border-radius: 10px !important;
+            background: transparent !important;
+            color: #c9d8e7 !important;
             font-size: 14px !important;
-            font-weight: 750 !important;
+            font-weight: 700 !important;
             line-height: 1.2 !important;
             text-indent: 0 !important;
             overflow: visible !important;
@@ -83,30 +103,33 @@ export default function PricingLayout({ children }: { children: ReactNode }) {
           .pricing-shell .mobile-menu-panel a:not(.mobile-primary)::after {
             content: "→" !important;
             color: #67e8f9 !important;
-            font-weight: 900 !important;
+            font-weight: 800 !important;
           }
 
           .pricing-shell .mobile-menu-panel a.mobile-primary {
-            margin-top: 8px !important;
-            min-height: 54px !important;
+            margin-top: 6px !important;
+            min-height: 48px !important;
             justify-content: center !important;
-            border-color: transparent !important;
+            border: 0 !important;
             background: linear-gradient(135deg, #7af0ff, #31d4ed) !important;
             color: #05121f !important;
-            box-shadow: 0 12px 32px rgba(49, 212, 237, 0.13) !important;
+            box-shadow: 0 10px 28px rgba(49, 212, 237, 0.13) !important;
           }
         }
 
         @media (max-width: 560px) {
           .pricing-shell .mobile-menu-panel {
-            inset: 60px 0 0 0 !important;
-            padding: 16px 12px 24px !important;
+            top: 66px !important;
+            right: 10px !important;
+            width: min(290px, calc(100vw - 20px)) !important;
+            max-height: calc(100dvh - 76px) !important;
+            padding: 9px !important;
           }
 
           .pricing-shell .mobile-menu-panel a {
-            min-height: 50px !important;
+            min-height: 44px !important;
             font-size: 13.5px !important;
-            padding: 0 14px !important;
+            padding: 0 12px !important;
           }
         }
       `}</style>

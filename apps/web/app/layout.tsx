@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body style={{ margin: 0, background: "#07101f" }}>
         <style>{`
-          main:not(.site-shell) header a[href="/"]:first-child:not(:has(img)) {
+          main:not(.site-shell) header .header-inner > a[href="/"]:first-child:not(:has(img)) {
             display:block;width:190px;height:48px;flex:0 0 auto;overflow:hidden;text-indent:-9999px;
             background:url('/brand/playdirective/logo.png') left center / contain no-repeat;
           }
@@ -105,6 +105,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             .global-mobile-menu .mobile-menu-panel a.mobile-menu-cta{margin-top:6px;background:linear-gradient(135deg,#7af0ff,#31d4ed);color:#05121f;justify-content:center}
             .global-mobile-menu .mobile-menu-panel a.mobile-menu-cta:after{margin-left:8px;color:#05121f}
 
+            /* Public-page mobile menus: keep the opened state compact, intentional and
+               completely separate from the page content beneath it. */
+            .pricing-shell .mobile-menu[open]::before{content:"";position:fixed;inset:60px 0 0;background:rgba(3,10,19,.58);backdrop-filter:blur(3px);z-index:38;pointer-events:none}
+            .pricing-shell .mobile-menu summary{position:relative;z-index:42}
+            .pricing-shell .mobile-menu-panel{position:fixed!important;top:68px!important;right:16px!important;left:auto!important;width:min(320px,calc(100vw - 32px))!important;padding:10px!important;border-radius:16px!important;background:rgba(7,20,35,.985)!important;border:1px solid rgba(89,230,255,.22)!important;box-shadow:0 24px 70px rgba(0,0,0,.48)!important;backdrop-filter:blur(22px)!important;z-index:41!important;gap:3px!important}
+            .pricing-shell .mobile-menu-panel a{display:flex!important;width:auto!important;height:auto!important;min-height:46px!important;align-items:center!important;justify-content:space-between!important;padding:0 13px!important;border-radius:10px!important;background:none!important;overflow:visible!important;text-indent:0!important;color:#c9d8e7!important;font-size:14px!important;font-weight:700!important;line-height:1.2!important}
+            .pricing-shell .mobile-menu-panel a:not(.mobile-primary)::after{content:"→";color:#67e8f9;font-weight:800}
+            .pricing-shell .mobile-menu-panel a.mobile-primary{margin-top:6px!important;justify-content:center!important;background:linear-gradient(135deg,#7af0ff,#31d4ed)!important;color:#05121f!important;box-shadow:0 10px 28px rgba(49,212,237,.13)!important}
+
             .site-shell .hero{padding:42px 0 30px!important}
             .site-shell .hero-grid{gap:6px!important}
             .site-shell .hero h1{font-size:clamp(44px,10.5vw,61px)!important;line-height:.99!important;margin:15px 0 18px!important;max-width:620px!important}
@@ -157,7 +166,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           }
 
           @media(max-width:560px){
-            main:not(.site-shell) header a[href="/"]:first-child:not(:has(img)){width:168px;height:42px}
+            main:not(.site-shell) header .header-inner > a[href="/"]:first-child:not(:has(img)){width:168px;height:42px}
 
             .site-shell .wrap{width:calc(100% - 32px)!important}
             .site-shell .header-inner{height:60px!important;padding-right:50px}
@@ -165,6 +174,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             .site-shell + .global-mobile-menu{right:10px;top:10px}
             .global-mobile-menu summary{width:38px;height:38px;border-radius:10px}
             .global-mobile-menu .mobile-menu-panel{top:45px;width:min(290px,calc(100vw - 20px))}
+
+            .pricing-shell .mobile-menu[open]::before{inset:60px 0 0}
+            .pricing-shell .mobile-menu-panel{top:66px!important;right:10px!important;width:calc(100vw - 20px)!important;max-width:360px!important;padding:9px!important}
+            .pricing-shell .mobile-menu-panel a{min-height:44px!important;font-size:13.5px!important;padding:0 12px!important}
 
             .site-shell .hero{padding:34px 0 22px!important}
             .site-shell .eyebrow,.site-shell .kicker{font-size:10.5px!important;letter-spacing:.18em!important;line-height:1.45!important}

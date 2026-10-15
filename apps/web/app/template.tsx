@@ -28,14 +28,10 @@ export default function Template({ children }: { children: ReactNode }) {
           }
 
           body details.global-mobile-menu > summary::-webkit-details-marker,
-          body details.mobile-menu > summary::-webkit-details-marker {
-            display: none !important;
-          }
+          body details.mobile-menu > summary::-webkit-details-marker { display: none !important; }
 
           body details.global-mobile-menu > summary > span,
-          body details.mobile-menu > summary > span {
-            display: none !important;
-          }
+          body details.mobile-menu > summary > span { display: none !important; }
 
           body details.global-mobile-menu > summary::before,
           body details.mobile-menu > summary::before {
@@ -76,9 +72,7 @@ export default function Template({ children }: { children: ReactNode }) {
           }
 
           body details.global-mobile-menu[open] > summary::after,
-          body details.mobile-menu[open] > summary::after {
-            opacity: 1 !important;
-          }
+          body details.mobile-menu[open] > summary::after { opacity: 1 !important; }
 
           body details.global-mobile-menu[open]::before,
           body details.mobile-menu[open]::before {
@@ -147,8 +141,6 @@ export default function Template({ children }: { children: ReactNode }) {
             box-shadow: 0 10px 28px rgba(49,212,237,.13) !important;
           }
 
-          /* Reuse the root-level menu on public pages that do not yet render their own
-             mobile menu. Pricing keeps its page-specific links, but uses the same look. */
           body:has(> main.site-shell) > details.global-mobile-menu,
           body:has(> main.apply-shell) > details.global-mobile-menu,
           body:has(> main.help-shell) > details.global-mobile-menu,
@@ -161,6 +153,38 @@ export default function Template({ children }: { children: ReactNode }) {
             z-index: 120 !important;
             font-family: Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
             color: #eef7ff !important;
+          }
+
+          /* Keep every public header aligned with the same mobile navigation contract. */
+          body:has(> main.apply-shell) main.apply-shell .header,
+          body:has(> main.help-shell) main.help-shell .header,
+          body:has(> main.legal-shell) main.legal-shell .header,
+          body:has(> main.demo-shell) main.demo-shell .header {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 110 !important;
+          }
+
+          body:has(> main.apply-shell) main.apply-shell .header-inner,
+          body:has(> main.help-shell) main.help-shell .header-inner,
+          body:has(> main.legal-shell) main.legal-shell .header-inner,
+          body:has(> main.demo-shell) main.demo-shell .header-inner {
+            height: 64px !important;
+            padding-right: 52px !important;
+          }
+
+          body:has(> main.apply-shell) main.apply-shell .brand-logo,
+          body:has(> main.help-shell) main.help-shell .brand-logo,
+          body:has(> main.legal-shell) main.legal-shell .brand-logo,
+          body:has(> main.demo-shell) main.demo-shell .brand-logo {
+            width: 174px !important;
+          }
+
+          body:has(> main.apply-shell) main.apply-shell .nav,
+          body:has(> main.help-shell) main.help-shell .nav,
+          body:has(> main.legal-shell) main.legal-shell .nav,
+          body:has(> main.demo-shell) main.demo-shell .nav {
+            display: none !important;
           }
         }
 
@@ -177,9 +201,7 @@ export default function Template({ children }: { children: ReactNode }) {
           body details.global-mobile-menu > summary::before,
           body details.global-mobile-menu > summary::after,
           body details.mobile-menu > summary::before,
-          body details.mobile-menu > summary::after {
-            width: 17px !important;
-          }
+          body details.mobile-menu > summary::after { width: 17px !important; }
 
           body details.global-mobile-menu > .mobile-menu-panel,
           body details.mobile-menu > .mobile-menu-panel {
@@ -204,6 +226,21 @@ export default function Template({ children }: { children: ReactNode }) {
           body:has(> main.demo-shell) > details.global-mobile-menu {
             right: 10px !important;
             top: 10px !important;
+          }
+
+          body:has(> main.apply-shell) main.apply-shell .header-inner,
+          body:has(> main.help-shell) main.help-shell .header-inner,
+          body:has(> main.legal-shell) main.legal-shell .header-inner,
+          body:has(> main.demo-shell) main.demo-shell .header-inner {
+            height: 60px !important;
+            padding-right: 50px !important;
+          }
+
+          body:has(> main.apply-shell) main.apply-shell .brand-logo,
+          body:has(> main.help-shell) main.help-shell .brand-logo,
+          body:has(> main.legal-shell) main.legal-shell .brand-logo,
+          body:has(> main.demo-shell) main.demo-shell .brand-logo {
+            width: 150px !important;
           }
         }
       `}</style>

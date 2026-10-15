@@ -57,6 +57,7 @@ def _subscription(
         plan_id=plan_id,
         status=status,
         stripe_customer_id="cus_current",
+        customer_type="personal",
         stripe_subscription_id=subscription_id,
         current_period_end=now + timedelta(days=30),
         cancel_at_period_end=False,
@@ -71,9 +72,15 @@ def _subscription(
 
 def _configure_stripe(monkeypatch) -> None:
     monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_hardening")
-    monkeypatch.setenv("STRIPE_PRICE_INDIE", "price_indie")
-    monkeypatch.setenv("STRIPE_PRICE_GROWTH", "price_growth")
-    monkeypatch.setenv("STRIPE_PRICE_STUDIO", "price_studio")
+    monkeypatch.setenv("STRIPE_MODE", "test")
+    monkeypatch.setenv("STRIPE_MANAGED_PAYMENTS_ENABLED", "true")
+    monkeypatch.setenv("STRIPE_TEST_BILLING_MODE", "false")
+    monkeypatch.setenv("STRIPE_PRICE_INDIE_PERSONAL", "price_indie")
+    monkeypatch.setenv("STRIPE_PRICE_INDIE_BUSINESS", "price_indie_business")
+    monkeypatch.setenv("STRIPE_PRICE_GROWTH_PERSONAL", "price_growth")
+    monkeypatch.setenv("STRIPE_PRICE_GROWTH_BUSINESS", "price_growth_business")
+    monkeypatch.setenv("STRIPE_PRICE_STUDIO_PERSONAL", "price_studio")
+    monkeypatch.setenv("STRIPE_PRICE_STUDIO_BUSINESS", "price_studio_business")
     get_settings.cache_clear()
 
 

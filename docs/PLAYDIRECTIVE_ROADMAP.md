@@ -105,9 +105,9 @@ Provider direction: **Stripe hosted Checkout + Customer Portal + verified webhoo
 Implemented scope:
 - founding pilot stays explicitly free
 - plan selection in the private OWNER workspace
-- Indie `$19/month` / 1 experience
-- Growth `$49/month` / up to 3 experiences
-- Studio `$99/month` / up to 10 experiences
+- Indie `$24/month` / 1 experience
+- Growth `$59/month` / up to 3 experiences
+- Studio `$119/month` / up to 10 experiences
 - Stripe subscription Checkout Session creation server-side
 - Stripe Customer Portal launch for existing customers
 - raw card details are never handled by PlayDirective

@@ -71,6 +71,8 @@ function EmptyWorkflow({ connectionId }: { connectionId: number | null }) {
 
 export default function WorkspacePhase2A({ connectionId }: { connectionId: number | null }) {
   const [view, setView] = useState<View>("priorities");
+  const [generating, setGenerating] = useState(false);
+  const [generationMessage, setGenerationMessage] = useState("");
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [analyst, setAnalyst] = useState<Analyst | null>(null);
   const [experiment, setExperiment] = useState<Experiment | null>(null);
@@ -131,7 +133,34 @@ export default function WorkspacePhase2A({ connectionId }: { connectionId: numbe
 
     {view==="evidence" && <div style={{display:"grid",gap:12,marginTop:18}}>{decisions.map((d,i)=><article key={d.key??i} style={panel}><div style={{color:cyan,fontSize:11,fontWeight:800}}>PRIORITY {i+1} EVIDENCE</div><h3>{d.title}</h3><div style={{display:"grid",gap:10,gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))"}}>{(d.evidence??[]).map((e,j)=><div key={j} style={{border:"1px solid rgba(255,255,255,.08)",borderRadius:14,padding:14}}><div style={{color:faint,fontSize:10}}>{e.metric}</div><strong style={{display:"block",marginTop:7}}>{metricValue(e.current,e.unit)} vs {metricValue(e.baseline,e.unit)}</strong><div style={{color:muted,fontSize:12,marginTop:6}}>{e.segment||e.note}</div></div>)}</div>{(d.root_causes??[]).map((r,j)=><p key={j} style={{color:muted}}><strong style={{color:"#eef7ff"}}>{r.label}</strong> — {r.support}</p>)}<p style={{color:"#fbbf24",fontSize:12}}>{d.guardrail}</p></article>)}</div>}
 
-    {view==="analyst" && <div style={{marginTop:18}}>{analyst?.brief?<><article style={{...panel,background:"linear-gradient(135deg,rgba(103,232,249,.08),rgba(255,255,255,.02))"}}><div style={{color:faint,fontSize:10,textTransform:"uppercase"}}>Grounded analyst · {analyst.generation?.mode??"deterministic"}</div><h3 style={{fontSize:25}}>{analyst.brief.executive_summary}</h3><p style={{color:muted}}>{analyst.brief.data_quality_note}</p></article>{analyst.brief.priorities?.map((p,i)=><article key={p.key??i} style={{...panel,marginTop:12}}><div style={{color:cyan,fontSize:11}}>Priority {i+1} · {p.confidence} confidence</div><h3>{p.headline}</h3><p style={{color:muted}}>{p.summary}</p><p><strong>Why it matters:</strong> <span style={{color:muted}}>{p.why_it_matters}</span></p><p><strong>Next action:</strong> {p.next_action}</p><p style={{color:"#fbbf24",fontSize:12}}>{p.guardrail}</p></article>)}</>:<article style={panel}><h3>Analyst not available yet</h3></article>}</div>}
+    {view==="analyst" && <div style={{marginTop:18}}>
+      <button disabled={generating || !decisions.length} onClick={async () => {
+        setGenerating(true);
+        setGenerationMessage("");
+        try {
+          const response = await fetch("/api/pilot/decisions/generate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ connection_id: connectionId, request_key: crypto.randomUUID() }),
+          });
+          const payload = await response.json();
+          if (!response.ok) {
+            setGenerationMessage(payload.detail?.message ?? payload.detail ?? "Decision generation failed; no credit was used.");
+            return;
+          }
+          setAnalyst({ generation: payload.generation, brief: payload.brief });
+          setGenerationMessage(`Generated successfully · ${payload.credit?.used ?? ""} of ${payload.credit?.allowance ?? ""} credits used.`);
+        } catch {
+          setGenerationMessage("Decision generation failed; no credit was used.");
+        } finally {
+          setGenerating(false);
+        }
+      }} style={{background:cyan,color:"#07101f",border:0,borderRadius:10,padding:"10px 14px",fontWeight:800,cursor:"pointer"}}>
+        {generating ? "Generating…" : "Generate AI decision · 1 credit"}
+      </button>
+      {generationMessage && <p style={{color:muted,fontSize:12}}>{generationMessage}</p>}
+      {analyst?.brief ? <><article style={{...panel,background:"linear-gradient(135deg,rgba(103,232,249,.08),rgba(255,255,255,.02))"}}><div style={{color:faint,fontSize:10,textTransform:"uppercase"}}>Grounded analyst · {analyst.generation?.mode??"deterministic"}</div><h3 style={{fontSize:25}}>{analyst.brief.executive_summary}</h3><p style={{color:muted}}>{analyst.brief.data_quality_note}</p></article>{analyst.brief.priorities?.map((p,i)=><article key={p.key??i} style={{...panel,marginTop:12}}><div style={{color:cyan,fontSize:11}}>Priority {i+1} · {p.confidence} confidence</div><h3>{p.headline}</h3><p style={{color:muted}}>{p.summary}</p><p><strong>Why it matters:</strong> <span style={{color:muted}}>{p.why_it_matters}</span></p><p><strong>Next action:</strong> {p.next_action}</p><p style={{color:"#fbbf24",fontSize:12}}>{p.guardrail}</p></article>)}</> : <article style={panel}><h3>Analyst not available yet</h3></article>}
+    </div>}
 
     {view==="experiment" && <div style={{marginTop:18}}>{experiment?.plan?<article style={panel}><div style={{color:cyan,fontSize:11}}>EXPERIMENT COPILOT</div><h3 style={{fontSize:25}}>{experiment.plan.title}</h3><p style={{color:muted,lineHeight:1.65}}>{experiment.plan.hypothesis}</p><p><strong>Audience:</strong> {experiment.plan.audience}</p><p><strong>Primary KPI:</strong> {experiment.plan.primary_kpi}</p><p><strong>Control:</strong> <span style={{color:muted}}>{experiment.plan.control}</span></p><p><strong>Variant:</strong> <span style={{color:muted}}>{experiment.plan.variant}</span></p>{experiment.plan.guardrails?.map((g,i)=><p key={i} style={{color:muted}}><strong style={{color:"#eef7ff"}}>{g.metric}</strong> · max −{g.max_deterioration_pct}% · {g.rationale}</p>)}</article>:<article style={panel}><h3>No experiment plan yet</h3></article>}</div>}
 

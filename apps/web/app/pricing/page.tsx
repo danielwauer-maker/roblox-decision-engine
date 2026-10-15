@@ -1,33 +1,25 @@
-const plans = [
-  {
-    name: "Indie",
-    price: "$19",
-    subtitle: "For live indie teams that need one clear weekly priority.",
-    experiences: "1 active experience",
-    features: ["Top-3 decision queue", "AI Product Analyst", "Experiment Copilot", "Weekly Growth Brief"],
-    cta: "Apply for founding pilot",
-    href: "/apply",
-    featured: true,
-  },
-  {
-    name: "Growth",
-    price: "$49",
-    subtitle: "For teams running recurring updates and paid acquisition.",
-    experiences: "Up to 3 active experiences",
-    features: ["Everything in Indie", "Priority evidence history", "Pilot feedback workflow", "Multi-experience coverage"],
-    cta: "Apply for founding pilot",
-    href: "/apply",
-  },
-  {
-    name: "Studio",
-    price: "$99",
-    subtitle: "For multi-experience teams that need one decision layer.",
-    experiences: "Up to 10 active experiences",
-    features: ["Everything in Growth", "Portfolio-level weekly review", "Priority support", "Expanded experience limits"],
-    cta: "Apply for founding pilot",
-    href: "/apply",
-  },
-];
+import catalog from "../../../shared/commercial_plans.json";
+
+export const dynamic = "force-dynamic";
+
+const planCatalog = catalog.plans;
+const pilotCatalog = catalog.pilot;
+const trialCatalog = catalog.standard_trial;
+const trialPlan = planCatalog.find((plan) => plan.plan_id === trialCatalog.plan_id)!;
+const commercialMode = process.env.PLAYDIRECTIVE_COMMERCIAL_MODE || catalog.commercial_mode_default;
+const featureLabels: Record<string, string> = {
+  core_analytics: "Core Analytics",
+  advanced_analytics: "Advanced Analytics",
+  decision_engine: "Decision Engine",
+  recommendations: "Recommendations",
+  alerts: "Alerts and anomaly detection",
+  cross_experience: "Cross-Experience analytics",
+  exports: "Exports",
+  api_access: "API access",
+  portfolio_intelligence: "Studio / Portfolio Intelligence",
+  priority_processing: "Priority processing",
+};
+const display = (value: string) => value.replaceAll("_", " ").replace(/\b\w/g, (character) => character.toUpperCase());
 
 const pilotSteps = [
   ["01", "Day 1", "Connect", "Activate your private workspace and connect one live Roblox experience with read-only analytics access."],
@@ -44,6 +36,7 @@ const trustItems = [
 ];
 
 export default function PricingPage() {
+  const pilot = commercialMode !== "standard";
   return (
     <main className="pricing-shell">
       <style>{`
@@ -83,7 +76,7 @@ export default function PricingPage() {
             <a href="/demo">Demo</a>
             <a href="/pricing">Pricing</a>
             <a href="/app/login">Pilot sign in</a>
-            <a className="nav-cta" href="/apply">Apply for pilot</a>
+            <a className="nav-cta" href={pilot ? "/apply" : "/start-trial"}>{pilot ? "Apply for pilot" : "Start Indie trial"}</a>
           </nav>
           <details className="mobile-menu">
             <summary aria-label="Open navigation">Menu</summary>
@@ -93,28 +86,35 @@ export default function PricingPage() {
               <a href="/pricing">Pricing</a>
               <a href="/help">Help</a>
               <a href="/app/login">Pilot sign in</a>
-              <a className="mobile-primary" href="/apply">Apply for founding pilot</a>
+              <a className="mobile-primary" href={pilot ? "/apply" : "/start-trial"}>{pilot ? "Apply for founding pilot" : "Start Indie trial"}</a>
             </nav>
           </details>
         </div>
       </header>
 
       <section className="hero wrap">
-        <div className="eyebrow">Founding studio pricing</div>
-        <h1>Prove the value first. Pay only after PlayDirective earns its place.</h1>
-        <p>Every founding studio starts with the same guided 30-day pilot. Connect one live Roblox experience, review evidence-backed priorities and see whether PlayDirective produces decisions your team genuinely wants to act on.</p>
+        <div className="eyebrow">{pilot ? "Founding studio pricing" : "Studio pricing"}</div>
+        <h1>{pilot ? "Prove the value first. Pay only after PlayDirective earns its place." : "Decision analytics for every stage of your studio."}</h1>
+        <p>{pilot ? "Every founding studio starts with the same guided 30-day pilot. Connect one live Roblox experience, review evidence-backed priorities and see whether PlayDirective produces decisions your team genuinely wants to act on." : "Choose the monthly plan that fits your studio. Start with a 14-day Indie trial, then manage your subscription from your workspace."}</p>
 
-        <div className="pilot-cta">
+        {pilot ? <div className="pilot-cta">
           <div>
-            <div className="kicker">30-day founding studio pilot · free</div>
+            <div className="kicker">{pilotCatalog.duration_days}-day founding studio pilot · free</div>
             <h2>One live experience. One useful decision before you pay.</h2>
-            <p>Invite-only and guided during validation. No card required. The pilot does not auto-convert to a paid subscription. Paid service begins only after an authorized owner explicitly confirms Stripe Checkout.</p>
+            <p>Invite-only and guided during validation. No card required. The pilot does not auto-convert to a paid subscription. Paid service begins only after an authorized owner explicitly confirms Stripe Checkout. Pilot access includes {pilotCatalog.max_experiences} experiences, {pilotCatalog.max_team_members} seats and {pilotCatalog.decision_credits} Decision credits.</p>
           </div>
           <a className="btn btn-primary" href="/apply">Apply for founding pilot →</a>
-        </div>
+        </div> : <div className="pilot-cta">
+          <div>
+            <div className="kicker">{trialCatalog.duration_days}-day standard trial</div>
+            <h2>Start with Indie. Upgrade when your studio is ready.</h2>
+            <p>Payment method required. After the trial, Indie is ${trialPlan.monthly_price_usd}/month unless canceled before it ends. Prior Founding Pilot participants are not eligible for another trial.</p>
+          </div>
+          <a className="btn btn-primary" href="/start-trial">Start 14-day Indie trial →</a>
+        </div>}
       </section>
 
-      <section className="steps-section wrap">
+      {pilot && <section className="steps-section wrap">
         <div className="steps">
           {pilotSteps.map(([num, when, title, copy]) => (
             <article className="step" key={when}>
@@ -125,35 +125,40 @@ export default function PricingPage() {
             </article>
           ))}
         </div>
-      </section>
+      </section>}
 
       <section className="pricing-section wrap">
         <div className="pricing-intro">
           <div>
-            <div className="kicker">Plans after validation</div>
+            <div className="kicker">{pilot ? "Plans after validation" : "Monthly plans"}</div>
             <h2>Choose the layer your studio needs.</h2>
           </div>
-          <div className="pricing-note">After the founding pilot, choose the plan that matches your studio. Prices are shown in USD per month. Applicable taxes may be added depending on customer location and tax status.</div>
+          <div className="pricing-note">USD, billed monthly. Taxes included where applicable; availability and tax treatment vary by customer location. Business customers can provide company and VAT details during account setup.</div>
         </div>
 
         <div className="plan-grid">
-          {plans.map((plan) => (
-            <article className={`plan-card${plan.featured ? " featured" : ""}`} key={plan.name}>
-              <div className="plan-head"><h3>{plan.name}</h3>{plan.featured && <span className="badge">BEST FIT</span>}</div>
-              <div className="price">{plan.price}<span>/mo</span></div>
-              <p className="plan-subtitle">{plan.subtitle}</p>
-              <div className="experience">{plan.experiences}</div>
-              <div className="features">{plan.features.map((feature) => <div className="feature" key={feature}>{feature}</div>)}</div>
-              <a className={`btn ${plan.featured ? "btn-primary" : "btn-secondary"}`} href={plan.href}>{plan.cta}</a>
+          {planCatalog.map((plan) => {
+            const isRecommended = plan.recommended;
+            const included = Object.entries(plan.feature_status).filter(([, status]) => status !== "not_included");
+            const history = plan.history_days >= 365 ? `${plan.history_days / 365}-year history` : `${plan.history_days}-day history`;
+            return <article className={`plan-card${isRecommended ? " featured" : ""}`} key={plan.plan_id}>
+              <div className="plan-head"><h3>{plan.display_name}</h3>{isRecommended && <span className="badge">MOST POPULAR</span>}</div>
+              <div className="price">${plan.monthly_price_usd}<span>/mo</span></div>
+              <p className="plan-subtitle">{plan.max_experiences} {plan.max_experiences === 1 ? "Experience" : "Experiences"} · {plan.max_team_members} {plan.max_team_members === 1 ? "seat" : "seats"} · {history} · {plan.monthly_decision_credits.toLocaleString()} Decisions/month</p>
+              <div className="experience">{plan.max_experiences} {plan.max_experiences === 1 ? "active experience" : "active experiences"} · {plan.max_team_members} {plan.max_team_members === 1 ? "seat" : "seats"}</div>
+              <div className="features">{included.map(([key, status]) => <div className="feature" key={key}>{featureLabels[key] || display(key)}{status === "coming_soon" ? " — Coming soon" : ""}</div>)}</div>
+              <a className={`btn ${isRecommended ? "btn-primary" : "btn-secondary"}`} href={pilot ? "/apply" : "/start-trial"}>{pilot ? "Apply for founding pilot" : "Start with Indie trial"}</a>
             </article>
-          ))}
+          })}
         </div>
 
-        <div className="trust-panel">
+        <p style={{ marginTop: 24, color: "#8fa2ba", fontSize: 13, lineHeight: 1.7 }}>Decision credits are used only for successful, user-requested Decision Engine or AI decision generation. Viewing existing dashboards and decisions does not use credits.</p>
+
+        {pilot && <div className="trust-panel">
           <div className="trust-grid">
             {trustItems.map(([q,a]) => <div className="trust-item" key={q}><strong>{q}</strong><p>{a}</p></div>)}
           </div>
-        </div>
+        </div>}
       </section>
 
       <footer className="footer">

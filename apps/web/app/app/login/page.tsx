@@ -9,13 +9,22 @@ export default function PilotLoginPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoRedeeming, setAutoRedeeming] = useState(false);
+  const [commercialMode, setCommercialMode] = useState<"pilot" | "standard" | null>(null);
 
   useEffect(() => {
+    void fetch("/api/commercial/mode", { cache: "no-store" })
+      .then(response => { if (!response.ok) throw new Error("mode unavailable"); return response.json(); })
+      .then(payload => setCommercialMode(payload.commercial_mode === "standard" ? "standard" : "pilot"))
+      .catch(() => setCommercialMode(null));
     const params = new URLSearchParams(window.location.search);
     const inviteToken = params.get("token");
     const loginToken = params.get("login_token");
+    const standardSignupToken = params.get("standard_signup_token");
     if (inviteToken) setInvite(inviteToken);
-    if (loginToken) {
+    if (standardSignupToken) {
+      setAutoRedeeming(true);
+      void redeemStandardSignup(standardSignupToken);
+    } else if (loginToken) {
       setAutoRedeeming(true);
       void redeemLogin(loginToken);
     }
@@ -32,6 +41,24 @@ export default function PilotLoginPage() {
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
       setError(payload.detail ?? "Sign-in link could not be redeemed.");
+      setLoading(false);
+      setAutoRedeeming(false);
+      return;
+    }
+    window.location.href = "/app/workspace";
+  }
+
+  async function redeemStandardSignup(token: string) {
+    setLoading(true);
+    setError("");
+    const response = await fetch("/api/enrollment/standard-trial/redeem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setError(payload.detail ?? "Signup link could not be redeemed.");
       setLoading(false);
       setAutoRedeeming(false);
       return;
@@ -83,7 +110,7 @@ export default function PilotLoginPage() {
         <a className="back" href="/">← Back to PlayDirective</a>
         <section className="login-card">
           <img className="logo" src="/brand/playdirective/logo.png" alt="PlayDirective" />
-          <div className="eyebrow">Founding Studio Pilot</div>
+          <div className="eyebrow">{commercialMode === "standard" ? "PlayDirective account" : "Founding Studio Pilot"}</div>
           <h1>{autoRedeeming ? "Signing you in…" : "Open your studio workspace."}</h1>
           <p className="intro">Decision intelligence for Roblox studios. Know what changed. Know what to do next.</p>
 
@@ -108,7 +135,7 @@ export default function PilotLoginPage() {
           {error && <div className="notice error">{error}</div>}
           {message && <div className="notice success">{message}</div>}
           <p className="security">Sign-in and invitation links are single-use. The resulting workspace session is stored in a secure HttpOnly cookie; raw session tokens are not exposed to browser JavaScript.</p>
-          <div className="apply"><a href="/apply">Not a pilot studio yet? Apply here →</a></div>
+          {commercialMode && <div className="apply"><a href={commercialMode === "standard" ? "/start-trial" : "/apply"}>{commercialMode === "standard" ? "Start a 14-day Indie trial →" : "Founding Pilot application →"}</a></div>}
         </section>
       </div>
     </main>

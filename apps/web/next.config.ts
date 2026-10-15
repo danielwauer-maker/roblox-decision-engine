@@ -9,6 +9,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  outputFileTracingRoot: process.cwd() + "/../..",
+  experimental: { externalDir: true },
   async headers() {
     return [
       {

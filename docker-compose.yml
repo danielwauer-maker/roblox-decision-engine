@@ -17,10 +17,26 @@ services:
 
   api:
     build:
-      context: ./apps/api
+      context: .
+      dockerfile: apps/api/Dockerfile
     environment:
       APP_ENV: development
       DATABASE_URL: postgresql+psycopg://rde:rde_dev@postgres:5432/roblox_decision_engine
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:-http://localhost:3000}
+      PLAYDIRECTIVE_COMMERCIAL_MODE: ${PLAYDIRECTIVE_COMMERCIAL_MODE:-pilot}
+      STRIPE_MODE: ${STRIPE_MODE:-test}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_MANAGED_PAYMENTS_ENABLED: ${STRIPE_MANAGED_PAYMENTS_ENABLED:-false}
+      STRIPE_TEST_BILLING_MODE: ${STRIPE_TEST_BILLING_MODE:-false}
+      STRIPE_PORTAL_CONFIGURATION_ID: ${STRIPE_PORTAL_CONFIGURATION_ID:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PRICE_INDIE_PERSONAL: ${STRIPE_PRICE_INDIE_PERSONAL:-}
+      STRIPE_PRICE_INDIE_BUSINESS: ${STRIPE_PRICE_INDIE_BUSINESS:-}
+      STRIPE_PRICE_GROWTH_PERSONAL: ${STRIPE_PRICE_GROWTH_PERSONAL:-}
+      STRIPE_PRICE_GROWTH_BUSINESS: ${STRIPE_PRICE_GROWTH_BUSINESS:-}
+      STRIPE_PRICE_STUDIO_PERSONAL: ${STRIPE_PRICE_STUDIO_PERSONAL:-}
+      STRIPE_PRICE_STUDIO_BUSINESS: ${STRIPE_PRICE_STUDIO_BUSINESS:-}
+      STRIPE_WEBHOOK_TOLERANCE_SECONDS: ${STRIPE_WEBHOOK_TOLERANCE_SECONDS:-300}
     ports:
       - "8000:8000"
     depends_on:
@@ -28,20 +44,27 @@ services:
         condition: service_healthy
     volumes:
       - ./apps/api/app:/app/app
+      - ./apps/shared:/app/shared:ro
+      - ./migrations:/app/migrations:ro
+      - ./scripts:/app/scripts:ro
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   web:
     build:
-      context: ./apps/web
+      context: .
+      dockerfile: apps/web/Dockerfile
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
+      API_BASE_URL: http://api:8000
+      PLAYDIRECTIVE_COMMERCIAL_MODE: ${PLAYDIRECTIVE_COMMERCIAL_MODE:-pilot}
     ports:
       - "3000:3000"
     depends_on:
       - api
     volumes:
-      - ./apps/web:/app
-      - /app/node_modules
+      - ./apps/web:/app/apps/web
+      - ./apps/shared:/app/shared:ro
+      - /app/apps/web/node_modules
     command: npm run dev -- -H 0.0.0.0
 
 volumes:

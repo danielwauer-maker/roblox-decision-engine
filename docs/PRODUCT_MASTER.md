@@ -27,10 +27,14 @@ Small to mid-sized Roblox studios with meaningful live traffic and monetization 
 - The AI layer receives deterministic calculations and evidence, not raw permission to invent causes.
 - Every recommendation exposes confidence, evidence and an experiment path.
 
-## Commercial hypothesis
-- Free: weekly health check for one experience
-- Indie: $19/mo — daily priorities and update analysis
-- Growth: $49/mo — experiments, monetization analysis, monitoring
-- Studio: $99/mo — multiple experiences, team workflows and portfolio health
+## Current commercial model (V1)
 
-Pricing remains a validation hypothesis until pilot interviews confirm willingness to pay.
+PlayDirective has no permanent Free plan. The launch offer is a 30-Day Founding Pilot, managed by PlayDirective, with no card and no automatic paid conversion. Pilot access is capped at 3 Experiences, 3 seats and 250 Decision credits for its 30-day term. A Pilot participant cannot receive the later standard-mode trial.
+
+Paid plans are monthly USD: Indie $24 (1 Experience, 1 seat, 90 days history, 50 Decision credits); Growth $59 (3 Experiences, 3 seats, 365 days, 250 credits; recommended); Studio $119 (10 Experiences, 10 seats, 730 days, 1,000 credits). Taxes are included where applicable through Managed Payments; coverage varies by customer location and eligibility. No annual prices or public MAU/event-volume limits. Entitlements come from the canonical `apps/shared/commercial_plans.json`; Stripe stores the plan key and billing state only.
+
+Public feature claims must match `feature_status` in the catalog. Planned functionality is labeled Coming soon. The standard mode is configured with `PLAYDIRECTIVE_COMMERCIAL_MODE=standard` and offers an eligible new workspace a 14-day Indie trial with payment method required; previously consumed Pilot accounts are excluded.
+
+Standard trial signup verifies the Owner's email before creating a workspace. The trial begins only in Stripe Checkout after a payment method is collected. An expired or abandoned Checkout session does not grant access. Upgrades take effect after Stripe confirms the full new monthly charge with no proration credit; downgrades take effect at period end. Cancellation is at period end, and paid access lasts through that date. Past-due subscriptions retain access for seven days from the first failure; afterward product features are read-only/inactive while accounts and stored data remain.
+
+Only Owners can manage billing. The Stripe Customer Portal is restricted to payment method, invoice history, and period-end cancellation; plan switching is handled by PlayDirective. Standard Stripe Test Mode and Managed Payments Sandbox paths are separate. Live calls require production mode, an explicit Managed Payments enablement, live credentials, and all six live Prices; the flag remains false until account eligibility, taxes, and supported jurisdictions are approved. See `docs/STRIPE_BILLING.md` for the configuration matrix and local setup.

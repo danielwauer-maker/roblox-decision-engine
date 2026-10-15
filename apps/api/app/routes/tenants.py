@@ -1,13 +1,14 @@
 from dataclasses import asdict
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.access_control import ProductAccessDep, evaluate_product_access
+from app.commercial_catalog import catalog, plans_by_id
 from app.db import SessionLocal
 from app.domain.decision_engine import evaluate_snapshot
 from app.integrations.roblox.client import RobloxAnalyticsError
@@ -114,6 +115,12 @@ def create_invite(payload: InviteCreate, session: SessionDep, _: AdminDep):
     organization = session.get(OrganizationRecord, payload.organization_id)
     if not organization or not organization.active:
         raise HTTPException(status_code=404, detail="Organization not found")
+    access = evaluate_product_access(session, organization.id)
+    seat_limit = catalog()["pilot"]["max_team_members"] if access.plan_id == "pilot" else plans_by_id().get(access.plan_id or "", {}).get("max_team_members", 0)
+    existing_seats = session.scalar(select(func.count()).select_from(PilotUserRecord).where(PilotUserRecord.organization_id == organization.id, PilotUserRecord.active.is_(True))) or 0
+    pending_seats = session.scalar(select(func.count()).select_from(PilotInviteRecord).where(PilotInviteRecord.organization_id == organization.id, PilotInviteRecord.redeemed_at.is_(None), PilotInviteRecord.expires_at > datetime.now(UTC))) or 0
+    if existing_seats + pending_seats >= seat_limit:
+        raise HTTPException(status_code=409, detail=f"Team seat limit reached ({seat_limit}); resolve membership or plan capacity first")
     raw_token = new_opaque_token()
     invite = PilotInviteRecord(organization_id=organization.id, email=payload.email.strip().lower(), role=payload.role, token_hash=hash_token(raw_token), expires_at=invite_expiry(), redeemed_at=None, created_at=datetime.now(UTC))
     session.add(invite)
@@ -132,6 +139,11 @@ def redeem_invite(payload: InviteRedeem, session: SessionDep):
         raise HTTPException(status_code=403, detail="Organization disabled")
     user = session.scalar(select(PilotUserRecord).where(PilotUserRecord.organization_id == invite.organization_id, PilotUserRecord.email == invite.email))
     if not user:
+        access = evaluate_product_access(session, invite.organization_id)
+        seat_limit = catalog()["pilot"]["max_team_members"] if access.plan_id == "pilot" else plans_by_id().get(access.plan_id or "", {}).get("max_team_members", 0)
+        active_seats = session.scalar(select(func.count()).select_from(PilotUserRecord).where(PilotUserRecord.organization_id == invite.organization_id, PilotUserRecord.active.is_(True))) or 0
+        if active_seats >= seat_limit:
+            raise HTTPException(status_code=409, detail="Team seat limit reached; ask the Owner to resolve seats or change plan")
         user = PilotUserRecord(organization_id=invite.organization_id, email=invite.email, role=invite.role, active=True, created_at=now)
         session.add(user)
         session.flush()
@@ -247,9 +259,12 @@ def _connection_for_tenant(session: Session, organization_id: int, connection_id
 
 
 @router.post("/roblox/sync")
-async def sync_tenant(principal: ProductAccessDep, session: SessionDep, connection_id: int | None = Query(default=None, ge=1), metric: str | None = Query(default=None), days: int = Query(default=30, ge=1, le=365)):
+async def sync_tenant(principal: ProductAccessDep, session: SessionDep, connection_id: int | None = Query(default=None, ge=1), metric: str | None = Query(default=None), days: int = Query(default=30, ge=1, le=730)):
     organization = _organization_for_principal(session, principal.organization_id)
     connection = _connection_for_tenant(session, principal.organization_id, connection_id)
+    access = evaluate_product_access(session, principal.organization_id)
+    history_days = catalog()["pilot"]["history_days"] if access.plan_id == "pilot" else plans_by_id().get(access.plan_id or "", {}).get("history_days", 30)
+    days = min(days, history_days)
     if organization.data_mode == "SIMULATED":
         return {"status": "simulated", "organization_id": organization.id, "universe_id": connection.universe_id, "detail": "Simulation data is pre-seeded; no external Roblox request was made."}
     try:
@@ -269,6 +284,10 @@ def observations(principal: ProductAccessDep, session: SessionDep, connection_id
         query = query.where(MetricObservationRecord.universe_id == connection.universe_id)
     if metric:
         query = query.where(MetricObservationRecord.metric == metric)
+    access = evaluate_product_access(session, principal.organization_id)
+    history_days = catalog()["pilot"]["history_days"] if access.plan_id == "pilot" else plans_by_id().get(access.plan_id or "", {}).get("history_days")
+    if history_days:
+        query = query.where(MetricObservationRecord.observed_at >= datetime.now(UTC) - timedelta(days=history_days))
     rows = session.scalars(query.order_by(desc(MetricObservationRecord.observed_at)).limit(limit)).all()
     return {"count": len(rows), "items": [{"universe_id": row.universe_id, "metric": row.metric, "time": row.observed_at, "value": row.value, "dimensions": row.dimensions_json, "status": row.status} for row in rows]}
 

@@ -65,11 +65,25 @@ check_env "LEGAL_STREET_ADDRESS"
 check_env "LEGAL_POSTAL_CITY"
 check_env "LEGAL_COUNTRY"
 check_env "LEGAL_EMAIL"
-check_env "STRIPE_SECRET_KEY" false
-check_env "STRIPE_WEBHOOK_SECRET" false
-check_env "STRIPE_PRICE_INDIE" false
-check_env "STRIPE_PRICE_GROWTH" false
-check_env "STRIPE_PRICE_STUDIO" false
+check_env "STRIPE_MODE"
+check_env "STRIPE_TEST_BILLING_MODE"
+check_env "STRIPE_MANAGED_PAYMENTS_ENABLED"
+stripe_mode="$(grep -E '^STRIPE_MODE=' "$ENV_FILE" 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
+test_billing="$(grep -E '^STRIPE_TEST_BILLING_MODE=' "$ENV_FILE" 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
+managed_payments="$(grep -E '^STRIPE_MANAGED_PAYMENTS_ENABLED=' "$ENV_FILE" 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
+commercial_mode="$(grep -E '^PLAYDIRECTIVE_COMMERCIAL_MODE=' "$ENV_FILE" 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
+if [[ "$stripe_mode" == "live" ]]; then pass "STRIPE_MODE is live"; else fail "production requires STRIPE_MODE=live"; fi
+if [[ "$test_billing" == "false" ]]; then pass "test billing is disabled in production"; else fail "STRIPE_TEST_BILLING_MODE must be false in production"; fi
+if [[ "$managed_payments" == "true" ]]; then
+  for key in STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET STRIPE_PORTAL_CONFIGURATION_ID STRIPE_PRICE_INDIE_PERSONAL STRIPE_PRICE_INDIE_BUSINESS STRIPE_PRICE_GROWTH_PERSONAL STRIPE_PRICE_GROWTH_BUSINESS STRIPE_PRICE_STUDIO_PERSONAL STRIPE_PRICE_STUDIO_BUSINESS; do
+    check_env "$key"
+  done
+  if grep -E '^STRIPE_SECRET_KEY=(sk_live_|rk_live_)' "$ENV_FILE" >/dev/null 2>&1; then pass "Stripe key has a live-mode prefix"; else fail "Managed Payments requires a live-mode Stripe key"; fi
+elif [[ "$commercial_mode" == "standard" ]]; then
+  fail "standard production billing requires explicit Managed Payments enablement after Stripe approval"
+else
+  warn "Managed Payments remains disabled; production stays in the no-paid-checkout Pilot lane"
+fi
 
 printf '\n[Containers]\n'
 if docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps >/dev/null 2>&1; then

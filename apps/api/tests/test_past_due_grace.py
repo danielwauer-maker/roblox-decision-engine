@@ -146,7 +146,7 @@ def test_past_due_after_grace_is_blocked_for_expired_pilot():
     assert access.billing_status == "past_due"
 
 
-def test_active_pilot_falls_back_to_free_pilot_after_payment_grace_expires():
+def test_active_pilot_falls_back_to_pilot_after_payment_grace_expires():
     now = datetime(2026, 10, 14, 12, 0, tzinfo=UTC)
     session = _session()
     organization = _active_pilot_tenant(session, now)
@@ -159,10 +159,10 @@ def test_active_pilot_falls_back_to_free_pilot_after_payment_grace_expires():
 
     access = evaluate_product_access(session, organization.id, now=now)
 
-    assert access.allowed is True
-    assert access.access_mode == "pilot"
-    assert access.reason == "pilot_active"
-    assert access.experience_limit == 1
+    assert access.allowed is False
+    assert access.access_mode == "blocked"
+    assert access.reason == "past_due_grace_expired"
+    assert access.experience_limit == 0
     assert access.billing_status == "past_due"
 
 
@@ -188,10 +188,10 @@ def test_converted_lifecycle_still_falls_back_inside_original_pilot_window():
 
     access = evaluate_product_access(session, organization.id, now=now)
 
-    assert access.allowed is True
-    assert access.access_mode == "pilot"
-    assert access.reason == "pilot_active"
-    assert access.experience_limit == 1
+    assert access.allowed is False
+    assert access.access_mode == "blocked"
+    assert access.reason == "past_due_grace_expired"
+    assert access.experience_limit == 0
 
 
 def test_past_due_alone_does_not_mark_active_pilot_converted():

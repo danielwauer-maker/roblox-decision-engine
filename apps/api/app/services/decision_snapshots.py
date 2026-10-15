@@ -1,10 +1,13 @@
 import json
 from collections import defaultdict
+from datetime import UTC, datetime, timedelta
 from statistics import mean
 
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
+from app.access_control import evaluate_product_access
+from app.commercial_catalog import catalog, plans_by_id
 from app.domain.decision_engine import DecisionSnapshot
 from app.models import MetricObservationRecord
 
@@ -15,6 +18,7 @@ def _rows(
     metric: str,
     limit: int = 60,
     organization_id: int | None = None,
+    since: datetime | None = None,
 ):
     query = select(MetricObservationRecord).where(
         MetricObservationRecord.universe_id == universe_id,
@@ -24,6 +28,8 @@ def _rows(
         query = query.where(MetricObservationRecord.organization_id.is_(None))
     else:
         query = query.where(MetricObservationRecord.organization_id == organization_id)
+    if since is not None:
+        query = query.where(MetricObservationRecord.observed_at >= since)
     query = query.order_by(desc(MetricObservationRecord.observed_at)).limit(limit)
     return list(session.scalars(query).all())
 
@@ -75,24 +81,36 @@ def build_decision_snapshot(
     session: Session,
     universe_id: str,
     organization_id: int | None = None,
+    history_days: int | None = None,
 ) -> DecisionSnapshot:
+    if history_days is None and organization_id is not None:
+        access = evaluate_product_access(session, organization_id)
+        if access.plan_id == "pilot":
+            history_days = catalog()["pilot"].get("history_days")
+        else:
+            plan = plans_by_id().get(access.plan_id or "")
+            history_days = plan["history_days"] if plan else None
+    since = datetime.now(UTC) - timedelta(days=history_days) if history_days else None
     retention_rows = _rows(
         session,
         universe_id,
         "ForwardD1Retention",
         organization_id=organization_id,
+        since=since,
     )
     revenue_rows = _rows(
         session,
         universe_id,
         "DailyRevenue",
         organization_id=organization_id,
+        since=since,
     )
     dau_rows = _rows(
         session,
         universe_id,
         "DailyActiveUsers",
         organization_id=organization_id,
+        since=since,
     )
 
     retention, retention_baseline = _current_and_baseline(retention_rows, aggregation="mean")

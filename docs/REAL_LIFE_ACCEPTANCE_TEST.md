@@ -147,7 +147,7 @@ Notes:
 
 Do not use live-mode keys for this acceptance test.
 
-1. Ensure the configured Stripe Price IDs correspond to Indie $19/month, Growth $49/month and Studio $99/month.
+1. Ensure the configured Stripe Sandbox Price IDs correspond to Indie $24/month, Growth $59/month and Studio $119/month, with inclusive tax behavior.
 2. As the workspace OWNER, open Billing and choose Indie.
 3. Confirm Stripe Checkout opens with the correct product, amount and recurring interval.
 4. Complete payment using a Stripe test card.

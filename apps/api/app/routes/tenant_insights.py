@@ -4,14 +4,16 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.access_control import ProductAccessDep, evaluate_product_access
 from app.db import SessionLocal
 from app.domain.decision_engine import evaluate_snapshot
 from app.domain.experiments import build_experiment_plan
-from app.models import PilotFeedbackRecord, RobloxConnectionRecord
+from app.models import DecisionCreditUsageRecord, PilotFeedbackRecord, RobloxConnectionRecord
 from app.services.ai_analyst import generate_analyst_brief
+from app.services.decision_credits import consume_credit, credit_period
 from app.services.decision_snapshots import build_decision_snapshot
 from app.services.experience_entitlements import (
     active_connections_for_organization,
@@ -31,6 +33,11 @@ def get_session():
 
 
 SessionDep = Annotated[Session, Depends(get_session)]
+
+
+class DecisionGenerationRequest(BaseModel):
+    request_key: str = Field(min_length=8, max_length=160)
+    connection_id: int | None = Field(default=None, ge=1)
 
 
 class TenantFeedback(BaseModel):
@@ -65,8 +72,28 @@ def _snapshot(session: Session, organization_id: int, connection_id: int | None)
 async def analyst_current(principal: ProductAccessDep, session: SessionDep, connection_id: int | None = Query(default=None, ge=1)):
     connection, snapshot = _snapshot(session, principal.organization_id, connection_id)
     priorities = evaluate_snapshot(snapshot)
-    result = await generate_analyst_brief(priorities)
+    result = await generate_analyst_brief(priorities, use_model=False)
     return {"source": "tenant_roblox_observations", "connection_id": connection.id, "universe_id": connection.universe_id, "snapshot": asdict(snapshot), "generation": {"mode": result.mode, "model": result.model, "fallback_reason": result.fallback_reason}, "brief": asdict(result.brief)}
+
+
+@router.post("/decisions/generate")
+async def generate_decision(principal: ProductAccessDep, session: SessionDep, payload: DecisionGenerationRequest):
+    connection, snapshot = _snapshot(session, principal.organization_id, payload.connection_id)
+    priorities = evaluate_snapshot(snapshot)
+    if not priorities:
+        raise HTTPException(status_code=422, detail="No supported decision priority is available")
+    period_start, allowance = credit_period(session, principal.organization_id)
+    used = session.scalar(select(func.count()).select_from(DecisionCreditUsageRecord).where(
+        DecisionCreditUsageRecord.organization_id == principal.organization_id,
+        DecisionCreditUsageRecord.period_start == period_start,
+    )) or 0
+    if used >= allowance:
+        raise HTTPException(status_code=402, detail={"code": "DECISION_CREDITS_EXHAUSTED", "allowance": allowance, "used": used})
+    result = await generate_analyst_brief(priorities)
+    credit = consume_credit(session, principal.organization_id, payload.request_key)
+    return {"source": "tenant_roblox_observations", "connection_id": connection.id,
+            "universe_id": connection.universe_id, "priorities": [asdict(item) for item in priorities],
+            "brief": asdict(result.brief), "generation": {"mode": result.mode, "model": result.model, "fallback_reason": result.fallback_reason}, "credit": credit}
 
 
 @router.get("/experiments/current")
@@ -82,7 +109,7 @@ def experiment_current(principal: ProductAccessDep, session: SessionDep, connect
 async def weekly_brief(principal: ProductAccessDep, session: SessionDep, connection_id: int | None = Query(default=None, ge=1)):
     connection, snapshot = _snapshot(session, principal.organization_id, connection_id)
     priorities = evaluate_snapshot(snapshot)
-    result = await generate_analyst_brief(priorities)
+    result = await generate_analyst_brief(priorities, use_model=False)
     return {"source": "tenant_roblox_observations", "connection_id": connection.id, "universe_id": connection.universe_id, "priority_count": len(priorities), "priorities": [{**asdict(item), "priority_score": item.priority_score} for item in priorities[:3]], "analyst": asdict(result.brief), "generation": {"mode": result.mode, "model": result.model, "fallback_reason": result.fallback_reason}}
 
 

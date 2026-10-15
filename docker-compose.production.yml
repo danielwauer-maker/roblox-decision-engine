@@ -20,11 +20,13 @@ services:
 
   api:
     build:
-      context: ./apps/api
+      context: .
+      dockerfile: apps/api/Dockerfile
     container_name: rde-api
     restart: unless-stopped
     environment:
       APP_ENV: production
+      PLAYDIRECTIVE_COMMERCIAL_MODE: ${PLAYDIRECTIVE_COMMERCIAL_MODE:-pilot}
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-rde}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-roblox_decision_engine}
       PUBLIC_APP_URL: ${PUBLIC_APP_URL:-https://playdirective.com}
       CORS_ORIGINS: ${CORS_ORIGINS:-https://playdirective.com}
@@ -42,11 +44,18 @@ services:
       EMAIL_FROM: ${EMAIL_FROM:-PlayDirective <pilot@playdirective.com>}
       OPERATOR_EMAIL: ${OPERATOR_EMAIL:-}
       LIFECYCLE_STALE_DAYS: ${LIFECYCLE_STALE_DAYS:-7}
+      STRIPE_MODE: ${STRIPE_MODE:-live}
+      STRIPE_TEST_BILLING_MODE: ${STRIPE_TEST_BILLING_MODE:-false}
+      STRIPE_MANAGED_PAYMENTS_ENABLED: ${STRIPE_MANAGED_PAYMENTS_ENABLED:-false}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-      STRIPE_PRICE_INDIE: ${STRIPE_PRICE_INDIE:-}
-      STRIPE_PRICE_GROWTH: ${STRIPE_PRICE_GROWTH:-}
-      STRIPE_PRICE_STUDIO: ${STRIPE_PRICE_STUDIO:-}
+      STRIPE_PORTAL_CONFIGURATION_ID: ${STRIPE_PORTAL_CONFIGURATION_ID:-}
+      STRIPE_PRICE_INDIE_PERSONAL: ${STRIPE_PRICE_INDIE_PERSONAL:-}
+      STRIPE_PRICE_INDIE_BUSINESS: ${STRIPE_PRICE_INDIE_BUSINESS:-}
+      STRIPE_PRICE_GROWTH_PERSONAL: ${STRIPE_PRICE_GROWTH_PERSONAL:-}
+      STRIPE_PRICE_GROWTH_BUSINESS: ${STRIPE_PRICE_GROWTH_BUSINESS:-}
+      STRIPE_PRICE_STUDIO_PERSONAL: ${STRIPE_PRICE_STUDIO_PERSONAL:-}
+      STRIPE_PRICE_STUDIO_BUSINESS: ${STRIPE_PRICE_STUDIO_BUSINESS:-}
       STRIPE_WEBHOOK_TOLERANCE_SECONDS: ${STRIPE_WEBHOOK_TOLERANCE_SECONDS:-300}
     ports:
       - "127.0.0.1:8091:8000"
@@ -59,12 +68,13 @@ services:
 
   web:
     build:
-      context: ./apps/web
+      context: .
       dockerfile: Dockerfile.production
     container_name: rde-web
     restart: unless-stopped
     environment:
       NODE_ENV: production
+      PLAYDIRECTIVE_COMMERCIAL_MODE: ${PLAYDIRECTIVE_COMMERCIAL_MODE:-pilot}
       API_BASE_URL: http://api:8000
       PUBLIC_APP_URL: ${PUBLIC_APP_URL:-https://playdirective.com}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://127.0.0.1:8091}

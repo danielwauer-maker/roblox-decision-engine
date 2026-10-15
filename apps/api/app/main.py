@@ -89,18 +89,23 @@ def health() -> dict[str, str]:
 
 @app.get("/ready", tags=["system"])
 def ready():
+    stripe_billing_ready = bool(
+        settings.stripe_billing_enabled
+        and settings.stripe_webhook_secret
+        and settings.stripe_portal_configuration_id
+        and settings.stripe_price_indie_personal
+        and settings.stripe_price_indie_business
+        and settings.stripe_price_growth_personal
+        and settings.stripe_price_growth_business
+        and settings.stripe_price_studio_personal
+        and settings.stripe_price_studio_business
+    )
     dependency_state = {
         "roblox_configured": bool(settings.roblox_universe_id and settings.roblox_api_key),
         "ai_mode": "model" if settings.openai_api_key else "deterministic",
         "pilot_auth_configured": bool(settings.pilot_admin_token and settings.pilot_credential_key),
         "transactional_email_configured": bool(settings.resend_api_key),
-        "stripe_configured": bool(
-            settings.stripe_secret_key
-            and settings.stripe_webhook_secret
-            and settings.stripe_price_indie
-            and settings.stripe_price_growth
-            and settings.stripe_price_studio
-        ),
+        "stripe_configured": stripe_billing_ready,
     }
     try:
         with engine.connect() as connection:
@@ -109,6 +114,17 @@ def ready():
         return JSONResponse(
             status_code=503,
             content={"status": "not_ready", "database": "unavailable", **dependency_state},
+        )
+
+    if settings.app_env.lower() == "production" and settings.playdirective_commercial_mode == "standard" and not stripe_billing_ready:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "not_ready",
+                "database": "ok",
+                "stripe_billing": "not_configured",
+                **dependency_state,
+            },
         )
 
     return {"status": "ready", "database": "ok", **dependency_state}

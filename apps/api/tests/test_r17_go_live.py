@@ -79,7 +79,7 @@ def test_experience_limits_follow_subscription_plan():
     )
     session.add(organization)
     session.flush()
-    assert _experience_limit(session, organization.id) == 1
+    assert _experience_limit(session, organization.id) == 3
 
     subscription = SubscriptionRecord(
         organization_id=organization.id,

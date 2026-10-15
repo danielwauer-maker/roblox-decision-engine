@@ -16,6 +16,7 @@ class PilotLifecycleRecord(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
     converted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    pilot_consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 

@@ -76,4 +76,5 @@ An incoming `X-Request-ID` is preserved. Otherwise the API generates one. Struct
 - Preserve deterministic product behavior when AI prose is unavailable or ungrounded.
 - Surface provider failures in operational state/history instead of silently discarding them.
 - Keep database connections on pre-ping to avoid reusing dead pooled connections.
+- PostgreSQL connection attempts have a five-second timeout so readiness checks and requests fail boundedly when the database is unavailable.
 - PostgreSQL backup/restore and service restart procedures remain production operations and must be executed with the documented safety boundaries.

@@ -86,7 +86,7 @@ def test_day_29_pilot_has_product_access():
 
     assert access.allowed is True
     assert access.access_mode == "pilot"
-    assert access.experience_limit == 1
+    assert access.experience_limit == 3
 
 
 def test_day_30_at_ends_at_is_blocked():

@@ -76,7 +76,7 @@ const faq = [
   ["What data does PlayDirective access?", "PlayDirective is designed around aggregated Roblox analytics and product signals needed to explain retention, monetization and funnel changes."],
   ["Does PlayDirective require publish access?", "No. The product is designed around read-only analytics access and does not need permission to edit or publish your Roblox experience."],
   ["Is my data secure?", "Credentials are encrypted before storage and each studio is separated into its own tenant and analytics path."],
-  ["How does the founding pilot work?", "The founding pilot is free for 30 days. Connect one live Roblox experience, review the resulting priorities and decide afterward whether PlayDirective earned its place."],
+  ["How does the founding pilot work?", "The 30-Day Founding Pilot costs $0, requires no card and never auto-converts. Connect up to 3 Experiences, review evidence-backed priorities and choose a paid plan after the Pilot."],
   ["When will paid plans be available?", "Founding studios validate the workflow first. Paid plans are introduced only after the pilot has demonstrated repeatable value."],
 ];
 

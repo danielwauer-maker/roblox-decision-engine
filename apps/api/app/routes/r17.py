@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import desc, select
 from sqlalchemy.orm import Session
 
+from app.commercial_catalog import catalog
 from app.config import get_settings
 from app.db import SessionLocal
 from app.models import (
@@ -44,13 +45,16 @@ def _aware(value: datetime) -> datetime:
 def _ensure_lifecycle(session: Session, organization_id: int) -> PilotLifecycleRecord:
     row = session.scalar(select(PilotLifecycleRecord).where(PilotLifecycleRecord.organization_id == organization_id))
     if row:
+        if row.pilot_consumed_at is None:
+            row.pilot_consumed_at = _aware(row.started_at)
+            session.commit()
         return row
     organization = session.get(OrganizationRecord, organization_id)
     if not organization:
         raise HTTPException(status_code=404, detail="Organization not found")
     now = datetime.now(UTC)
     started_at = _aware(organization.created_at)
-    ends_at = started_at + timedelta(days=30)
+    ends_at = started_at + timedelta(days=catalog()["pilot"]["duration_days"])
     expired = ends_at <= now
     row = PilotLifecycleRecord(
         organization_id=organization_id,
@@ -58,6 +62,7 @@ def _ensure_lifecycle(session: Session, organization_id: int) -> PilotLifecycleR
         started_at=started_at,
         ends_at=ends_at,
         converted_at=None,
+        pilot_consumed_at=started_at,
         closed_at=now if expired else None,
         updated_at=now,
     )

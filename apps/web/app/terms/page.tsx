@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 const sections = [
   ["Service", "PlayDirective is a decision-intelligence service for Roblox studios. Recommendations, priorities, AI explanations, experiment proposals and reports are decision-support outputs and do not guarantee retention, revenue, engagement or any other commercial result."],
-  ["30-day founding pilot", "Approved founding studios receive a guided 30-day pilot at no charge. The pilot begins when the private workspace is first activated. No payment method is required for the free pilot and the pilot does not automatically become a paid subscription."],
+  ["30-day founding pilot", "Approved founding studios receive a guided 30-day pilot at no charge. The pilot begins when the private workspace is first activated. No payment method is required for the Pilot and the pilot does not automatically become a paid subscription."],
   ["Paid subscriptions", "After the pilot, an authorized workspace owner may explicitly choose a paid PlayDirective plan through hosted Stripe Checkout. A paid subscription begins only after the customer confirms the checkout. Available plans, experience limits, billing interval and current prices are shown before purchase."],
   ["Plan limits", "Indie, Growth and Studio plans currently allow 1, 3 and 10 active Roblox experiences respectively. Limits are enforced server-side. Plan features and limits may be changed for future billing periods with appropriate notice where required."],
   ["Billing and cancellation", "Payment processing is provided through Stripe. Customers can use the hosted Customer Portal for supported billing actions such as payment-method management and cancellation. When cancellation at period end is selected, access continues until the end of the paid billing period unless otherwise required."],
@@ -26,7 +26,7 @@ export default function TermsPage() {
         <a href="/" style={{ color: "#67e8f9", textDecoration: "none", fontSize: 14 }}>← PlayDirective</a>
         <div style={{ marginTop: 34, color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase" }}>Founding Release · Terms</div>
         <h1 style={{ margin: "14px 0 0", fontSize: "clamp(40px,8vw,58px)", letterSpacing: "-.05em" }}>Terms</h1>
-        <p style={{ color: "#9fb1c7", lineHeight: 1.75, fontSize: 17 }}>These terms describe the operating baseline for the free 30-day founding pilot and the optional paid subscription that can follow it.</p>
+        <p style={{ color: "#9fb1c7", lineHeight: 1.75, fontSize: 17 }}>These terms describe the operating baseline for the 30-day Founding Pilot and the optional paid subscription that can follow it.</p>
         {sections.map(([title, copy]) => <section key={title} style={{ marginTop: 34, borderTop: "1px solid rgba(255,255,255,.09)", paddingTop: 24 }}><h2 style={{ margin: 0, fontSize: 22 }}>{title}</h2><p style={{ margin: "10px 0 0", color: "#9fb1c7", lineHeight: 1.75 }}>{copy}</p></section>)}
         <p style={{ marginTop: 38, color: "#718198", fontSize: 12, lineHeight: 1.6 }}>Last updated: 13 October 2026 · Founding-studio commercial baseline.</p>
       </section>

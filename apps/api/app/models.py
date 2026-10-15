@@ -114,13 +114,71 @@ class SubscriptionRecord(Base):
     plan_id: Mapped[str] = mapped_column(String(32), default="pilot", index=True)
     status: Mapped[str] = mapped_column(String(32), default="pilot", index=True)
     stripe_customer_id: Mapped[str | None] = mapped_column(String(160), nullable=True, index=True)
+    customer_type: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    company_name: Mapped[str | None] = mapped_column(String(240), nullable=True)
+    billing_country: Mapped[str | None] = mapped_column(String(2), nullable=True)
+    stripe_tax_id_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    tax_id_last4: Mapped[str | None] = mapped_column(String(4), nullable=True)
+    tax_id_verification_status: Mapped[str | None] = mapped_column(String(24), nullable=True)
+    stripe_price_id: Mapped[str | None] = mapped_column(String(160), nullable=True, index=True)
     stripe_subscription_id: Mapped[str | None] = mapped_column(
         String(160), nullable=True, unique=True, index=True
     )
-    current_period_end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    stripe_checkout_session_id: Mapped[str | None] = mapped_column(String(160), nullable=True, index=True)
+    current_period_start: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    current_period_end: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    trial_consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    trial_source: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    stripe_trial_consumed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    pending_plan_id: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    pending_plan_effective_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    pending_plan_change_type: Mapped[str | None] = mapped_column(String(24), nullable=True)
+    stripe_subscription_schedule_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    plan_change_request_key: Mapped[str | None] = mapped_column(String(160), nullable=True)
     cancel_at_period_end: Mapped[bool] = mapped_column(Boolean, default=False)
+    last_invoice_id: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    last_invoice_status: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    last_payment_failed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class StripeWebhookEventRecord(Base):
+    __tablename__ = "stripe_webhook_events"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    event_id: Mapped[str] = mapped_column(String(160), unique=True)
+    event_type: Mapped[str] = mapped_column(String(120), index=True)
+    processed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class DecisionCreditUsageRecord(Base):
+    __tablename__ = "decision_credit_usage"
+    __table_args__ = (UniqueConstraint("organization_id", "request_key", name="uq_decision_credit_request"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    organization_id: Mapped[int] = mapped_column(ForeignKey("organizations.id"), index=True)
+    request_key: Mapped[str] = mapped_column(String(160))
+    period_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class StandardTrialSignupRecord(Base):
+    __tablename__ = "standard_trial_signups"
+    __table_args__ = (UniqueConstraint("email", name="uq_standard_trial_signup_email"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    email: Mapped[str] = mapped_column(String(254), index=True)
+    contact_name: Mapped[str] = mapped_column(String(160))
+    studio_name: Mapped[str] = mapped_column(String(160))
+    token_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
+    redeemed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)
 
 
 class RobloxConnectionRecord(Base):

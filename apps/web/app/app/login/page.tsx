@@ -9,13 +9,22 @@ export default function PilotLoginPage() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [autoRedeeming, setAutoRedeeming] = useState(false);
+  const [commercialMode, setCommercialMode] = useState<"pilot" | "standard" | null>(null);
 
   useEffect(() => {
+    void fetch("/api/commercial/mode", { cache: "no-store" })
+      .then(response => { if (!response.ok) throw new Error("mode unavailable"); return response.json(); })
+      .then(payload => setCommercialMode(payload.commercial_mode === "standard" ? "standard" : "pilot"))
+      .catch(() => setCommercialMode(null));
     const params = new URLSearchParams(window.location.search);
     const inviteToken = params.get("token");
     const loginToken = params.get("login_token");
+    const standardSignupToken = params.get("standard_signup_token");
     if (inviteToken) setInvite(inviteToken);
-    if (loginToken) {
+    if (standardSignupToken) {
+      setAutoRedeeming(true);
+      void redeemStandardSignup(standardSignupToken);
+    } else if (loginToken) {
       setAutoRedeeming(true);
       void redeemLogin(loginToken);
     }
@@ -32,6 +41,24 @@ export default function PilotLoginPage() {
     if (!response.ok) {
       const payload = await response.json().catch(() => ({}));
       setError(payload.detail ?? "Sign-in link could not be redeemed.");
+      setLoading(false);
+      setAutoRedeeming(false);
+      return;
+    }
+    window.location.href = "/app/workspace";
+  }
+
+  async function redeemStandardSignup(token: string) {
+    setLoading(true);
+    setError("");
+    const response = await fetch("/api/enrollment/standard-trial/redeem", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setError(payload.detail ?? "Signup link could not be redeemed.");
       setLoading(false);
       setAutoRedeeming(false);
       return;
@@ -83,13 +110,13 @@ export default function PilotLoginPage() {
     <main style={{ minHeight: "100vh", background: "#07101f", color: "#eef7ff", fontFamily: "Arial, sans-serif", display: "grid", placeItems: "center", padding: 24 }}>
       <section style={{ width: "100%", maxWidth: 560, border: "1px solid rgba(255,255,255,.1)", background: "rgba(255,255,255,.03)", borderRadius: 24, padding: 30 }}>
         <div style={{ fontWeight: 900, letterSpacing: "-.03em", fontSize: 20 }}>PlayDirective</div>
-        <div style={{ marginTop: 8, color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase" }}>Founding Studio Pilot</div>
+        <div style={{ marginTop: 8, color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase" }}>PlayDirective account</div>
         <h1 style={{ margin: "12px 0 0", fontSize: 38, letterSpacing: "-.04em" }}>{autoRedeeming ? "Signing you in…" : "Open your studio workspace."}</h1>
         <p style={{ color: "#9fb1c7", lineHeight: 1.7 }}>Decision intelligence for Roblox studios. Know what changed. Know what to do next.</p>
 
         {!autoRedeeming && <>
           <form onSubmit={requestLogin} style={{ marginTop: 24 }}>
-            <label htmlFor="email" style={{ display: "block", fontSize: 12, color: "#9fb1c7", marginBottom: 8 }}>Pilot email address</label>
+            <label htmlFor="email" style={{ display: "block", fontSize: 12, color: "#9fb1c7", marginBottom: 8 }}>Account email address</label>
             <input id="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" type="email" required style={input} />
             <button disabled={loading} style={{ width: "100%", marginTop: 12, background: "#67e8f9", color: "#07101f", border: 0, borderRadius: 12, padding: "13px 16px", fontWeight: 800, cursor: "pointer" }}>{loading ? "Sending…" : "Email me a sign-in link"}</button>
           </form>
@@ -106,7 +133,7 @@ export default function PilotLoginPage() {
         {error && <p style={{ color: "#fb7185", fontSize: 13 }}>{error}</p>}
         {message && <p style={{ color: "#86efac", fontSize: 13 }}>{message}</p>}
         <p style={{ marginTop: 20, color: "#718198", fontSize: 12, lineHeight: 1.6 }}>Sign-in and invitation links are single-use. The resulting workspace session is stored in a secure HttpOnly cookie; raw session tokens are not exposed to browser JavaScript.</p>
-        <div style={{ marginTop: 18 }}><a href="/apply" style={{ color: "#67e8f9", textDecoration: "none", fontSize: 13 }}>Not a pilot studio yet? Apply here →</a></div>
+        {commercialMode && <div style={{ marginTop: 18 }}>{commercialMode === "standard" ? <a href="/start-trial" style={{ color: "#67e8f9", textDecoration: "none", fontSize: 13 }}>Start a 14-day Indie trial →</a> : <a href="/apply" style={{ color: "#67e8f9", textDecoration: "none", fontSize: 13 }}>Founding Pilot application →</a>}</div>}
       </section>
     </main>
   );

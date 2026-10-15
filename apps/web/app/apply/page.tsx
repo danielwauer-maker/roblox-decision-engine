@@ -60,7 +60,7 @@ export default function ApplyPage() {
         <div style={{ maxWidth: 720 }}>
           <div style={{ color: "#67e8f9", fontSize: 11, fontWeight: 800, letterSpacing: ".16em", textTransform: "uppercase" }}>30-day founding studio pilot</div>
           <h1 style={{ margin: "14px 0 0", fontSize: "clamp(42px,8vw,66px)", lineHeight: .98, letterSpacing: "-.05em" }}>Apply for a private PlayDirective workspace.</h1>
-          <p style={{ color: "#9fb1c7", fontSize: 18, lineHeight: 1.7 }}>The founding pilot is free during validation. We review each application, then send approved studios a private invite by email. Never send Roblox API credentials in this form.</p>
+          <p style={{ color: "#9fb1c7", fontSize: 18, lineHeight: 1.7 }}>The 30-Day PlayDirective Founding Pilot costs $0, requires no card and never automatically converts to paid. We review each application, then send approved studios a private invite by email. Never send Roblox API credentials in this form.</p>
         </div>
 
         <form onSubmit={submit} style={{ marginTop: 34, border: "1px solid rgba(255,255,255,.1)", borderRadius: 24, padding: "clamp(20px,5vw,30px)", background: "rgba(255,255,255,.025)", display: "grid", gap: 16 }}>

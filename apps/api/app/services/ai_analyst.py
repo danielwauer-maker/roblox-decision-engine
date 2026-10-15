@@ -244,10 +244,14 @@ async def generate_analyst_brief(
     *,
     settings: Settings | None = None,
     client: httpx.AsyncClient | None = None,
+    use_model: bool = True,
 ) -> AnalystGenerationResult:
     resolved = settings or get_settings()
     if not priorities:
         return AnalystGenerationResult(brief=compose_brief([]), mode="deterministic")
+
+    if not use_model:
+        return AnalystGenerationResult(brief=compose_brief(priorities), mode="deterministic")
 
     if resolved.openai_api_key is None:
         return AnalystGenerationResult(

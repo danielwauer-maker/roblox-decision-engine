@@ -23,7 +23,7 @@ The SaaS sits above Roblox analytics, validates KPI changes deterministically, c
 - R12 Portfolio closure — DONE
 - R13 Multi-tenant pilot SaaS — IN PROGRESS
 - R14 Operator / Admin Console — CODE COMPLETE, PRODUCTION VALIDATION PENDING
-- R16 Real Pilot Go-Live — CODE COMPLETE, HETZNER DEPLOYMENT + EXTERNAL CONFIGURATION + ACCEPTANCE PENDING
+- R16 Real Pilot Go-Live — CODE COMPLETE, TEST MODE ACCEPTANCE + EXTERNAL CONFIGURATION + PRODUCTION ACCEPTANCE PENDING
 
 **Portfolio delivery remains complete.** R13–R16 are post-portfolio production expansions required to run and support real studio pilots safely in parallel.
 
@@ -42,6 +42,8 @@ Production runtime:
 Vercel, Neon and Render are not part of the PlayDirective production runtime. Previous Vercel/Neon resources are legacy validation infrastructure only and may be removed after the Hetzner real-life acceptance run passes.
 
 See `docs/R16_EXTERNAL_SETUP.md` for the production deployment and provider setup.
+
+The current, evidence-based billing and production readiness score is maintained in [`docs/GO_LIVE_READINESS.md`](docs/GO_LIVE_READINESS.md). Do not interpret code completion or the Sandbox catalog readback as a completed customer Checkout or Managed Payments acceptance.
 
 ## R13 multi-tenant pilot architecture
 

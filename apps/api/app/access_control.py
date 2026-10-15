@@ -6,13 +6,14 @@ from fastapi import Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.commercial_catalog import catalog, plans_by_id
 from app.models import OrganizationRecord, SubscriptionRecord
 from app.r17_models import PilotLifecycleRecord
 from app.tenant_security import SessionDep, TenantDep, TenantPrincipal
 
 PAID_ACCESS_STATUSES = {"active", "trialing"}
 PAST_DUE_GRACE_PERIOD = timedelta(days=7)
-PLAN_LIMITS = {"indie": 1, "growth": 3, "studio": 10}
+PLAN_LIMITS = {key: plan["max_experiences"] for key, plan in plans_by_id().items()}
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,7 +33,8 @@ def _aware(value: datetime) -> datetime:
 
 
 def _past_due_grace_ends_at(subscription: SubscriptionRecord) -> datetime:
-    return _aware(subscription.updated_at) + PAST_DUE_GRACE_PERIOD
+    anchor = subscription.last_payment_failed_at or subscription.updated_at
+    return _aware(anchor) + PAST_DUE_GRACE_PERIOD
 
 
 def _effective_pilot_state(
@@ -48,10 +50,8 @@ def _effective_pilot_state(
     if lifecycle:
         ends_at = _aware(lifecycle.ends_at)
         status = lifecycle.status.upper()
-        # CONVERTED is a commercial lifecycle marker, not an instruction to erase
-        # the remainder of the original 30-day pilot window. Paid access wins while
-        # healthy; if billing later fails before ends_at, the customer may still use
-        # whatever time remains in the founding pilot.
+        # CONVERTED records that the Pilot was consumed. Healthy paid access is
+        # decided above; a failed or ended paid subscription cannot fall back to Pilot.
         if status in {"ACTIVE", "CONVERTED"}:
             status = "ACTIVE" if ends_at > now else "EXPIRED"
         return status, ends_at
@@ -63,7 +63,7 @@ def _effective_pilot_state(
     # R17 lifecycle records were introduced after some organizations already existed.
     # For those tenants, the organization creation timestamp is the safest non-extending
     # fallback for the original pilot start date.
-    inferred_ends_at = _aware(organization.created_at) + timedelta(days=30)
+    inferred_ends_at = _aware(organization.created_at) + timedelta(days=catalog()["pilot"]["duration_days"])
     return ("ACTIVE" if inferred_ends_at > now else "EXPIRED"), inferred_ends_at
 
 
@@ -80,10 +80,17 @@ def evaluate_product_access(
         )
     )
 
+    cancellation_active = bool(
+        subscription
+        and subscription.status in {"active", "trialing", "canceled"}
+        and subscription.cancel_at_period_end
+        and subscription.current_period_end
+        and current_time < _aware(subscription.current_period_end)
+    )
     if (
         subscription
         and subscription.plan_id in PLAN_LIMITS
-        and subscription.status in PAID_ACCESS_STATUSES
+        and (subscription.status in PAID_ACCESS_STATUSES or cancellation_active)
     ):
         return ProductAccessDecision(
             allowed=True,
@@ -114,6 +121,24 @@ def evaluate_product_access(
                 billing_grace_ends_at=grace_ends_at,
             )
 
+    # A failed or ended paid subscription must not silently regain a Pilot window.
+    if subscription and subscription.status in {
+        "past_due", "unpaid", "incomplete", "incomplete_expired", "paused", "canceled",
+        "trial_signup_pending", "checkout_pending", "pending_subscription_webhook",
+    }:
+        return ProductAccessDecision(
+            allowed=False,
+            access_mode="blocked",
+            reason=("past_due_grace_expired" if subscription.status == "past_due" else "subscription_inactive"),
+            pilot_status="CONVERTED",
+            billing_status=subscription.status,
+            plan_id=subscription.plan_id,
+            experience_limit=0,
+            billing_grace_ends_at=(
+                _past_due_grace_ends_at(subscription) if subscription.status == "past_due" else None
+            ),
+        )
+
     pilot_status, _ = _effective_pilot_state(session, organization_id, current_time)
     if pilot_status == "ACTIVE":
         return ProductAccessDecision(
@@ -123,7 +148,7 @@ def evaluate_product_access(
             pilot_status="ACTIVE",
             billing_status=subscription.status if subscription else None,
             plan_id="pilot",
-            experience_limit=1,
+            experience_limit=catalog()["pilot"]["max_experiences"],
             billing_grace_ends_at=(
                 _past_due_grace_ends_at(subscription)
                 if subscription and subscription.status == "past_due"
@@ -160,6 +185,8 @@ def require_product_access(
         message = (
             "Your payment grace period has ended"
             if decision.reason == "past_due_grace_expired"
+            else "Your paid subscription is inactive; reactivate billing to restore access"
+            if decision.reason == "subscription_inactive"
             else "Your founding pilot has ended"
         )
         raise HTTPException(

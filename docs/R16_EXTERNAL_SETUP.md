@@ -92,15 +92,17 @@ The `/ready` endpoint should report `transactional_email_configured: true`. Then
 
 ## 4. Stripe test mode
 
-Use Stripe **test mode first**. Do not configure live-mode credentials until the complete manual acceptance run has passed and tax/legal requirements for paid launch have been reviewed.
+Use Stripe **Sandbox/test mode only** for the current billing acceptance. Do not configure live-mode credentials or deploy billing until account eligibility and tax/legal requirements have been reviewed.
 
 ### Products / recurring prices
 
 Create three monthly recurring USD prices:
 
-- **Indie** — `$19.00 / month` — 1 experience
-- **Growth** — `$49.00 / month` — up to 3 experiences
-- **Studio** — `$99.00 / month` — up to 10 experiences
+- **Indie** — `$24.00 / month` — 1 experience
+- **Growth** — `$59.00 / month` — up to 3 experiences
+- **Studio** — `$119.00 / month` — up to 10 experiences
+
+Set each Price to `tax_behavior=inclusive`. Customer total stays at the displayed amount where Managed Payments supports and applies tax; tax-liability coverage is jurisdiction-specific. Keep `STRIPE_MANAGED_PAYMENTS_ENABLED=false` until Stripe confirms account eligibility.
 
 Record the three Stripe `price_...` IDs.
 
@@ -134,9 +136,12 @@ Set:
 
 - `STRIPE_SECRET_KEY=<test sk_... secret>`
 - `STRIPE_WEBHOOK_SECRET=<test whsec_... secret>`
-- `STRIPE_PRICE_INDIE=<price_...>`
-- `STRIPE_PRICE_GROWTH=<price_...>`
-- `STRIPE_PRICE_STUDIO=<price_...>`
+- `STRIPE_PRICE_INDIE_PERSONAL=<price_...>`
+- `STRIPE_PRICE_INDIE_BUSINESS=<price_...>`
+- `STRIPE_PRICE_GROWTH_PERSONAL=<price_...>`
+- `STRIPE_PRICE_GROWTH_BUSINESS=<price_...>`
+- `STRIPE_PRICE_STUDIO_PERSONAL=<price_...>`
+- `STRIPE_PRICE_STUDIO_BUSINESS=<price_...>`
 - `STRIPE_WEBHOOK_TOLERANCE_SECONDS=300`
 
 Do not expose any of these values to browser JavaScript or `NEXT_PUBLIC_*` variables.

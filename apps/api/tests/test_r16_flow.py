@@ -98,7 +98,7 @@ def test_pilot_and_paid_entitlements_are_explicit():
     pilot = _entitlements("pilot", "pilot")
     assert pilot["pilot_access"] is True
     assert pilot["paid"] is False
-    assert pilot["experience_limit"] == 1
+    assert pilot["experience_limit"] == 3
 
     growth = _entitlements("growth", "active")
     assert growth["paid"] is True

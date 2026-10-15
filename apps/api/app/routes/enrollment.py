@@ -1,10 +1,11 @@
 import re
 from datetime import UTC, datetime, timedelta
+from html import escape
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from sqlalchemy import desc, select
+from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
 from app.config import get_settings
@@ -16,8 +17,14 @@ from app.models import (
     PilotLoginLinkRecord,
     PilotSessionRecord,
     PilotUserRecord,
+    StandardTrialSignupRecord,
+    SubscriptionRecord,
 )
-from app.r17_models import ApplicationAttributionRecord, ApplicationReviewRecord
+from app.r17_models import (
+    ApplicationAttributionRecord,
+    ApplicationReviewRecord,
+    PilotLifecycleRecord,
+)
 from app.services.notifications import send_notification_once
 from app.tenant_security import (
     hash_token,
@@ -81,6 +88,12 @@ class LoginLinkRedeem(BaseModel):
     token: str = Field(min_length=20, max_length=200)
 
 
+class StandardTrialSignup(BaseModel):
+    email: str = Field(min_length=5, max_length=254)
+    contact_name: str = Field(min_length=2, max_length=160)
+    studio_name: str = Field(min_length=2, max_length=160)
+
+
 def _clean_email(value: str) -> str:
     email = value.strip().lower()
     if "@" not in email or email.startswith("@") or email.endswith("@"):
@@ -105,6 +118,126 @@ def _unique_slug(session: Session, preferred: str) -> str:
 
 def _clean_optional(value: str | None) -> str | None:
     return (value or "").strip() or None
+
+
+def _email_has_consumed_trial(session: Session, email: str) -> bool:
+    users = session.scalars(select(PilotUserRecord).where(func.lower(PilotUserRecord.email) == email)).all()
+    for user in users:
+        if session.scalar(select(PilotLifecycleRecord.id).where(PilotLifecycleRecord.organization_id == user.organization_id)):
+            return True
+        subscription = session.scalar(select(SubscriptionRecord).where(SubscriptionRecord.organization_id == user.organization_id))
+        if subscription and (subscription.stripe_trial_consumed_at or subscription.trial_consumed_at):
+            return True
+    return False
+
+
+@router.post("/standard-trial-signups")
+async def create_standard_trial_signup(payload: StandardTrialSignup, session: SessionDep):
+    settings = get_settings()
+    if settings.playdirective_commercial_mode != "standard":
+        raise HTTPException(status_code=409, detail="Standard trial signup is not enabled")
+    if not (
+        settings.stripe_billing_enabled
+        and settings.stripe_price_indie_personal
+        and settings.stripe_price_indie_business
+    ):
+        raise HTTPException(status_code=503, detail="Standard trial signup is unavailable until Stripe billing is enabled and configured")
+    email = _clean_email(payload.email)
+    if session.scalar(select(PilotUserRecord.id).where(func.lower(PilotUserRecord.email) == email)):
+        raise HTTPException(status_code=409, detail="An account already exists for this email. Sign in to continue.")
+    if _email_has_consumed_trial(session, email):
+        raise HTTPException(status_code=409, detail="This email is not eligible for another trial")
+
+    now = datetime.now(UTC)
+    signup = session.scalar(select(StandardTrialSignupRecord).where(StandardTrialSignupRecord.email == email))
+    token = new_opaque_token()
+    if signup and signup.redeemed_at:
+        raise HTTPException(status_code=409, detail="This signup link has already been used")
+    if not signup:
+        signup = StandardTrialSignupRecord(
+            email=email,
+            contact_name=payload.contact_name.strip(),
+            studio_name=payload.studio_name.strip(),
+            token_hash=hash_token(token),
+            expires_at=now + timedelta(minutes=settings.pilot_login_link_minutes),
+            redeemed_at=None,
+            created_at=now,
+        )
+        session.add(signup)
+    else:
+        signup.contact_name = payload.contact_name.strip()
+        signup.studio_name = payload.studio_name.strip()
+        signup.token_hash = hash_token(token)
+        signup.expires_at = now + timedelta(minutes=settings.pilot_login_link_minutes)
+        signup.created_at = now
+    session.commit()
+    session.refresh(signup)
+    signup_url = f"{settings.public_origin}/app/login?standard_signup_token={token}"
+    await send_notification_once(
+        session,
+        event_key=f"standard-trial-signup:{signup.id}:{signup.token_hash[:12]}",
+        recipient=email,
+        kind="STANDARD_TRIAL_SIGNUP",
+        subject="Finish setting up your PlayDirective trial",
+        body_html=(
+            f"<p>Hi {escape(payload.contact_name.strip())},</p>"
+            f'<p><a href="{signup_url}">Verify your email and continue</a></p>'
+            f"<p>The link expires in {settings.pilot_login_link_minutes} minutes. Your 14-day Indie trial starts after you add a payment method in Stripe Checkout.</p>"
+        ),
+    )
+    return {"status": "accepted", "message": "Check your email for a secure signup link."}
+
+
+@router.post("/standard-trial-signups/redeem")
+def redeem_standard_trial_signup(payload: LoginLinkRedeem, session: SessionDep):
+    settings = get_settings()
+    if settings.playdirective_commercial_mode != "standard":
+        raise HTTPException(status_code=409, detail="Standard trial signup is not enabled")
+    signup = session.scalar(select(StandardTrialSignupRecord).where(StandardTrialSignupRecord.token_hash == hash_token(payload.token)))
+    now = datetime.now(UTC)
+    if not signup or signup.redeemed_at or (signup.expires_at if signup.expires_at.tzinfo else signup.expires_at.replace(tzinfo=UTC)) <= now:
+        raise HTTPException(status_code=401, detail="Signup link expired or invalid")
+    if session.scalar(select(PilotUserRecord.id).where(func.lower(PilotUserRecord.email) == signup.email)) or _email_has_consumed_trial(session, signup.email):
+        raise HTTPException(status_code=409, detail="This email already has an account or has used its trial")
+
+    slug = _unique_slug(session, _slugify(signup.studio_name))
+    organization = OrganizationRecord(slug=slug, name=signup.studio_name, data_mode="LIVE", active=True, created_at=now)
+    session.add(organization)
+    session.flush()
+    user = PilotUserRecord(organization_id=organization.id, email=signup.email, role="OWNER", active=True, created_at=now)
+    session.add(user)
+    subscription = SubscriptionRecord(
+        organization_id=organization.id,
+        plan_id="indie",
+        status="trial_signup_pending",
+        stripe_customer_id=None,
+        stripe_subscription_id=None,
+        current_period_end=None,
+        cancel_at_period_end=False,
+        trial_source="standard",
+        created_at=now,
+        updated_at=now,
+    )
+    session.add(subscription)
+    session.flush()
+    raw_session = new_opaque_token()
+    session.add(PilotSessionRecord(
+        user_id=user.id,
+        organization_id=organization.id,
+        token_hash=hash_token(raw_session),
+        expires_at=session_expiry(),
+        revoked_at=None,
+        created_at=now,
+    ))
+    signup.redeemed_at = now
+    session.commit()
+    return {
+        "access_token": raw_session,
+        "token_type": "bearer",
+        "organization": {"id": organization.id, "slug": organization.slug, "name": organization.name},
+        "user": {"email": user.email, "role": user.role},
+        "start_trial_checkout": True,
+    }
 
 
 @router.post("/applications")

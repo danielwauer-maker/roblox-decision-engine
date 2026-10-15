@@ -60,8 +60,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             inset:0;
             z-index:0;
             pointer-events:none;
-            opacity:.50;
-            filter:drop-shadow(0 10px 24px rgba(0,191,255,.15));
+            opacity:.46;
+            filter:drop-shadow(0 10px 24px rgba(0,191,255,.14));
             background-image:
               url('/brand/playdirective/deco-cubes.png'),
               url('/brand/playdirective/deco-cubes.png'),
@@ -81,8 +81,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               url('/brand/playdirective/deco-cubes.png'),
               url('/brand/playdirective/deco-cubes.png'),
               url('/brand/playdirective/deco-cubes.png'),
-              url('/brand/playdirective/deco-cubes.png'),
-              url('/brand/playdirective/deco-cubes.png'),
               url('/brand/playdirective/deco-cubes2.png'),
               url('/brand/playdirective/deco-cubes2.png'),
               url('/brand/playdirective/deco-cubes2.png'),
@@ -101,10 +99,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               url('/brand/playdirective/deco-cubes2.png'),
               url('/brand/playdirective/deco-cubes2.png'),
               url('/brand/playdirective/deco-cubes2.png'),
-              url('/brand/playdirective/deco-cubes2.png'),
-              url('/brand/playdirective/deco-cubes2.png'),
-              url('/brand/playdirective/deco-cloud.png'),
-              url('/brand/playdirective/deco-cloud.png'),
               url('/brand/playdirective/deco-cloud.png'),
               url('/brand/playdirective/deco-cloud.png'),
               url('/brand/playdirective/deco-cloud.png'),
@@ -124,134 +118,50 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               url('/brand/playdirective/deco-cloud.png'),
               url('/brand/playdirective/deco-cloud.png');
             background-repeat:
-              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat,
+              no-repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
             background-position:
-              8% 3%,
-              31% 6%,
-              72% 8%,
-              91% 12%,
-              19% 16%,
-              54% 20%,
-              83% 24%,
-              10% 29%,
-              39% 33%,
-              68% 37%,
-              93% 42%,
-              24% 47%,
-              58% 51%,
-              81% 56%,
-              7% 61%,
-              43% 66%,
-              74% 71%,
-              17% 77%,
-              89% 84%,
-              52% 93%,
-              88% 4%,
-              47% 10%,
-              15% 14%,
-              64% 18%,
-              35% 23%,
-              92% 27%,
-              6% 34%,
-              51% 39%,
-              77% 44%,
-              27% 49%,
-              61% 54%,
-              12% 58%,
-              86% 63%,
-              33% 69%,
-              69% 74%,
-              94% 79%,
-              21% 85%,
-              57% 88%,
-              79% 95%,
-              9% 98%,
-              13% 7%,
-              59% 12%,
-              84% 17%,
-              29% 21%,
-              74% 26%,
-              48% 31%,
-              9% 38%,
-              88% 43%,
-              37% 48%,
-              66% 53%,
-              18% 57%,
-              53% 62%,
-              82% 68%,
-              30% 73%,
-              71% 78%,
-              11% 83%,
-              45% 87%,
-              91% 91%,
-              63% 96%,
-              26% 99%;
+              7% 3%, 34% 6%, 73% 8%, 92% 12%, 18% 17%, 56% 21%,
+              11% 27%, 82% 29%, 43% 34%, 91% 39%, 24% 47%, 66% 52%,
+              9% 72%, 48% 78%, 88% 83%, 21% 90%, 63% 95%, 94% 98%,
+              88% 4%, 46% 10%, 14% 14%, 64% 18%, 31% 23%, 93% 26%,
+              8% 31%, 53% 37%, 79% 43%, 27% 49%, 70% 56%, 15% 70%,
+              85% 75%, 38% 81%, 94% 86%, 12% 91%, 57% 96%, 78% 99%,
+              12% 5%, 59% 12%, 84% 17%, 28% 22%, 74% 27%, 48% 32%,
+              9% 41%, 89% 46%, 36% 73%, 67% 77%, 18% 82%, 53% 86%,
+              82% 89%, 30% 92%, 70% 95%, 11% 97%, 45% 99%, 91% 100%;
             background-size:
-              52px auto,
-              64px auto,
-              46px auto,
-              58px auto,
-              72px auto,
-              48px auto,
-              62px auto,
-              50px auto,
-              68px auto,
-              46px auto,
-              56px auto,
-              70px auto,
-              48px auto,
-              64px auto,
-              44px auto,
-              58px auto,
-              72px auto,
-              46px auto,
-              54px auto,
-              62px auto,
-              44px auto,
-              58px auto,
-              70px auto,
-              48px auto,
-              60px auto,
-              46px auto,
-              66px auto,
-              54px auto,
-              42px auto,
-              72px auto,
-              50px auto,
-              62px auto,
-              46px auto,
-              68px auto,
-              54px auto,
-              44px auto,
-              64px auto,
-              48px auto,
-              58px auto,
-              42px auto,
-              86px auto,
-              98px auto,
-              76px auto,
-              90px auto,
-              104px auto,
-              80px auto,
-              94px auto,
-              74px auto,
-              100px auto,
-              86px auto,
-              78px auto,
-              96px auto,
-              82px auto,
-              106px auto,
-              74px auto,
-              92px auto,
-              88px auto,
-              102px auto,
-              76px auto,
-              90px auto;
+              34px auto, 72px auto, 42px auto, 58px auto, 88px auto, 38px auto,
+              64px auto, 46px auto, 78px auto, 32px auto, 54px auto, 40px auto,
+              94px auto, 36px auto, 70px auto, 48px auto, 84px auto, 30px auto,
+              42px auto, 86px auto, 34px auto, 62px auto, 96px auto, 38px auto,
+              58px auto, 44px auto, 74px auto, 36px auto, 88px auto, 40px auto,
+              66px auto, 32px auto, 92px auto, 48px auto, 76px auto, 38px auto,
+              124px auto, 168px auto, 116px auto, 154px auto, 132px auto, 178px auto,
+              110px auto, 146px auto, 184px auto, 126px auto, 160px auto, 118px auto,
+              172px auto, 136px auto, 188px auto, 122px auto, 152px auto, 112px auto;
           }
 
           @media (max-width:920px) {
             .site-shell::before {
-              opacity:.40;
+              opacity:.36;
+              background-size:
+                26px auto, 54px auto, 32px auto, 44px auto, 66px auto, 30px auto,
+                48px auto, 36px auto, 58px auto, 26px auto, 42px auto, 30px auto,
+                70px auto, 28px auto, 52px auto, 36px auto, 62px auto, 24px auto,
+                32px auto, 64px auto, 26px auto, 46px auto, 72px auto, 28px auto,
+                44px auto, 34px auto, 56px auto, 28px auto, 66px auto, 30px auto,
+                50px auto, 24px auto, 68px auto, 36px auto, 58px auto, 28px auto,
+                94px auto, 126px auto, 88px auto, 116px auto, 100px auto, 132px auto,
+                84px auto, 110px auto, 136px auto, 96px auto, 120px auto, 90px auto,
+                128px auto, 102px auto, 140px auto, 92px auto, 114px auto, 86px auto;
             }
           }
 
@@ -262,8 +172,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             }
 
             .site-shell::before {
-              opacity:.30;
-              filter:drop-shadow(0 8px 18px rgba(0,191,255,.11));
+              opacity:.25;
+              filter:drop-shadow(0 8px 18px rgba(0,191,255,.10));
             }
           }
         `}</style>

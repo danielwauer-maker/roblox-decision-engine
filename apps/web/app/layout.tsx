@@ -27,6 +27,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             background:url('/brand/playdirective/logo.png') left center / contain no-repeat;
           }
 
+          .global-mobile-menu{display:none}
+
           /* Final desktop micro-polish for the PlayDirective landing page. */
           @media (min-width:921px) {
             .site-shell .hero-image {
@@ -82,10 +84,26 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           /* Mobile / tablet polish for the landing page. These overrides intentionally
              sit at the app root so the desktop page can stay frozen. */
           @media (max-width:920px) {
-            .site-shell .header-inner{height:64px!important}
+            .site-shell .header-inner{height:64px!important;padding-right:52px}
             .site-shell .brand-logo{width:174px!important}
-            .site-shell .nav{gap:10px!important}
-            .site-shell .nav-cta{min-height:40px!important;padding:0 13px!important;font-size:11.5px!important;border-radius:10px!important;display:inline-flex!important;align-items:center!important}
+            .site-shell .nav{display:none!important}
+
+            .site-shell + .global-mobile-menu{display:block;position:fixed;right:14px;top:12px;z-index:120;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#eef7ff}
+            .global-mobile-menu summary{list-style:none;width:40px;height:40px;border:1px solid rgba(89,230,255,.28);border-radius:11px;background:rgba(8,24,40,.94);box-shadow:0 10px 30px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.04);display:grid;place-items:center;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+            .global-mobile-menu summary::-webkit-details-marker{display:none}
+            .global-mobile-menu summary span,.global-mobile-menu summary:before,.global-mobile-menu summary:after{content:"";display:block;width:18px;height:1.5px;border-radius:999px;background:#bfefff;transition:transform .18s ease,opacity .18s ease}
+            .global-mobile-menu summary span{position:absolute}
+            .global-mobile-menu summary:before{transform:translateY(-6px)}
+            .global-mobile-menu summary:after{transform:translateY(6px)}
+            .global-mobile-menu[open] summary span{opacity:0}
+            .global-mobile-menu[open] summary:before{transform:rotate(45deg)}
+            .global-mobile-menu[open] summary:after{transform:rotate(-45deg)}
+            .global-mobile-menu .mobile-menu-panel{position:absolute;right:0;top:48px;width:min(300px,calc(100vw - 28px));padding:10px;border:1px solid rgba(89,230,255,.19);border-radius:16px;background:rgba(7,20,35,.985);box-shadow:0 24px 70px rgba(0,0,0,.42);backdrop-filter:blur(22px)}
+            .global-mobile-menu .mobile-menu-panel a{display:flex;align-items:center;justify-content:space-between;min-height:46px;padding:0 13px;border-radius:10px;color:#b9c9da;text-decoration:none;font-size:14px;font-weight:700}
+            .global-mobile-menu .mobile-menu-panel a:hover{background:rgba(103,232,249,.06);color:#fff}
+            .global-mobile-menu .mobile-menu-panel a:after{content:"→";color:#67e8f9;font-weight:800}
+            .global-mobile-menu .mobile-menu-panel a.mobile-menu-cta{margin-top:6px;background:linear-gradient(135deg,#7af0ff,#31d4ed);color:#05121f;justify-content:center}
+            .global-mobile-menu .mobile-menu-panel a.mobile-menu-cta:after{margin-left:8px;color:#05121f}
 
             .site-shell .hero{padding:42px 0 30px!important}
             .site-shell .hero-grid{gap:6px!important}
@@ -142,76 +160,73 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             main:not(.site-shell) header a[href="/"]:first-child:not(:has(img)){width:168px;height:42px}
 
             .site-shell .wrap{width:calc(100% - 32px)!important}
-            .site-shell .header-inner{height:60px!important}
+            .site-shell .header-inner{height:60px!important;padding-right:50px}
             .site-shell .brand-logo{width:150px!important}
-            .site-shell .nav-cta{font-size:10.5px!important;padding:0 10px!important;min-height:36px!important;max-width:150px!important;text-align:center!important;line-height:1.15!important}
+            .site-shell + .global-mobile-menu{right:10px;top:10px}
+            .global-mobile-menu summary{width:38px;height:38px;border-radius:10px}
+            .global-mobile-menu .mobile-menu-panel{top:45px;width:min(290px,calc(100vw - 20px))}
 
             .site-shell .hero{padding:34px 0 22px!important}
             .site-shell .eyebrow,.site-shell .kicker{font-size:10.5px!important;letter-spacing:.18em!important;line-height:1.45!important}
-            .site-shell .hero h1{font-size:42px!important;line-height:.98!important;letter-spacing:-.05em!important;margin:13px 0 19px!important}
-            .site-shell .hero-copy{font-size:15px!important;line-height:1.55!important;margin:0 0 20px!important}
+            .site-shell .hero h1{font-size:42px!important;line-height:.98!important;letter-spacing:-.05em!important;margin:13px 0 16px!important}
+            .site-shell .hero-copy{font-size:15px!important;line-height:1.5!important;margin-bottom:18px!important}
             .site-shell .cta-row{gap:9px!important}
             .site-shell .btn{min-height:48px!important;border-radius:11px!important;font-size:13px!important;padding:0 16px!important}
-            .site-shell .hero-art{min-height:285px!important;margin-top:3px!important}
-            .site-shell .hero-image{width:114%!important;max-width:470px!important}
-            .site-shell .hero + .wrap .trust-strip{margin-top:8px!important}
+            .site-shell .hero-art{min-height:285px!important;margin-top:0!important}
+            .site-shell .hero-image{width:112%!important;max-width:460px!important}
 
-            .site-shell .trust-strip{grid-template-columns:1fr 1fr!important;margin-bottom:34px!important;border-color:rgba(142,186,220,.16)!important}
-            .site-shell .trust-chip{padding:16px 11px!important;border-right:1px solid rgba(142,186,220,.11)!important;border-bottom:1px solid rgba(142,186,220,.11)!important}
+            .site-shell .trust-strip{grid-template-columns:1fr 1fr!important;margin-bottom:34px!important}
+            .site-shell .trust-chip{padding:15px 10px!important;border-right:1px solid rgba(142,186,220,.11)!important;border-bottom:1px solid rgba(142,186,220,.11)!important}
             .site-shell .trust-chip:nth-child(2n){border-right:0!important}
             .site-shell .trust-chip:nth-child(n+3){border-bottom:0!important}
-            .site-shell .trust-chip b{font-size:10.5px!important;letter-spacing:.14em!important;margin-bottom:7px!important}
-            .site-shell .trust-chip span{font-size:11.5px!important;line-height:1.42!important;color:#91a8c2!important}
+            .site-shell .trust-chip b{font-size:9.5px!important;letter-spacing:.14em!important}
+            .site-shell .trust-chip span{font-size:11px!important}
 
             .site-shell .section{padding:42px 0!important}
             .site-shell .section-head{margin-bottom:22px!important}
             .site-shell .section-title{font-size:36px!important;line-height:1.03!important}
-            .site-shell .section-copy{font-size:14.5px!important;line-height:1.58!important}
+            .site-shell .section-copy{font-size:14.5px!important}
 
-            .site-shell .queue-stack{gap:11px!important}
-            .site-shell .queue-card{grid-template-columns:42px 1fr!important;gap:12px!important;padding:15px 14px!important;min-height:74px!important}
+            .site-shell .queue-card{grid-template-columns:42px 1fr!important;gap:12px!important;padding:14px!important}
             .site-shell .rank{width:38px!important;height:38px!important;font-size:16px!important;border-radius:10px!important}
-            .site-shell .queue-card h3{font-size:15.5px!important;line-height:1.25!important;margin-bottom:8px!important}
+            .site-shell .queue-card h3{font-size:15px!important;margin-bottom:7px!important}
             .site-shell .pills{gap:5px!important}
-            .site-shell .pill{font-size:8.5px!important;padding:4px 7px!important}
+            .site-shell .pill{font-size:8px!important;padding:4px 7px!important}
             .site-shell .queue-spark{display:none!important}
 
-            .site-shell .workflow-card{min-height:325px!important;padding:16px!important}
+            .site-shell .workflow-card{min-height:320px!important;padding:16px!important}
             .site-shell .workflow-image-wrap{height:185px!important;flex-basis:185px!important}
             .site-shell .workflow-meta h3{font-size:21px!important}
-            .site-shell .workflow-meta p{font-size:14px!important;line-height:1.55!important}
+            .site-shell .workflow-meta p{font-size:13.5px!important}
 
-            .site-shell .security-card{min-height:345px!important;padding:16px!important}
-            .site-shell .security-image-wrap{height:190px!important}
-            .site-shell .security-card .label{font-size:10.5px!important;margin-bottom:7px!important}
+            .site-shell .security-card{min-height:340px!important;padding:16px!important}
+            .site-shell .security-image-wrap{height:185px!important}
+            .site-shell .security-card .label{font-size:10px!important;margin-bottom:7px!important}
             .site-shell .security-card h3{font-size:20px!important;margin-bottom:8px!important}
-            .site-shell .security-card p{font-size:14px!important;line-height:1.58!important}
+            .site-shell .security-card p{font-size:13.5px!important}
 
-            .site-shell .pilot-panel{padding:25px 18px!important;border-radius:20px!important}
+            .site-shell .pilot-panel{padding:24px 18px!important;border-radius:20px!important}
             .site-shell .pilot-panel h2{font-size:34px!important;line-height:1.02!important}
-            .site-shell .pilot-panel p{font-size:14px!important;line-height:1.58!important}
-            .site-shell .pilot-art{min-height:170px!important}
-            .site-shell .pilot-art img{width:min(76vw,260px)!important}
-            .site-shell .pilot-panel .btn{min-height:52px!important}
+            .site-shell .pilot-panel p{font-size:14px!important}
+            .site-shell .pilot-art{min-height:160px!important}
+            .site-shell .pilot-art img{width:min(72vw,240px)!important}
 
-            .site-shell .faq-item summary{font-size:15.5px!important;padding:18px 2px!important}
-            .site-shell .faq-item p{font-size:14px!important}
-
-            .site-shell .footer{padding-top:27px!important;padding-bottom:31px!important}
-            .site-shell .footer-inner{gap:16px!important;font-size:13px!important;line-height:1.5!important}
-            .site-shell .footer-links{gap:16px!important}
-
-            .site-shell .decoration{display:none!important}
-            .site-shell .decoration:nth-child(8),
-            .site-shell .decoration:nth-child(18),
-            .site-shell .decoration:nth-child(28),
-            .site-shell .decoration:nth-child(38),
-            .site-shell .decoration:nth-child(48){display:block!important;opacity:.055!important}
-            .site-shell .decoration-cloud:nth-child(18),
-            .site-shell .decoration-cloud:nth-child(28){opacity:.04!important}
+            .site-shell .faq-item summary{font-size:15px!important;padding:17px 2px!important}
+            .site-shell .footer-inner{gap:14px!important;font-size:12px!important}
+            .site-shell .footer-links{gap:14px!important}
           }
         `}</style>
         {children}
+        <details className="global-mobile-menu">
+          <summary aria-label="Open navigation menu"><span /></summary>
+          <nav className="mobile-menu-panel" aria-label="Mobile navigation">
+            <a href="/#workflow">How it works</a>
+            <a href="/#security">Security</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/demo">Demo</a>
+            <a className="mobile-menu-cta" href="/apply">Apply for founding pilot</a>
+          </nav>
+        </details>
       </body>
     </html>
   );

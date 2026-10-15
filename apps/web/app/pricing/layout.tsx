@@ -5,34 +5,42 @@ export default function PricingLayout({ children }: { children: ReactNode }) {
     <>
       <style>{`
         @media (max-width: 920px) {
+          /* The pricing page gives all top-level sections z-index:1. That previously
+             collapsed the sticky header into the same stacking level as the hero,
+             so the hero could paint on top of the opened mobile navigation. */
+          .pricing-shell > header.header {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 500 !important;
+          }
+
           .pricing-shell .mobile-menu {
             display: block !important;
             position: relative !important;
-            z-index: 220 !important;
+            z-index: 510 !important;
           }
 
           .pricing-shell .mobile-menu summary {
             position: relative !important;
-            z-index: 224 !important;
+            z-index: 514 !important;
           }
 
           .pricing-shell .mobile-menu[open]::before {
             content: "" !important;
             position: fixed !important;
             inset: 60px 0 0 !important;
-            background: rgba(3, 10, 19, 0.72) !important;
-            backdrop-filter: blur(6px) !important;
-            z-index: 221 !important;
+            background: #06101e !important;
+            z-index: 511 !important;
             pointer-events: none !important;
           }
 
           .pricing-shell .mobile-menu-panel {
             position: fixed !important;
-            inset: 60px 0 auto 0 !important;
+            inset: 60px 0 0 0 !important;
             width: 100vw !important;
             max-width: none !important;
             min-height: calc(100dvh - 60px) !important;
-            padding: 22px 18px 28px !important;
+            padding: 18px 14px 28px !important;
             border: 0 !important;
             border-top: 1px solid rgba(89, 230, 255, 0.16) !important;
             border-radius: 0 !important;
@@ -41,8 +49,17 @@ export default function PricingLayout({ children }: { children: ReactNode }) {
             backdrop-filter: none !important;
             display: flex !important;
             flex-direction: column !important;
-            gap: 7px !important;
-            z-index: 223 !important;
+            gap: 8px !important;
+            z-index: 513 !important;
+            overflow-y: auto !important;
+          }
+
+          /* Extra safety: while the drawer is open, page content beneath it is not
+             painted. This prevents any future stacking-context regression. */
+          .pricing-shell:has(.mobile-menu[open]) > section,
+          .pricing-shell:has(.mobile-menu[open]) > footer,
+          .pricing-shell:has(.mobile-menu[open]) > img.deco {
+            visibility: hidden !important;
           }
 
           .pricing-shell .mobile-menu-panel a {
@@ -52,9 +69,9 @@ export default function PricingLayout({ children }: { children: ReactNode }) {
             width: 100% !important;
             min-height: 52px !important;
             padding: 0 15px !important;
-            border: 1px solid rgba(91, 169, 217, 0.14) !important;
+            border: 1px solid rgba(91, 169, 217, 0.18) !important;
             border-radius: 12px !important;
-            background: rgba(10, 25, 43, 0.72) !important;
+            background: #0a192b !important;
             color: #d5e2ee !important;
             font-size: 14px !important;
             font-weight: 750 !important;
@@ -82,8 +99,8 @@ export default function PricingLayout({ children }: { children: ReactNode }) {
 
         @media (max-width: 560px) {
           .pricing-shell .mobile-menu-panel {
-            inset: 60px 0 auto 0 !important;
-            padding: 18px 14px 24px !important;
+            inset: 60px 0 0 0 !important;
+            padding: 16px 12px 24px !important;
           }
 
           .pricing-shell .mobile-menu-panel a {

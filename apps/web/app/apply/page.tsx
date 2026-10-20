@@ -9,43 +9,48 @@ export default function ApplyPage() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const formElement = event.currentTarget;
     setLoading(true);
     setStatus("");
     setError("");
-    const form = new FormData(event.currentTarget);
-    const params = new URLSearchParams(window.location.search);
-    const payload = {
-      contact_name: String(form.get("contact_name") ?? "").trim(),
-      email: String(form.get("email") ?? "").trim(),
-      studio_name: String(form.get("studio_name") ?? "").trim(),
-      experience_url: String(form.get("experience_url") ?? "").trim() || null,
-      universe_id: String(form.get("universe_id") ?? "").trim() || null,
-      monthly_active_users: String(form.get("monthly_active_users") ?? "").trim() || null,
-      message: String(form.get("message") ?? "").trim() || null,
-      utm_source: params.get("utm_source"),
-      utm_medium: params.get("utm_medium"),
-      utm_campaign: params.get("utm_campaign"),
-      utm_content: params.get("utm_content"),
-      utm_term: params.get("utm_term"),
-      referrer: document.referrer || null,
-      landing_page: window.location.href,
-    };
-    const response = await fetch("/api/enrollment/apply", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const body = await response.json().catch(() => ({}));
+    try {
+      const form = new FormData(formElement);
+      const params = new URLSearchParams(window.location.search);
+      const payload = {
+        contact_name: String(form.get("contact_name") ?? "").trim(),
+        email: String(form.get("email") ?? "").trim(),
+        studio_name: String(form.get("studio_name") ?? "").trim(),
+        experience_url: String(form.get("experience_url") ?? "").trim() || null,
+        universe_id: String(form.get("universe_id") ?? "").trim() || null,
+        monthly_active_users: String(form.get("monthly_active_users") ?? "").trim() || null,
+        message: String(form.get("message") ?? "").trim() || null,
+        utm_source: params.get("utm_source"),
+        utm_medium: params.get("utm_medium"),
+        utm_campaign: params.get("utm_campaign"),
+        utm_content: params.get("utm_content"),
+        utm_term: params.get("utm_term"),
+        referrer: document.referrer || null,
+        landing_page: window.location.href,
+      };
+      const response = await fetch("/api/enrollment/apply", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const body = await response.json().catch(() => ({}));
 
-    if (!response.ok) {
-      setError(body.detail ?? "Application could not be submitted.");
+      if (!response.ok) {
+        setError(body.detail ?? "Application could not be submitted.");
+        return;
+      }
+
+      formElement.reset();
+      setStatus(body.message ?? "Application received. Check your email.");
+    } catch {
+      setError("Application could not be submitted. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    event.currentTarget.reset();
-    setStatus(body.message ?? "Application received. Check your email.");
-    setLoading(false);
   }
 
   return (
